@@ -1,0 +1,13 @@
+{
+  "meta": {
+    "finance-agent": {
+      "display": "Finance",
+      "role": "Agent personnalisé",
+      "model": "claude-sonnet-4-6",
+      "description": "Planification financiere, MRR, budgets, suivi des depenses Meta Ads."
+    }
+  },
+  "status": {
+    "finance-agent": "online"
+  }
+}

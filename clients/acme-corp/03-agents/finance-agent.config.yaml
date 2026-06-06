@@ -1,0 +1,7 @@
+name: finance-agent
+display: Finance
+description: "Planification financiere, MRR, budgets, suivi des depenses Meta Ads."
+model: claude-sonnet-4-6
+telegram:
+  bot_token: ${FINANCE_AGENT_BOT_TOKEN}   # à définir dans l'environnement
+status: online

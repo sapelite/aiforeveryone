@@ -1,0 +1,256 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* ════════════════════════════════════════════════════════════════════
+   RETRO PIXEL OS THEME
+   Light = cream paper desktop (holidayOS).  Dark = green phosphor CRT.
+   Accent = pink on both.  Everything sharp-cornered, pixel fonts.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ─── shadcn-compatible tokens — LIGHT (cream) ─── */
+:root {
+  --radius: 0px;
+  --background: #e7e5d4;
+  --foreground: #1b3a2f;
+  --card: #dcd9c4;
+  --card-foreground: #1b3a2f;
+  --popover: #dcd9c4;
+  --popover-foreground: #1b3a2f;
+  --primary: var(--ai-accent);
+  --primary-foreground: #1b1b1b;
+  --secondary: #d0ccb4;
+  --secondary-foreground: #1b3a2f;
+  --muted: #d0ccb4;
+  --muted-foreground: #5a6b5f;
+  --accent-ui: #d0ccb4;
+  --accent-ui-foreground: #1b3a2f;
+  --destructive: #c0392b;
+  --input: #c9c5ad;
+  --ring: var(--ai-accent);
+}
+.dark {
+  --background: #0c2a1c;
+  --foreground: #56e08a;
+  --card: #103626;
+  --card-foreground: #56e08a;
+  --popover: #103626;
+  --popover-foreground: #56e08a;
+  --secondary: #16432f;
+  --secondary-foreground: #56e08a;
+  --muted: #16432f;
+  --muted-foreground: #3fa869;
+  --accent-ui: #16432f;
+  --accent-ui-foreground: #56e08a;
+  --destructive: #ff6b6b;
+  --input: #1c5238;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent-ui);
+  --color-accent-foreground: var(--accent-ui-foreground);
+  --color-destructive: var(--destructive);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --font-sans: var(--font-term), ui-monospace, monospace;
+  --font-mono: var(--font-term), ui-monospace, monospace;
+  --font-display: var(--font-press), var(--font-term), monospace;
+}
+
+/* ─── Marketing / app palette (same var names, retro values) ─── */
+:root {
+  --bg: #e7e5d4;
+  --bg-card: #dcd9c4;
+  --bg-card-hover: #cfcbb2;
+  --border: #1b3a2f;
+  --border-light: #1b3a2f;
+  --text: #1b3a2f;
+  --text-muted: #5a6b5f;
+  --accent: #e25fa0;
+  --accent-light: #ef79b3;
+  --accent-glow: rgba(226, 95, 160, 0.22);
+  --gradient-start: #e25fa0;
+  --gradient-end: #1b3a2f;
+  --success: #1f7a3d;
+  --warning: #b8761a;
+  color-scheme: light;
+}
+.dark {
+  --bg: #0c2a1c;
+  --bg-card: #103626;
+  --bg-card-hover: #16432f;
+  --border: #56e08a;
+  --border-light: #56e08a;
+  --text: #56e08a;
+  --text-muted: #3fa869;
+  --accent: #e25fa0;
+  --accent-light: #ef79b3;
+  --accent-glow: rgba(226, 95, 160, 0.28);
+  --gradient-start: #e25fa0;
+  --gradient-end: #56e08a;
+  --success: #56e08a;
+  --warning: #f1c40f;
+  color-scheme: dark;
+}
+
+/* ─── Accent (set live by useSettings on the dashboard) — defaults pink ─── */
+:root {
+  --ai-accent: #e25fa0;
+  --ai-accent-2: #c23d82;
+}
+
+* { box-sizing: border-box; }
+/* Pixel-sharp everything */
+* { border-radius: 0 !important; }
+html { scroll-behavior: smooth; font-size: 110%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-term), ui-monospace, monospace;
+  font-size: 1rem;
+  line-height: 1.4;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+}
+
+img, svg, .pixelated { image-rendering: pixelated; }
+
+::selection { background: var(--accent); color: #1b1b1b; }
+
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Pixel scrollbar */
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: var(--bg-card); border-left: 2px solid var(--border); }
+::-webkit-scrollbar-thumb { background: var(--border); border: 2px solid var(--bg-card); }
+
+/* ════ Window chrome ════ */
+.win {
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  box-shadow: 4px 4px 0 0 var(--border);
+}
+.win-flat { background: var(--bg-card); border: 2px solid var(--border); }
+
+.win-title {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 4px 4px 4px 8px;
+  background: var(--border); color: var(--bg-card);
+  font-family: var(--font-press), monospace;
+  font-size: 8px; letter-spacing: 0.5px; text-transform: uppercase;
+  user-select: none; line-height: 1;
+}
+.win-title-stripes {
+  background-image: repeating-linear-gradient(var(--bg-card) 0 1px, transparent 1px 3px);
+}
+.win-btn {
+  width: 16px; height: 16px; display: inline-grid; place-items: center;
+  background: var(--bg-card); color: var(--text);
+  border: 1px solid var(--bg-card); font-size: 10px; line-height: 1; cursor: pointer;
+}
+.win-btn:hover { background: var(--accent); color: #1b1b1b; }
+
+/* ════ Pixel buttons ════ */
+.pbtn {
+  font-family: var(--font-press), monospace;
+  font-size: 9px; letter-spacing: 0.4px; text-transform: uppercase;
+  padding: 11px 14px; background: var(--bg-card); color: var(--text);
+  border: 2px solid var(--border); box-shadow: 3px 3px 0 0 var(--border);
+  cursor: pointer; transition: transform .05s ease, box-shadow .05s ease, background .1s;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  text-decoration: none; white-space: nowrap;
+}
+.pbtn:hover { background: var(--bg-card-hover); }
+.pbtn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 0 var(--border); }
+.pbtn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: 3px 3px 0 0 var(--border); transform: none; }
+.pbtn-primary { background: var(--accent); color: #1b1b1b; }
+.pbtn-primary:hover { background: var(--accent-light); }
+.pbtn-sm { font-size: 8px; padding: 7px 10px; box-shadow: 2px 2px 0 0 var(--border); }
+
+/* Pixel input */
+.pinput {
+  width: 100%;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  padding: 8px 10px;
+  font-family: var(--font-term), monospace;
+  font-size: 1rem;
+  color: var(--text);
+  outline: none;
+}
+.pinput::placeholder { color: var(--text-muted); }
+.pinput:focus { box-shadow: inset 2px 2px 0 0 color-mix(in srgb, var(--accent) 50%, transparent); }
+
+/* Desktop surface (dotted dither) */
+.os-desktop {
+  background-color: var(--bg);
+  background-image: radial-gradient(color-mix(in srgb, var(--border) 16%, transparent) 1px, transparent 1px);
+  background-size: 7px 7px;
+}
+
+/* CRT scanlines overlay (subtle) */
+.scanlines { position: relative; }
+.scanlines::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 40;
+  background: repeating-linear-gradient(transparent 0 2px, rgba(0,0,0,0.045) 2px 3px);
+}
+
+/* Blinking caret / cursor */
+@keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+.blink { animation: blink 1s steps(1) infinite; }
+
+/* ─── Accent utilities (console) ─── */
+.acc-bg { background-color: var(--ai-accent); color: #1b1b1b; }
+.acc-bg:hover { background-color: var(--ai-accent); }
+.acc-bg-soft { background-color: color-mix(in srgb, var(--ai-accent) 18%, transparent); }
+.acc-text { color: var(--ai-accent); }
+.acc-text-strong { color: var(--ai-accent); }
+.acc-border-soft { border-color: var(--border); }
+.acc-grad { background-color: var(--ai-accent); }
+.acc-grad-br { background-color: var(--ai-accent); }
+.acc-ring:focus-within { box-shadow: inset 2px 2px 0 0 color-mix(in srgb, var(--ai-accent) 50%, transparent); }
+.acc-dot { background-color: var(--ai-accent); }
+.hover-acc:hover { color: var(--accent); }
+.hover-acc-border:hover { border-color: var(--accent); }
+
+/* ─── Animations ─── */
+@keyframes pulse-glow { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+.pulse-dot { animation: pulse-glow 1.4s steps(2) infinite; }
+@keyframes fade-in-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.animate-fade-in-up { animation: fade-in-up 0.18s steps(4) forwards; }
+.animate-delay-100 { animation-delay: 100ms; }
+.animate-delay-200 { animation-delay: 200ms; }
+.animate-delay-300 { animation-delay: 300ms; }
+.animate-delay-400 { animation-delay: 400ms; }
+.animate-delay-500 { animation-delay: 500ms; }
+
+/* ─── Legacy console modal input (now pixel) ─── */
+.modal-input {
+  width: 100%;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  padding: 0.5rem 0.6rem;
+  font-family: var(--font-term), monospace;
+  font-size: 1rem;
+  color: var(--text);
+  outline: none;
+}
+.modal-input:focus { box-shadow: inset 2px 2px 0 0 color-mix(in srgb, var(--accent) 50%, transparent); }
+.modal-input::placeholder { color: var(--text-muted); }

@@ -1,0 +1,74 @@
+[
+  {
+    "id": "dd3ab085-c31a-4a28-a32d-2e91458265d3",
+    "title": "Qualifier 12 nouveaux leads entrants",
+    "agent": "Ventes",
+    "status": "running",
+    "prio": "high",
+    "createdAt": 1780731387950,
+    "updatedAt": 1780731387950
+  },
+  {
+    "id": "5ff0bc4e-6440-44e5-a6e8-a664f2491340",
+    "title": "Générer le rapport hebdo · S23",
+    "agent": "Reporting",
+    "status": "running",
+    "prio": "med",
+    "createdAt": 1780730907950,
+    "updatedAt": 1780730907950
+  },
+  {
+    "id": "05d9ce4d-59fd-4aa3-802e-8d305eb8e5b4",
+    "title": "Préparer la proposition Umbrella",
+    "agent": "Ventes",
+    "status": "running",
+    "prio": "high",
+    "createdAt": 1780730127950,
+    "updatedAt": 1780730127950
+  },
+  {
+    "id": "d0f2d4ec-b00b-4c4f-ad6b-67b44a249fe3",
+    "title": "Débloquer le ticket critique Soylent",
+    "agent": "Support",
+    "status": "blocked",
+    "prio": "high",
+    "createdAt": 1780728027950,
+    "updatedAt": 1780728027950
+  },
+  {
+    "id": "775dc184-f6bf-4ce0-a62e-8f0a30c92e0a",
+    "title": "Auditer le process d'onboarding",
+    "agent": "Opérations",
+    "status": "queued",
+    "prio": "med",
+    "createdAt": 1780726227950,
+    "updatedAt": 1780726227950
+  },
+  {
+    "id": "3cad1c85-bf6b-4208-8c01-ff51e0e8b7b1",
+    "title": "Relancer Initech — sans contact 15j",
+    "agent": "Ventes",
+    "status": "queued",
+    "prio": "med",
+    "createdAt": 1780724427950,
+    "updatedAt": 1780724427950
+  },
+  {
+    "id": "43f90c97-730b-4320-8ad3-e06b2a865be3",
+    "title": "Revue trimestrielle · Globex",
+    "agent": "Stratège",
+    "status": "queued",
+    "prio": "low",
+    "createdAt": 1780717227950,
+    "updatedAt": 1780717227950
+  },
+  {
+    "id": "a9218b03-5329-4401-9b9a-21b4827038b6",
+    "title": "Synthèse réunion produit",
+    "agent": "Support",
+    "status": "done",
+    "prio": "low",
+    "createdAt": 1780723827950,
+    "updatedAt": 1780723827950
+  }
+]

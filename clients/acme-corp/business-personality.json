@@ -1,0 +1,89 @@
+{
+  "business": "Acme Corp",
+  "id": "acme-corp",
+  "scannedAt": "2026-06-05",
+  "counts": {
+    "notes": 4,
+    "skills": 2,
+    "agents": 2,
+    "mcp": 4,
+    "clis": 4
+  },
+  "tools": [
+    {
+      "name": "hubspot",
+      "kind": "mcp"
+    },
+    {
+      "name": "slack",
+      "kind": "mcp"
+    },
+    {
+      "name": "google-drive",
+      "kind": "mcp"
+    },
+    {
+      "name": "notion",
+      "kind": "mcp"
+    },
+    {
+      "name": "meta-ads-cli",
+      "kind": "cli"
+    },
+    {
+      "name": "gh",
+      "kind": "cli"
+    },
+    {
+      "name": "stripe",
+      "kind": "cli"
+    },
+    {
+      "name": "gcloud",
+      "kind": "cli"
+    }
+  ],
+  "skills": [
+    "lead-scoring",
+    "weekly-report"
+  ],
+  "agents": [
+    "ops-agent",
+    "sales-agent"
+  ],
+  "functions": {
+    "Ventes": 28,
+    "Opérations": 14,
+    "Finance": 8,
+    "Marketing": 11,
+    "Support": 6,
+    "Produit": 7,
+    "Engineering": 8
+  },
+  "dominantFunctions": [
+    "Ventes",
+    "Opérations",
+    "Marketing"
+  ],
+  "traits": [
+    "direct / sans jargon",
+    "customer-first",
+    "data-driven",
+    "orienté résultat",
+    "rigoureux"
+  ],
+  "topics": [
+    "reporting",
+    "hubspot",
+    "acme",
+    "chaque",
+    "sheets",
+    "agent",
+    "orienté",
+    "temps",
+    "thomas",
+    "sales"
+  ],
+  "maturity": "en structuration",
+  "summary": "Acme Corp est une organisation à dominante Ventes / Opérations, de maturité « en structuration ». Sa voix est direct / sans jargon, customer-first, data-driven. Elle s'appuie sur 8 outils connectés (hubspot, slack, google-drive, notion…) et 2 skills, opérés par 2 agents existants. Priorités lisibles dans ses notes : reporting, hubspot, acme, chaque, sheets."
+}

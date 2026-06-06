@@ -1,0 +1,14 @@
+{
+  "google-sheets": {
+    "status": "connected",
+    "connectedAt": "2026-06-05T15:35:29.261Z"
+  },
+  "notion": {
+    "status": "connected",
+    "connectedAt": "2026-06-05T15:42:53.246Z"
+  },
+  "obsidian": {
+    "status": "connected",
+    "connectedAt": "2026-06-05T17:07:23.652Z"
+  }
+}

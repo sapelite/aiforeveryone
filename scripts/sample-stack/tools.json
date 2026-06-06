@@ -1,0 +1,9 @@
+{
+  "description": "CLI globaux disponibles dans l'environnement Claude Code de l'entreprise (hérités par tous les agents).",
+  "clis": [
+    { "name": "meta-ads-cli", "purpose": "Tracking et reporting des campagnes Meta Ads" },
+    { "name": "gh", "purpose": "GitHub — issues, PRs, releases" },
+    { "name": "stripe", "purpose": "Paiements, MRR, factures" },
+    { "name": "gcloud", "purpose": "Infrastructure et hébergement" }
+  ]
+}
