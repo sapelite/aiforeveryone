@@ -164,6 +164,16 @@ export async function toggleCron(slug: string): Promise<boolean> {
   catch { return false; }
 }
 
+export type CronInput = { name: string; time: string; days: string; prompt: string; model?: string; description?: string };
+export async function createCron(input: CronInput): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const res = await engineFetch("/api/cron", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) });
+    if (res.ok) return { ok: true };
+    const j = await res.json().catch(() => ({}));
+    return { ok: false, error: (j as { error?: string }).error ?? `erreur ${res.status}` };
+  } catch { return { ok: false, error: "moteur hors ligne" }; }
+}
+
 /* ─── engine living memory (read-only disk surface) ─── */
 export type MemoryDoc = { name: string; path: string; content: string; updatedAt: string | null };
 
