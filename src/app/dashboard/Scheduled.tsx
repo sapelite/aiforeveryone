@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { PixelIcon } from "@/components/PixelIcon";
+import { PixSelect } from "@/components/PixSelect";
 import { play } from "@/lib/sound";
 
 type CronJob = {
@@ -61,8 +62,8 @@ export default function Scheduled() {
             <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Nom (ex : Veille concurrentielle)" className="pinput" />
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
               <input value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} placeholder="09:00 / every_2h" className="pinput font-mono" />
-              <select value={form.days} onChange={(e) => setForm({ ...form, days: e.target.value })} className="modal-input">{DAYS.map((d) => <option key={d}>{d}</option>)}</select>
-              <select value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} className="modal-input font-mono">{MODELS.map((m) => <option key={m}>{m}</option>)}</select>
+              <PixSelect value={form.days} onChange={(v) => setForm({ ...form, days: v })} options={DAYS.map((d) => [d, d] as [string, string])} />
+              <PixSelect value={form.model} onChange={(v) => setForm({ ...form, model: v })} options={MODELS.map((m) => [m, m] as [string, string])} />
             </div>
             <textarea value={form.prompt} onChange={(e) => setForm({ ...form, prompt: e.target.value })} rows={3} placeholder="Instruction de l'agent (ex : résume les nouveautés du marché et sauve un briefing dans projects/)" className="modal-input resize-none" />
             {err && <p className="text-sm text-[var(--destructive)]">{err}</p>}

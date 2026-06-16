@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PixelIcon } from "@/components/PixelIcon";
+import { PixSelect } from "@/components/PixSelect";
 
 type HTask = {
   id: string; title: string; status: string;
@@ -19,7 +20,7 @@ function Select({ label, value, set, opts }: { label: string; value: string; set
   return (
     <label className="flex items-center gap-1.5 text-sm">
       <span className="text-[var(--text-muted)]">{label}</span>
-      <select value={value} onChange={(e) => set(e.target.value)} className="modal-input font-mono py-1">{opts.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>
+      <PixSelect value={value} onChange={set} options={opts} />
     </label>
   );
 }
