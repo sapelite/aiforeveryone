@@ -32,6 +32,8 @@ export default function Runs() {
   const [order, setOrder] = useState<string[]>([]);
   const [feed, setFeed] = useState<FeedLine[]>([]);
   const [approvals, setApprovals] = useState<Record<string, ApprovalReq[]>>({});
+  const [questions, setQuestions] = useState<Record<string, string>>({});
+  const [replyText, setReplyText] = useState<Record<string, string>>({});
   const [mineId, setMineId] = useState<string | null>(null);
   const mine = useRef<string | null>(null);
   const scroller = useRef<HTMLDivElement>(null);
@@ -71,11 +73,14 @@ export default function Runs() {
         setRuns((r) => ({ ...r, [t.id]: { ...r[t.id], ...t } }));
         setOrder((o) => (o.includes(t.id) ? o : [t.id, ...o].slice(0, 30)));
         if (t.needsInput) fetchApprovals(t.id);
-        else setApprovals((a) => { if (!a[t.id]) return a; const { [t.id]: _d, ...rest } = a; return rest; });
+        else {
+          setApprovals((a) => { if (!a[t.id]) return a; const { [t.id]: _d, ...rest } = a; return rest; });
+          setQuestions((q) => { if (!q[t.id]) return q; const { [t.id]: _q, ...rest } = q; return rest; });
+        }
         const star = t.id === mine.current ? "★ " : "";
         if (type === "task:created") pushFeed(type, `${star}nouvelle tâche : ${t.title}`, "info");
         else if (type === "task:status") pushFeed(type, `${star}${t.title} → ${t.status}`, t.status === "completed" || t.status === "done" ? "ok" : t.status === "failed" || t.status === "error" ? "err" : "info");
-        else if (type === "task:question") pushFeed(type, `${star}validation requise : ${ev.questionText ?? "action en attente"}`, "warn");
+        else if (type === "task:question") { if (ev.questionText) setQuestions((q) => ({ ...q, [t.id]: ev.questionText as string })); pushFeed(type, `${star}réponse requise : ${ev.questionText ?? "action en attente"}`, "warn"); }
         else if (type === "task:log") pushFeed(type, `${star}${ev.logEntry?.message ?? t.activityLabel ?? "log"}`, "info");
         else if (type === "task:progress") { if (t.activityLabel) pushFeed(type, `${star}${t.activityLabel}`, "info"); }
         else if (type === "task:output") pushFeed(type, `${star}sortie reçue`, "info");
@@ -116,7 +121,17 @@ export default function Runs() {
       : t.status === "completed" || t.status === "done" ? "bg-[var(--accent)]"
       : t.status === "failed" || t.status === "error" ? "bg-[var(--destructive)]" : "bg-[var(--text-muted)]";
 
+  async function reply(taskId: string) {
+    const msg = (replyText[taskId] ?? "").trim();
+    if (!msg) return;
+    play("send");
+    setReplyText((r) => ({ ...r, [taskId]: "" }));
+    await fetch("/api/engine/reply", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ taskId, message: msg }) }).catch(() => {});
+    pushFeed("reply", `réponse envoyée → ${taskId.slice(0, 8)}`, "ok");
+  }
+
   const pendingApprovals = Object.entries(approvals).flatMap(([taskId, list]) => list.map((r) => ({ taskId, ...r })));
+  const pendingQuestions = order.filter((id) => runs[id]?.needsInput && !(approvals[id]?.length)).map((id) => ({ taskId: id, question: questions[id] }));
 
   return (
     <div className="space-y-4">
@@ -151,6 +166,25 @@ export default function Runs() {
                   <button onClick={() => decide(r.taskId, r.id, "allow_once")} className="pbtn pbtn-sm pbtn-primary"><PixelIcon name="check" size={12} /> Autoriser une fois</button>
                   <button onClick={() => decide(r.taskId, r.id, "allow_for_task")} className="pbtn pbtn-sm"><PixelIcon name="check-double" size={12} /> Pour la tâche</button>
                   <button onClick={() => decide(r.taskId, r.id, "deny")} className="pbtn pbtn-sm" style={{ color: "var(--destructive)" }}><PixelIcon name="close" size={12} /> Refuser</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {pendingQuestions.length > 0 && (
+        <div className="win-flat" style={{ borderColor: "var(--warning)" }}>
+          <div className="px-3 py-2 border-b-2 font-display text-[9px] uppercase flex items-center gap-2" style={{ borderColor: "var(--warning)", color: "var(--warning)" }}>
+            <PixelIcon name="message-text" size={12} /> Réponses requises · {pendingQuestions.length}
+          </div>
+          <div className="divide-y-2 divide-[var(--border)]">
+            {pendingQuestions.map((q) => (
+              <div key={q.taskId} className="p-3 space-y-2">
+                <p className="text-base whitespace-pre-wrap">{q.question || "L'agent attend votre réponse."}</p>
+                <div className="flex gap-2">
+                  <input value={replyText[q.taskId] ?? ""} onChange={(e) => setReplyText((r) => ({ ...r, [q.taskId]: e.target.value }))} onKeyDown={(e) => e.key === "Enter" && reply(q.taskId)} placeholder="Votre réponse…" className="pinput flex-1" />
+                  <button onClick={() => reply(q.taskId)} data-sfx="send" className="pbtn pbtn-sm pbtn-primary shrink-0"><PixelIcon name="send" size={12} /></button>
                 </div>
               </div>
             ))}

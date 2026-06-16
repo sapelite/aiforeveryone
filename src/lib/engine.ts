@@ -154,6 +154,16 @@ export async function resolveApproval(taskId: string, requestId: string, decisio
   } catch { return false; }
 }
 
+/** Free-text reply to a task that asked the user a question (completes the interactive loop). */
+export async function replyTask(taskId: string, message: string): Promise<boolean> {
+  try {
+    const res = await engineFetch(`/api/tasks/${encodeURIComponent(taskId)}/reply`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message }),
+    });
+    return res.ok;
+  } catch { return false; }
+}
+
 /* ─── scheduled jobs (cron) actions ─── */
 export async function runCron(slug: string): Promise<boolean> {
   try { return (await engineFetch(`/api/cron/${encodeURIComponent(slug)}/run`, { method: "POST" })).ok; }
