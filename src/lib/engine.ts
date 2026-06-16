@@ -163,3 +163,27 @@ export async function toggleCron(slug: string): Promise<boolean> {
   try { return (await engineFetch(`/api/cron/${encodeURIComponent(slug)}/toggle`, { method: "PATCH" })).ok; }
   catch { return false; }
 }
+
+/* ─── engine living memory (read-only disk surface) ─── */
+export type MemoryDoc = { name: string; path: string; content: string; updatedAt: string | null };
+
+async function readDoc(rel: string): Promise<MemoryDoc | null> {
+  try {
+    const p = path.join(ENGINE_DIR, rel);
+    const content = await fs.readFile(p, "utf8");
+    const stat = await fs.stat(p);
+    return { name: path.basename(rel), path: rel.replace(/\\/g, "/"), content: content.slice(0, 24000), updatedAt: stat.mtime.toISOString() };
+  } catch { return null; }
+}
+
+export async function readEngineMemory(): Promise<MemoryDoc[]> {
+  const docs: (MemoryDoc | null)[] = [await readDoc("context/MEMORY.md")];
+  try {
+    const memDir = path.join(ENGINE_DIR, "context", "memory");
+    const files = (await fs.readdir(memDir)).filter((f) => f.endsWith(".md")).sort();
+    if (files.length) docs.push(await readDoc(`context/memory/${files[files.length - 1]}`));
+  } catch { /* no memory dir */ }
+  docs.push(await readDoc("context/learnings.md"));
+  docs.push(await readDoc("context/SOUL.md"));
+  return docs.filter((d): d is MemoryDoc => d !== null);
+}

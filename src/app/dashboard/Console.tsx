@@ -14,6 +14,9 @@ import AgentInsights from "./AgentInsights";
 import Runs from "./Runs";
 import Skills from "./Skills";
 import Scheduled from "./Scheduled";
+import Memory from "./Memory";
+import Usage from "./Usage";
+import Audit from "./Audit";
 import { useSettings, ACCENT_PRESETS, MODELS } from "./useSettings";
 import ThemeToggle from "@/components/ThemeToggle";
 import SoundToggle from "@/components/SoundToggle";
@@ -35,12 +38,12 @@ import {
 } from "@/components/ui/command";
 import {
   LayoutGrid, Users, Sparkles, TrendingUp, Zap, Bot, Search, Plus,
-  AlertTriangle, CheckCircle2, Fingerprint, Power, RotateCcw,
+  AlertTriangle, Fingerprint, Power, RotateCcw,
 } from "lucide-react";
 
 type ViewId =
   | "mission" | "scheduled" | "agents" | "chat" | "runs"
-  | "memories" | "skills" | "hive" | "usage" | "audit" | "warroom" | "integrations" | "settings";
+  | "memories" | "skills" | "memory" | "hive" | "usage" | "audit" | "warroom" | "integrations" | "settings";
 
 const nav: { section: string; items: { id: ViewId; label: string; pic: string }[] }[] = [
   { section: "Espace", items: [
@@ -53,6 +56,7 @@ const nav: { section: string; items: { id: ViewId; label: string; pic: string }[
   { section: "Intelligence", items: [
     { id: "memories", label: "Brain", pic: "notebook" },
     { id: "skills", label: "Skills", pic: "command" },
+    { id: "memory", label: "Mémoire", pic: "memory-stick" },
     { id: "hive", label: "Hive Mind", pic: "share" },
     { id: "usage", label: "Usage", pic: "chart-bar" },
     { id: "audit", label: "Audit", pic: "shield" },
@@ -73,6 +77,7 @@ const VIEW_META: Record<ViewId, { title: string; pic: string; w: number; h: numb
   runs: { title: "RUNS", pic: "terminal", w: 860, h: 640 },
   memories: { title: "BRAIN", pic: "notebook", w: 920, h: 640 },
   skills: { title: "SKILLS", pic: "command", w: 920, h: 620 },
+  memory: { title: "MEMOIRE", pic: "memory-stick", w: 880, h: 640 },
   hive: { title: "HIVE MIND", pic: "share", w: 880, h: 620 },
   usage: { title: "USAGE", pic: "chart-bar", w: 800, h: 460 },
   audit: { title: "AUDIT", pic: "shield", w: 760, h: 540 },
@@ -444,44 +449,15 @@ export default function Console({ data }: { data: InstanceData }) {
       case "memories": return <Brain instanceId={data.id} />;
       case "runs": return <Runs />;
       case "skills": return <Skills />;
+      case "memory": return <Memory />;
       case "hive": return <HiveGraph agents={data.agents.map((a) => a.display)} tasks={data.tasks.map((t) => ({ title: t.title, agent: t.agent, status: t.status }))} entities={data.entities} />;
       case "warroom": return <WarRoom instanceId={data.id} agents={data.agents.filter((a) => a.status === "online").map((a) => ({ slug: a.slug, display: a.display, role: a.role }))} />;
       case "chat": return <Chat instanceId={data.id} name={data.name} />;
       case "integrations": return <Integrations instanceId={data.id} onConnectBrain={() => openWindow("memories")} />;
 
-      case "usage":
-        return (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {[
-              { label: "Tâches exécutées", value: "1 284", hint: "ce mois", w: "100%" },
-              { label: "Tokens consommés", value: "8.4 M", hint: "62% du quota", w: "62%" },
-              { label: "Temps économisé", value: "72 h", hint: "estimé · T2", w: "80%" },
-            ].map((u) => (
-              <Panel key={u.label} className="p-4">
-                <p className="text-sm text-[var(--text-muted)] uppercase">{u.label}</p>
-                <p className="font-display text-[clamp(0.9rem,2.2vw,1.3rem)] mt-3">{u.value}</p>
-                <p className="text-sm text-[var(--accent)] mt-1">{u.hint}</p>
-                <div className="mt-4 h-2.5 border-2 border-[var(--border)] overflow-hidden"><div className="h-full bg-[var(--accent)]" style={{ width: u.w }} /></div>
-              </Panel>
-            ))}
-          </div>
-        );
+      case "usage": return <Usage />;
 
-      case "audit":
-        return (
-          <Panel>
-            <PanelHead title="Journal des décisions" />
-            <div className="divide-y-2 divide-[var(--border)]">
-              {data.decisions.map((d, i) => (
-                <div key={i} className="flex items-center gap-3 px-3 py-3">
-                  <CheckCircle2 className="w-4 h-4 text-[var(--accent)] shrink-0" />
-                  <div className="min-w-0 flex-1"><p className="text-base">{d.title}</p><p className="text-sm text-[var(--text-muted)]">{d.who}</p></div>
-                  <span className="text-sm text-[var(--text-muted)] font-mono shrink-0">{d.date}</span>
-                </div>
-              ))}
-            </div>
-          </Panel>
-        );
+      case "audit": return <Audit />;
 
       case "settings":
         return (
