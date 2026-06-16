@@ -16,6 +16,7 @@ import Deliverables from "./Deliverables";
 import History from "./History";
 import AttentionBell from "./AttentionBell";
 import RecentActivity from "./RecentActivity";
+import Tutorial from "./Tutorial";
 import Skills from "./Skills";
 import Scheduled from "./Scheduled";
 import Memory from "./Memory";
@@ -259,6 +260,9 @@ export default function Console({ data }: { data: InstanceData }) {
   const dismissHint = () => { setMenuHint(false); try { localStorage.setItem("aios.menuHint", "1"); } catch { /* ignore */ } };
 
   // Boot: bureau vide par défaut. On ouvre une fenêtre seulement si l'URL le demande (?view=brain, via Clio).
+  const [tutorialOpen, setTutorialOpen] = useState(false);
+  const closeTutorial = () => { setTutorialOpen(false); try { localStorage.setItem("aiforeveryone.tutorial.seen", "1"); } catch { /* no storage */ } };
+
   useEffect(() => {
     const raw = new URLSearchParams(window.location.search).get("view");
     const alias: Record<string, ViewId> = { brain: "memories", memory: "memories" };
@@ -266,6 +270,7 @@ export default function Console({ data }: { data: InstanceData }) {
     const target = (raw && (alias[raw] ?? (raw as ViewId))) || null;
     if (target && valid.includes(target)) openWindow(target);
     else openWindow("runs"); // greet with the live agentic Runs window so the fusion is front-and-centre
+    try { if (!localStorage.getItem("aiforeveryone.tutorial.seen")) setTutorialOpen(true); } catch { /* no storage */ }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -546,6 +551,7 @@ export default function Console({ data }: { data: InstanceData }) {
           </div>
         </div>
         <div className="flex items-center h-full pr-1 gap-1">
+          <button onClick={() => setTutorialOpen(true)} title="Tutoriel" aria-label="Tutoriel" className="hidden sm:flex items-center justify-center w-6 h-6 border-2 border-[var(--border)] hover:bg-[var(--accent)] hover:text-[#1b1b1b] transition-colors"><span className="font-display text-[9px]">?</span></button>
           <AttentionBell onOpen={() => openWindow("runs")} />
           <EngineStatus />
           <SoundToggle />
@@ -626,6 +632,9 @@ export default function Console({ data }: { data: InstanceData }) {
           </CommandGroup>
         </CommandList>
       </CommandDialog>
+
+      {/* ─── TUTORIEL ─── */}
+      <Tutorial open={tutorialOpen} onClose={closeTutorial} />
 
       {/* ─── ADD AGENT ─── */}
       <AddAgentModal
