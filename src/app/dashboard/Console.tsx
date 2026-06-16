@@ -17,6 +17,7 @@ import Scheduled from "./Scheduled";
 import Memory from "./Memory";
 import Usage from "./Usage";
 import Audit from "./Audit";
+import EngineKpis from "./EngineKpis";
 import { useSettings, ACCENT_PRESETS, MODELS } from "./useSettings";
 import ThemeToggle from "@/components/ThemeToggle";
 import SoundToggle from "@/components/SoundToggle";
@@ -288,20 +289,7 @@ export default function Console({ data }: { data: InstanceData }) {
       case "mission":
         return (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-              {[
-                { label: "Tâches actives", value: String(counts.active), hint: "+2 aujourd'hui" },
-                { label: "Agents en ligne", value: `${onlineAgents.length}/${data.agents.length}`, hint: "kill-switch dispo" },
-                { label: "Temps automatisé", value: "18 h", hint: "/sem · +24%" },
-                { label: "Alertes", value: String(data.alerts.length), hint: "1 critique" },
-              ].map((s) => (
-                <Panel key={s.label} className="p-4">
-                  <p className="text-sm text-[var(--text-muted)] uppercase">{s.label}</p>
-                  <p className="font-display text-[clamp(0.9rem,2.4vw,1.4rem)] text-[var(--accent)] mt-3">{s.value}</p>
-                  <p className="text-sm mt-2 text-[var(--text-muted)]">{s.hint}</p>
-                </Panel>
-              ))}
-            </div>
+            <EngineKpis />
 
             <AgentInsights data={data} onCreate={(name) => openAdd(name)} />
 
