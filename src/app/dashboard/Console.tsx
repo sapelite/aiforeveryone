@@ -14,6 +14,7 @@ import AgentInsights from "./AgentInsights";
 import Runs from "./Runs";
 import Deliverables from "./Deliverables";
 import AttentionBell from "./AttentionBell";
+import RecentActivity from "./RecentActivity";
 import Skills from "./Skills";
 import Scheduled from "./Scheduled";
 import Memory from "./Memory";
@@ -295,6 +296,8 @@ export default function Console({ data }: { data: InstanceData }) {
         return (
           <div className="space-y-4">
             <EngineKpis onOpen={(v) => openWindow(v as ViewId)} />
+
+            <RecentActivity onOpen={() => openWindow("runs")} />
 
             <AgentInsights data={data} onCreate={(name) => openAdd(name)} />
 
