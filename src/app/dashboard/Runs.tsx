@@ -120,6 +120,12 @@ export default function Runs() {
   }, []);
   useEffect(() => { try { localStorage.setItem("runs.model", model); } catch { /* */ } }, [model]);
   useEffect(() => { try { localStorage.setItem("runs.safe", safe ? "1" : "0"); } catch { /* */ } }, [safe]);
+  useEffect(() => {
+    if (!detail) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setDetail(null); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [detail]);
 
   async function launch() {
     const g = goal.trim();

@@ -16,6 +16,13 @@ export default function Deliverables() {
     fetch("/api/engine/projects").then((r) => r.json()).then(setData).catch(() => setData({ projects: [], files: [] }));
   }, []);
 
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(null); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
   function openFile(f: RFile) {
     setOpen(f); setPreview(null);
     fetch(`/api/engine/file?path=${encodeURIComponent(f.relativePath)}`).then((r) => r.json()).then(setPreview).catch(() => setPreview({ content: null, truncated: false, extension: f.extension, binary: false }));
