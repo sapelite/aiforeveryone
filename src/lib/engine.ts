@@ -164,6 +164,12 @@ export async function replyTask(taskId: string, message: string): Promise<boolea
   } catch { return false; }
 }
 
+/** Cancel a running task (kills the headless claude process). */
+export async function cancelTask(taskId: string): Promise<boolean> {
+  try { return (await engineFetch(`/api/tasks/${encodeURIComponent(taskId)}/cancel`, { method: "POST" })).ok; }
+  catch { return false; }
+}
+
 /* ─── scheduled jobs (cron) actions ─── */
 export async function runCron(slug: string): Promise<boolean> {
   try { return (await engineFetch(`/api/cron/${encodeURIComponent(slug)}/run`, { method: "POST" })).ok; }

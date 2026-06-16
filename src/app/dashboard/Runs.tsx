@@ -130,6 +130,12 @@ export default function Runs() {
     pushFeed("reply", `réponse envoyée → ${taskId.slice(0, 8)}`, "ok");
   }
 
+  async function cancel(taskId: string) {
+    play("error");
+    await fetch("/api/engine/cancel", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ taskId }) }).catch(() => {});
+    pushFeed("cancel", `arrêt demandé → ${taskId.slice(0, 8)}`, "warn");
+  }
+
   const pendingApprovals = Object.entries(approvals).flatMap(([taskId, list]) => list.map((r) => ({ taskId, ...r })));
   const pendingQuestions = order.filter((id) => runs[id]?.needsInput && !(approvals[id]?.length)).map((id) => ({ taskId: id, question: questions[id] }));
 
@@ -202,6 +208,7 @@ export default function Runs() {
                 <span className="flex-1 truncate">{id === mineId && <span className="text-[var(--accent)]">★ </span>}{t.title}</span>
                 {t.costUsd != null && <span className="text-sm text-[var(--text-muted)] font-mono">${t.costUsd.toFixed(3)}</span>}
                 <span className={`text-sm font-mono ${t.status === "completed" || t.status === "done" ? "text-[var(--accent)]" : t.status === "failed" || t.status === "error" ? "text-[var(--destructive)]" : "text-[var(--text-muted)]"}`}>{t.needsInput ? "validation" : t.status}</span>
+                {t.status === "running" && <button onClick={() => cancel(id)} className="win-btn shrink-0" title="Arrêter la tâche" aria-label="Arrêter"><PixelIcon name="close" size={11} /></button>}
               </div>
             ); })}
           </div>
