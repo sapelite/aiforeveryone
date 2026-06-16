@@ -102,7 +102,7 @@ export default function Brain({ instanceId }: { instanceId: string }) {
     return [...m.entries()].sort((a, b) => a[0].localeCompare(b[0]));
   }, [filtered]);
 
-  if (loading) return <div className="grid place-items-center h-64 text-[var(--text-muted)]"><Loader2 className="w-5 h-5 animate-spin" /></div>;
+  if (loading) return <div role="status" aria-label="Chargement du Brain" className="grid place-items-center h-64 text-[var(--text-muted)]"><Loader2 className="w-5 h-5 animate-spin" /></div>;
 
   return (
     <div className="space-y-6">

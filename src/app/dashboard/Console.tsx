@@ -122,7 +122,7 @@ function PanelHead({ title, action }: { title: string; action?: React.ReactNode 
 }
 function Empty({ label }: { label: string }) {
   return (
-    <div className="flex flex-col items-center justify-center h-60 text-center gap-3">
+    <div role="status" className="flex flex-col items-center justify-center h-60 text-center gap-3">
       <div className="w-12 h-12 border-2 border-[var(--border)] grid place-items-center"><PixelIcon name="inbox" size={24} /></div>
       <p className="text-base text-[var(--text-muted)]">{label}</p>
     </div>

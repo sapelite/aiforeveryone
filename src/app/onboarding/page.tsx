@@ -69,7 +69,7 @@ function SingleField({ form, update, field, label, options, cols = "grid-cols-2 
       <FieldLabel req={req}>{label}</FieldLabel>
       <div className={`grid ${cols} gap-2`}>
         {options.map((o) => (
-          <button key={o} type="button" onClick={() => update(field, o)} className={pillCls(form[field] === o)}>{o}</button>
+          <button key={o} type="button" aria-label={`${label} : ${o}`} onClick={() => update(field, o)} className={pillCls(form[field] === o)}>{o}</button>
         ))}
       </div>
     </div>
@@ -83,7 +83,7 @@ function MultiField({ form, toggle, field, label, options, cols = "grid-cols-2 m
       {hint && <p className="text-xs text-[var(--text-muted)] mb-3">{hint}</p>}
       <div className={`grid ${cols} gap-2`}>
         {options.map((o) => (
-          <button key={o} type="button" onClick={() => toggle(field, o)} className={pillCls(sel.includes(o))}>{o}</button>
+          <button key={o} type="button" aria-label={`${label} : ${o}`} onClick={() => toggle(field, o)} className={pillCls(sel.includes(o))}>{o}</button>
         ))}
       </div>
     </div>

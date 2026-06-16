@@ -28,10 +28,10 @@ export default function Deliverables() {
     fetch(`/api/engine/file?path=${encodeURIComponent(f.relativePath)}`).then((r) => r.json()).then(setPreview).catch(() => setPreview({ content: null, truncated: false, extension: f.extension, binary: false }));
   }
 
-  if (data === null) return <p className="text-base text-[var(--text-muted)]">chargement des livrables<span className="blink">_</span></p>;
+  if (data === null) return <p role="status" className="text-base text-[var(--text-muted)]">chargement des livrables<span className="blink">_</span></p>;
 
   if (data.projects.length === 0 && data.files.length === 0)
-    return <div className="win-flat p-4 text-base text-[var(--text-muted)]">Aucun livrable pour l&apos;instant. Lance un but dans <span className="text-[var(--text)]">Exécutions</span> — les fichiers produits par les agents apparaîtront ici.</div>;
+    return <div role="status" className="win-flat p-4 text-base text-[var(--text-muted)]">Aucun livrable pour l&apos;instant. Lance un but dans <span className="text-[var(--text)]">Exécutions</span> — les fichiers produits par les agents apparaîtront ici.</div>;
 
   return (
     <div className="space-y-4">

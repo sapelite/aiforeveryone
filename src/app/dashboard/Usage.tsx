@@ -14,7 +14,7 @@ export default function Usage() {
     return () => clearInterval(id);
   }, []);
 
-  if (!u) return <p className="text-base text-[var(--text-muted)]">lecture de la consommation réelle<span className="blink">_</span></p>;
+  if (!u) return <p role="status" className="text-base text-[var(--text-muted)]">lecture de la consommation réelle<span className="blink">_</span></p>;
 
   const cards = [
     { label: "Tâches exécutées", value: String(u.count) },

@@ -36,8 +36,8 @@ export default function Skills() {
     }
   }
 
-  if (skills === null) return <p className="text-base text-[var(--text-muted)]">chargement des skills<span className="blink">_</span></p>;
-  if (skills.length === 0) return <div className="win-flat p-4 text-base text-[var(--text-muted)]">Aucun skill détecté. Le moteur est-il en ligne ? Les skills vivent dans <span className="font-mono">.claude/skills</span> du workspace.</div>;
+  if (skills === null) return <p role="status" className="text-base text-[var(--text-muted)]">chargement des skills<span className="blink">_</span></p>;
+  if (skills.length === 0) return <div role="status" className="win-flat p-4 text-base text-[var(--text-muted)]">Aucun skill détecté. Le moteur est-il en ligne ? Les skills vivent dans <span className="font-mono">.claude/skills</span> du workspace.</div>;
 
   const filtered = skills.filter((s) => (s.name + s.category + s.desc).toLowerCase().includes(q.toLowerCase()));
   const groups = filtered.reduce<Record<string, Skill[]>>((m, s) => { (m[s.category] = m[s.category] || []).push(s); return m; }, {});
