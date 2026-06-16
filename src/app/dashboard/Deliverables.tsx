@@ -77,11 +77,14 @@ export default function Deliverables() {
           <div className="win-flat w-full max-w-2xl max-h-[80vh] flex flex-col bg-[var(--bg)]" onClick={(e) => e.stopPropagation()}>
             <div className="px-3 py-2 border-b-2 border-[var(--border)] font-display text-[9px] uppercase flex items-center justify-between gap-2">
               <span className="truncate">{open.fileName}</span>
-              <button onClick={() => setOpen(null)} className="win-btn shrink-0" aria-label="Fermer"><PixelIcon name="close" size={11} /></button>
+              <span className="flex items-center gap-1 shrink-0">
+                <a href={`/api/engine/download?path=${encodeURIComponent(open.relativePath)}`} className="win-btn" title="Télécharger" aria-label="Télécharger"><PixelIcon name="download" size={11} /></a>
+                <button onClick={() => setOpen(null)} className="win-btn" aria-label="Fermer"><PixelIcon name="close" size={11} /></button>
+              </span>
             </div>
             <div className="overflow-auto p-3">
               {preview === null && <p className="text-sm text-[var(--text-muted)]">chargement<span className="blink">_</span></p>}
-              {preview && preview.binary && <p className="text-sm text-[var(--text-muted)]">Fichier binaire (.{open.extension}) — aperçu indisponible.</p>}
+              {preview && preview.binary && <p className="text-sm text-[var(--text-muted)]">Fichier binaire (.{open.extension}) — <a href={`/api/engine/download?path=${encodeURIComponent(open.relativePath)}`} className="text-[var(--accent)] underline">télécharger</a> pour l&apos;ouvrir.</p>}
               {preview && !preview.binary && preview.content && <pre className="font-mono text-sm whitespace-pre-wrap leading-snug">{preview.content}{preview.truncated ? "\n…(tronqué)" : ""}</pre>}
               {preview && !preview.binary && !preview.content && <p className="text-sm text-[var(--text-muted)]">Aperçu indisponible.</p>}
             </div>
