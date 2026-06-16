@@ -18,6 +18,7 @@ import Memory from "./Memory";
 import Usage from "./Usage";
 import Audit from "./Audit";
 import EngineKpis from "./EngineKpis";
+import EngineSettings from "./EngineSettings";
 import { useSettings, ACCENT_PRESETS, MODELS } from "./useSettings";
 import ThemeToggle from "@/components/ThemeToggle";
 import SoundToggle from "@/components/SoundToggle";
@@ -450,6 +451,7 @@ export default function Console({ data }: { data: InstanceData }) {
       case "settings":
         return (
           <div className="space-y-4 max-w-2xl">
+            <EngineSettings />
             <Panel className="p-4">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-display text-[9px] uppercase">Thème & marque</h3>

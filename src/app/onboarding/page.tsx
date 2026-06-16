@@ -143,7 +143,7 @@ export default function OnboardingPage() {
     setSubmitted(true);
     try {
       const goal = `Construis la fondation de marque pour ${str("company")} (secteur : ${str("industry")}). Pitch : ${str("pitch")}. Client idéal : ${str("icp") || "à définir"}. Différenciateurs : ${str("differentiators") || "à définir"}. Voix souhaitée : ${str("brandVoice") || "à définir"}. Utilise les skills mkt-brand-voice, mkt-positioning et mkt-icp, puis sauvegarde les livrables dans projects/.`;
-      const res = await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ goal, model: "auto" }) });
+      const res = await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ goal, model: "auto", permissionMode: "acceptEdits" }) });
       const j = await res.json();
       if (j.ok) setTaskId(j.taskId);
     } catch { /* moteur hors ligne : on garde le message 48h */ }
