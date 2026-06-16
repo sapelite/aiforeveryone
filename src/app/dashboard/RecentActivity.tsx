@@ -20,7 +20,7 @@ export default function RecentActivity({ onOpen }: { onOpen?: () => void }) {
         })
         .catch(() => alive && setTasks([]));
     load();
-    const id = setInterval(load, 7000);
+    const id = setInterval(load, 12000);
     return () => { alive = false; clearInterval(id); };
   }, []);
 

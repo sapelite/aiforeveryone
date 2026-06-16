@@ -10,18 +10,23 @@ export default function EngineKpis({ onOpen }: { onOpen?: (view: string) => void
 
   useEffect(() => {
     let alive = true;
+    let skills = 0;
+    let gotSkills = false;
     const load = async () => {
       try {
-        const [st, us, sk] = await Promise.all([
+        const reqs: Promise<Record<string, unknown>>[] = [
           fetch("/api/engine/status").then((r) => r.json()).catch(() => ({ online: false })),
           fetch("/api/engine/usage").then((r) => r.json()).catch(() => ({ count: 0, cost: 0 })),
-          fetch("/api/engine/skills").then((r) => r.json()).catch(() => ({ skills: [] })),
-        ]);
-        if (alive) setD({ online: !!st.online, tasks: us.count ?? 0, cost: us.cost ?? 0, skills: (sk.skills ?? []).length });
-      } catch { if (alive) setD({ online: false, tasks: 0, cost: 0, skills: 0 }); }
+        ];
+        // skills count is static for a session — fetch it once, not every tick
+        if (!gotSkills) reqs.push(fetch("/api/engine/skills").then((r) => r.json()).catch(() => ({ skills: [] })));
+        const [st, us, sk] = await Promise.all(reqs);
+        if (sk) { skills = ((sk.skills as unknown[]) ?? []).length; gotSkills = true; }
+        if (alive) setD({ online: !!st.online, tasks: (us.count as number) ?? 0, cost: (us.cost as number) ?? 0, skills });
+      } catch { if (alive) setD({ online: false, tasks: 0, cost: 0, skills }); }
     };
     load();
-    const id = setInterval(load, 8000);
+    const id = setInterval(load, 15000);
     return () => { alive = false; clearInterval(id); };
   }, []);
 

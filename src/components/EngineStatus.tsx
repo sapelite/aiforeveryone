@@ -15,7 +15,7 @@ export default function EngineStatus() {
         .then((d) => alive && setS({ online: !!d.online, port: d.port ?? null }))
         .catch(() => alive && setS({ online: false, port: null }));
     check();
-    const id = setInterval(check, 5000);
+    const id = setInterval(check, 10000);
     return () => { alive = false; clearInterval(id); };
   }, []);
 

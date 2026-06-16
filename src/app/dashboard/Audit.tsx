@@ -11,7 +11,7 @@ export default function Audit() {
   useEffect(() => {
     const load = () => fetch("/api/engine/tasks").then((r) => r.json()).then((j) => setTasks(Array.isArray(j.tasks) ? j.tasks : [])).catch(() => setTasks([]));
     load();
-    const id = setInterval(load, 6000);
+    const id = setInterval(load, 12000);
     return () => clearInterval(id);
   }, []);
 

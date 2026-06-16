@@ -68,7 +68,7 @@ export default function Runs() {
     let alive = true;
     const check = () => fetch("/api/engine/status").then((r) => r.json()).then((s) => alive && setOnline(!!s.online)).catch(() => alive && setOnline(false));
     check();
-    const id = setInterval(check, 5000);
+    const id = setInterval(check, 15000);
     return () => { alive = false; clearInterval(id); };
   }, []);
 

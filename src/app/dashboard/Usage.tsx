@@ -10,7 +10,7 @@ export default function Usage() {
   useEffect(() => {
     const load = () => fetch("/api/engine/usage").then((r) => r.json()).then(setU).catch(() => setU(null));
     load();
-    const id = setInterval(load, 8000);
+    const id = setInterval(load, 15000);
     return () => clearInterval(id);
   }, []);
 

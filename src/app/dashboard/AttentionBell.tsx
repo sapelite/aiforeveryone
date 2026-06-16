@@ -18,7 +18,7 @@ export default function AttentionBell({ onOpen }: { onOpen: () => void }) {
         })
         .catch(() => {});
     load();
-    const id = setInterval(load, 5000);
+    const id = setInterval(load, 10000);
     return () => { alive = false; clearInterval(id); };
   }, []);
 

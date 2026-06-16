@@ -12,7 +12,7 @@ export default function EngineSettings() {
     let alive = true;
     const load = () => fetch("/api/engine/status").then((r) => r.json()).then((d) => alive && setS(d)).catch(() => alive && setS(null));
     load();
-    const id = setInterval(load, 6000);
+    const id = setInterval(load, 12000);
     return () => { alive = false; clearInterval(id); };
   }, []);
 
