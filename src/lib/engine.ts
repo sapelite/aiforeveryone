@@ -67,11 +67,13 @@ export async function engineStatus(): Promise<EngineStatus> {
   }
 }
 
+export type EnginePermissionMode = "default" | "acceptEdits" | "bypassPermissions" | "plan";
 export type RunOptions = {
   goal: string;
   clientId?: string | null;
   model?: "haiku" | "sonnet" | "opus" | null;
   title?: string | null;
+  permissionMode?: EnginePermissionMode;
 };
 export type RunResult = { taskId: string; conversationId: string; title: string };
 
@@ -98,7 +100,7 @@ export async function runGoal(opts: RunOptions): Promise<RunResult> {
   const msgRes = await engineFetch("/api/chat/message", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ conversationId: conv.id, content: opts.goal, model: opts.model ?? null }),
+    body: JSON.stringify({ conversationId: conv.id, content: opts.goal, model: opts.model ?? null, permissionMode: opts.permissionMode ?? "default" }),
   });
   if (!msgRes.ok) throw new Error(`engine: envoi du message (${msgRes.status})`);
   const out = (await msgRes.json()) as { task: { id: string; title: string } | null };
@@ -126,4 +128,38 @@ export async function getEngineCron(): Promise<unknown[]> {
     const res = await engineFetch("/api/cron");
     return res.ok ? ((await res.json()) as unknown[]) : [];
   } catch { return []; }
+}
+
+/* ─── approval guardrail ─── */
+export type ApprovalDecision = "allow_once" | "allow_for_task" | "deny";
+export type ApprovalRequest = {
+  id: string; taskId: string; status: string; title: string;
+  description: string | null; toolName: string; inputJson: string; createdAt: string;
+};
+
+export async function listApprovals(taskId: string): Promise<ApprovalRequest[]> {
+  try {
+    const res = await engineFetch(`/api/tasks/${encodeURIComponent(taskId)}/approval-requests`);
+    return res.ok ? ((await res.json()) as ApprovalRequest[]) : [];
+  } catch { return []; }
+}
+
+export async function resolveApproval(taskId: string, requestId: string, decision: ApprovalDecision): Promise<boolean> {
+  try {
+    const res = await engineFetch(
+      `/api/tasks/${encodeURIComponent(taskId)}/approval-requests/${encodeURIComponent(requestId)}`,
+      { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ decision }) },
+    );
+    return res.ok;
+  } catch { return false; }
+}
+
+/* ─── scheduled jobs (cron) actions ─── */
+export async function runCron(slug: string): Promise<boolean> {
+  try { return (await engineFetch(`/api/cron/${encodeURIComponent(slug)}/run`, { method: "POST" })).ok; }
+  catch { return false; }
+}
+export async function toggleCron(slug: string): Promise<boolean> {
+  try { return (await engineFetch(`/api/cron/${encodeURIComponent(slug)}/toggle`, { method: "PATCH" })).ok; }
+  catch { return false; }
 }

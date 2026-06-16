@@ -20,6 +20,7 @@ export async function POST(req: Request) {
       clientId: body.clientId ?? null,
       model: body.model ?? null,
       title: body.title ?? null,
+      permissionMode: body.permissionMode ?? "default",
     });
     return NextResponse.json({ ok: true, ...result });
   } catch (e) {

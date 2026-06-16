@@ -13,6 +13,7 @@ import Integrations from "./Integrations";
 import AgentInsights from "./AgentInsights";
 import Runs from "./Runs";
 import Skills from "./Skills";
+import Scheduled from "./Scheduled";
 import { useSettings, ACCENT_PRESETS, MODELS } from "./useSettings";
 import ThemeToggle from "@/components/ThemeToggle";
 import SoundToggle from "@/components/SoundToggle";
@@ -34,7 +35,7 @@ import {
 } from "@/components/ui/command";
 import {
   LayoutGrid, Users, Sparkles, TrendingUp, Zap, Bot, Search, Plus,
-  AlertTriangle, CheckCircle2, Fingerprint, Power, RotateCcw, CalendarClock,
+  AlertTriangle, CheckCircle2, Fingerprint, Power, RotateCcw,
 } from "lucide-react";
 
 type ViewId =
@@ -405,30 +406,7 @@ export default function Console({ data }: { data: InstanceData }) {
           </div>
         );
 
-      case "scheduled":
-        return (
-          <Panel>
-            <PanelHead title="Workflows planifiés" />
-            <div className="divide-y-2 divide-[var(--border)]">
-              {data.workflows.map((w) => {
-                const sm = statusMeta[w.status];
-                return (
-                  <button key={w.name} onClick={() => setSchedTask(w.name)} className="w-full text-left flex items-center gap-3 px-3 py-3 hover:bg-[var(--bg-card-hover)]">
-                    <CalendarClock className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-base">{w.name}</p>
-                      <p className="text-sm text-[var(--text-muted)] font-mono">{w.trigger}</p>
-                    </div>
-                    <span className="hidden sm:inline text-sm text-[var(--text-muted)] shrink-0 font-mono">suivant : {w.next}</span>
-                    <span className={`flex items-center gap-1.5 text-sm ${sm.text} shrink-0 w-20 justify-end`}>
-                      <span className={`w-2 h-2 ${sm.dot}`} />{sm.label}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </Panel>
-        );
+      case "scheduled": return <Scheduled />;
 
       case "agents":
         return (
