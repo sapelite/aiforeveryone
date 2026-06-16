@@ -13,6 +13,7 @@ import Integrations from "./Integrations";
 import AgentInsights from "./AgentInsights";
 import Runs from "./Runs";
 import Deliverables from "./Deliverables";
+import AttentionBell from "./AttentionBell";
 import Skills from "./Skills";
 import Scheduled from "./Scheduled";
 import Memory from "./Memory";
@@ -537,7 +538,8 @@ export default function Console({ data }: { data: InstanceData }) {
             <MenuDropdown label="Affichage" onOpen={dismissHint} items={ALL_ITEMS.map((i) => ({ label: i.label, pic: i.pic, onSelect: () => openWindow(i.id) }))} />
           </div>
         </div>
-        <div className="flex items-center h-full pr-1">
+        <div className="flex items-center h-full pr-1 gap-1">
+          <AttentionBell onOpen={() => openWindow("runs")} />
           <EngineStatus />
           <SoundToggle />
           <ThemeToggle />
