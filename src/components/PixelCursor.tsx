@@ -46,15 +46,15 @@ export default function PixelCursor() {
 
   if (!on) return null;
   return (
-    <>
-      <div ref={ref} className="pixcur-arrow" style={{ opacity: 0 }} aria-hidden="true">
+    <div className="pixcur-layer" aria-hidden="true">
+      <div ref={ref} className="pixcur-arrow" style={{ opacity: 0 }}>
         <svg width="15" height="24" viewBox="0 0 12 20" shapeRendering="crispEdges">
           <path d="M0 0 L0 16 L4 12 L7 19 L9 18 L6 11 L11 11 Z" fill="var(--text)" stroke="var(--bg)" strokeWidth="1.5" strokeLinejoin="miter" />
         </svg>
       </div>
       {bursts.map((b) => (
-        <span key={b.id} className="pixcur-burst" style={{ left: b.x, top: b.y }} aria-hidden="true" />
+        <span key={b.id} className="pixcur-burst" style={{ left: b.x, top: b.y }} />
       ))}
-    </>
+    </div>
   );
 }
