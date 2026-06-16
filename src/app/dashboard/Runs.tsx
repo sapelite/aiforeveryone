@@ -48,6 +48,7 @@ export default function Runs() {
   const [detailData, setDetailData] = useState<{ logs: TaskLog[]; outputs: TaskOut[] } | null>(null);
   const mine = useRef<string | null>(null);
   const scroller = useRef<HTMLDivElement>(null);
+  const goalRef = useRef<HTMLTextAreaElement>(null);
 
   const pushFeed = (type: string, text: string, tone: Tone = "info") => {
     setFeed((f) => [...f.slice(-180), { id: uid(), ts: new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" }), type, text, tone }]);
@@ -188,15 +189,26 @@ export default function Runs() {
     <div className="space-y-4">
       <div className="win-flat p-3">
         <p className="font-display text-[9px] uppercase mb-2 flex items-center gap-2"><PixelIcon name="terminal" size={12} /> Lancer un but</p>
-        <div className="flex flex-col sm:flex-row gap-2">
-          <input value={goal} onChange={(e) => setGoal(e.target.value)} onKeyDown={(e) => e.key === "Enter" && launch()} placeholder="ex : rédige 3 posts LinkedIn sur notre offre" className="pinput flex-1" />
-          <select value={model} onChange={(e) => setModel(e.target.value)} className="modal-input sm:w-44 font-mono">{MODELS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>
-          <button onClick={launch} disabled={busy || !goal.trim()} data-sfx="send" className="pbtn pbtn-primary pbtn-sm shrink-0"><PixelIcon name="zap" size={12} /> {busy ? "…" : "Exécuter"}</button>
+        <p className="text-sm text-[var(--text-muted)] mb-1.5">Exemples — cliquez pour remplir :</p>
+        <div className="flex flex-wrap gap-1.5 mb-2">
+          {PRESETS.map(([g, label]) => {
+            const active = goal.trim() === g;
+            return (
+              <button key={label} onClick={() => { setGoal(g); goalRef.current?.focus(); }} title={g}
+                className={`text-sm px-2 py-1 border-2 border-[var(--border)] transition-colors ${active ? "bg-[var(--accent)] text-[#1b1b1b]" : "hover:bg-[var(--bg-card-hover)]"}`}>
+                {label}
+              </button>
+            );
+          })}
         </div>
-        <div className="flex flex-wrap gap-1.5 mt-2">
-          {PRESETS.map(([g, label]) => (
-            <button key={label} onClick={() => setGoal(g)} className="text-sm px-2 py-1 border-2 border-[var(--border)] hover:bg-[var(--bg-card-hover)] transition-colors" title={g}>{label}</button>
-          ))}
+        <textarea ref={goalRef} value={goal} onChange={(e) => setGoal(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); launch(); } }}
+          rows={2} placeholder="Décrivez ce que l'agent doit faire… (ex : rédige 3 posts LinkedIn sur notre offre)"
+          className="modal-input w-full resize-none leading-snug" />
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-2">
+          <select value={model} onChange={(e) => setModel(e.target.value)} className="modal-input sm:w-44 font-mono">{MODELS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>
+          <span className="text-sm text-[var(--text-muted)] hidden sm:inline flex-1">Entrée pour lancer · Maj+Entrée = nouvelle ligne</span>
+          <button onClick={launch} disabled={busy || !goal.trim()} data-sfx="send" className="pbtn pbtn-primary pbtn-sm shrink-0"><PixelIcon name="zap" size={12} /> {busy ? "…" : "Exécuter"}</button>
         </div>
         <div className="flex items-center justify-between gap-3 mt-2 flex-wrap">
           <p className="text-sm text-[var(--text-muted)] flex items-center gap-1.5">
