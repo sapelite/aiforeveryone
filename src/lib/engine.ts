@@ -238,3 +238,36 @@ export async function getTaskOutputs(taskId: string): Promise<TaskOutputFile[]> 
     return res.ok ? ((await res.json()) as TaskOutputFile[]) : [];
   } catch { return []; }
 }
+
+/* ─── deliverables (projects + produced files) ─── */
+export type EngineProject = { slug: string; name: string; status: string; goal: string | null; taskCount: number; doneCount: number; createdAt: string };
+export type RecentFile = { id: string; fileName: string; relativePath: string; extension: string; sizeBytes: number | null; createdAt: string; taskTitle?: string; projectSlug?: string | null };
+export type FilePreview = { content: string | null; truncated: boolean; extension: string; binary: boolean };
+
+export async function getEngineProjects(): Promise<EngineProject[]> {
+  try { const res = await engineFetch("/api/projects"); return res.ok ? ((await res.json()) as EngineProject[]) : []; }
+  catch { return []; }
+}
+export async function getRecentFiles(limit = 16): Promise<RecentFile[]> {
+  try { const res = await engineFetch(`/api/files/recent?limit=${limit}`); return res.ok ? ((await res.json()) as RecentFile[]) : []; }
+  catch { return []; }
+}
+
+/** Preview a produced file. Text files return content; binaries are flagged. */
+export async function previewFile(relPath: string): Promise<FilePreview | null> {
+  if (relPath.includes("..")) return null;
+  try {
+    const res = await engineFetch(`/api/files/preview?path=${encodeURIComponent(relPath)}`);
+    if (!res.ok) return { content: null, truncated: false, extension: "", binary: false };
+    const ct = res.headers.get("content-type") ?? "";
+    if (ct.includes("application/json")) {
+      const j = (await res.json()) as { content: string | null; truncated?: boolean; extension?: string };
+      return { content: j.content ?? null, truncated: !!j.truncated, extension: j.extension ?? "", binary: false };
+    }
+    if (ct.startsWith("text/")) {
+      const txt = await res.text();
+      return { content: txt.slice(0, 24000), truncated: txt.length > 24000, extension: "html", binary: false };
+    }
+    return { content: null, truncated: false, extension: "", binary: true };
+  } catch { return null; }
+}

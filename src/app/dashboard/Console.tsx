@@ -12,6 +12,7 @@ import Brain from "./Brain";
 import Integrations from "./Integrations";
 import AgentInsights from "./AgentInsights";
 import Runs from "./Runs";
+import Deliverables from "./Deliverables";
 import Skills from "./Skills";
 import Scheduled from "./Scheduled";
 import Memory from "./Memory";
@@ -44,7 +45,7 @@ import {
 } from "lucide-react";
 
 type ViewId =
-  | "mission" | "scheduled" | "agents" | "chat" | "runs"
+  | "mission" | "scheduled" | "agents" | "chat" | "runs" | "deliverables"
   | "memories" | "skills" | "memory" | "hive" | "usage" | "audit" | "warroom" | "integrations" | "settings";
 
 const nav: { section: string; items: { id: ViewId; label: string; pic: string }[] }[] = [
@@ -54,6 +55,7 @@ const nav: { section: string; items: { id: ViewId; label: string; pic: string }[
     { id: "agents", label: "Agents", pic: "users" },
     { id: "chat", label: "Chat", pic: "message-text" },
     { id: "runs", label: "Runs", pic: "terminal" },
+    { id: "deliverables", label: "Livrables", pic: "folder" },
   ]},
   { section: "Intelligence", items: [
     { id: "memories", label: "Brain", pic: "notebook" },
@@ -77,6 +79,7 @@ const VIEW_META: Record<ViewId, { title: string; pic: string; w: number; h: numb
   agents: { title: "AGENTS", pic: "users", w: 900, h: 600 },
   chat: { title: "CHAT", pic: "message-text", w: 720, h: 580 },
   runs: { title: "RUNS", pic: "terminal", w: 860, h: 640 },
+  deliverables: { title: "LIVRABLES", pic: "folder", w: 900, h: 620 },
   memories: { title: "BRAIN", pic: "notebook", w: 920, h: 640 },
   skills: { title: "SKILLS", pic: "command", w: 920, h: 620 },
   memory: { title: "MEMOIRE", pic: "memory-stick", w: 880, h: 640 },
@@ -437,6 +440,7 @@ export default function Console({ data }: { data: InstanceData }) {
 
       case "memories": return <Brain instanceId={data.id} />;
       case "runs": return <Runs />;
+      case "deliverables": return <Deliverables />;
       case "skills": return <Skills />;
       case "memory": return <Memory />;
       case "hive": return <HiveGraph agents={data.agents.map((a) => a.display)} tasks={data.tasks.map((t) => ({ title: t.title, agent: t.agent, status: t.status }))} entities={data.entities} />;
