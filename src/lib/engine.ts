@@ -44,7 +44,10 @@ export async function engineBaseUrl(): Promise<string | null> {
 async function engineFetch(p: string, init?: RequestInit): Promise<Response> {
   const base = await engineBaseUrl();
   if (!base) throw new EngineOfflineError();
-  return fetch(`${base}${p}`, init);
+  // Default 8s timeout so a stalled engine connection can't hang a dashboard load.
+  // SSE uses a raw fetch (not engineFetch), so the long-lived stream is unaffected.
+  const signal = init?.signal ?? AbortSignal.timeout(8000);
+  return fetch(`${base}${p}`, { ...init, signal });
 }
 
 export type EngineStatus = {

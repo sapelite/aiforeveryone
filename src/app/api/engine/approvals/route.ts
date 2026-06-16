@@ -18,5 +18,8 @@ export async function POST(req: Request) {
   if (!taskId || !requestId || !decision) {
     return NextResponse.json({ ok: false, error: "taskId, requestId, decision requis" }, { status: 400 });
   }
+  if (!["allow_once", "allow_for_task", "deny"].includes(decision)) {
+    return NextResponse.json({ ok: false, error: "décision invalide" }, { status: 400 });
+  }
   return NextResponse.json({ ok: await resolveApproval(taskId, requestId, decision) });
 }
