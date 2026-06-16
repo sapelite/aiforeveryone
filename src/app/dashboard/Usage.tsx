@@ -22,6 +22,8 @@ export default function Usage() {
     { label: "Tokens consommés", value: (u.tokens || 0).toLocaleString("fr-FR") },
   ];
   const statusColor = (s: string) => s === "done" || s === "completed" ? "var(--accent)" : s === "failed" || s === "error" ? "var(--destructive)" : s === "running" ? "var(--warning)" : "var(--text-muted)";
+  const totalRuns = Object.values(u.byModel || {}).reduce((a, b) => a + b, 0);
+  const ecoPct = totalRuns ? Math.round((((u.byModel?.haiku ?? 0) + (u.byModel?.sonnet ?? 0)) / totalRuns) * 100) : 0;
 
   return (
     <div className="space-y-4">
@@ -61,6 +63,7 @@ export default function Usage() {
           </div>
         </div>
       </div>
+      {totalRuns > 0 && <p className="text-base"><span className="text-[var(--accent)] font-mono">{ecoPct}%</span> <span className="text-[var(--text-muted)]">des tâches tournent sur des modèles économiques (haiku/sonnet) via le routage cheap-first.</span></p>}
       <p className="text-sm text-[var(--text-muted)]">Coût réel issu des tâches du moteur (cost_usd). Lancez les tâches simples sur Haiku pour réduire la facture.</p>
     </div>
   );
