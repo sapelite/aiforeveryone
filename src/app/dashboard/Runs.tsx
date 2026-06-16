@@ -19,6 +19,12 @@ const EVENT_TYPES = [
   "task:progress", "task:output", "task:question", "task:log", "task:deleted",
 ];
 const MODELS: [string, string][] = [["auto", "Auto (éco)"], ["sonnet", "Sonnet"], ["haiku", "Haiku (éco)"], ["opus", "Opus (puissant)"]];
+const PRESETS: [string, string][] = [
+  ["Rédige 3 posts LinkedIn sur notre offre, ton direct.", "3 posts LinkedIn"],
+  ["Résume les nouveautés récentes de notre marché en 5 points.", "Veille marché"],
+  ["Propose 10 idées de contenu pour ce mois, classées par format.", "10 idées"],
+  ["Analyse nos forces et nos angles morts face à la concurrence.", "Analyse concurrence"],
+];
 
 let counter = 0;
 const uid = () => `f${++counter}`;
@@ -153,6 +159,11 @@ export default function Runs() {
           <select value={model} onChange={(e) => setModel(e.target.value)} className="modal-input sm:w-44 font-mono">{MODELS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>
           <button onClick={launch} disabled={busy || !goal.trim()} data-sfx="send" className="pbtn pbtn-primary pbtn-sm shrink-0"><PixelIcon name="zap" size={12} /> {busy ? "…" : "Exécuter"}</button>
         </div>
+        <div className="flex flex-wrap gap-1.5 mt-2">
+          {PRESETS.map(([g, label]) => (
+            <button key={label} onClick={() => setGoal(g)} className="text-sm px-2 py-1 border-2 border-[var(--border)] hover:bg-[var(--bg-card-hover)] transition-colors" title={g}>{label}</button>
+          ))}
+        </div>
         <div className="flex items-center justify-between gap-3 mt-2 flex-wrap">
           <p className="text-sm text-[var(--text-muted)] flex items-center gap-1.5">
             <span className={`w-2 h-2 ${online ? "bg-[var(--accent)] pulse-dot" : "bg-[var(--destructive)]"}`} />
@@ -205,7 +216,10 @@ export default function Runs() {
 
       {order.length > 0 && (
         <div className="win-flat">
-          <div className="px-3 py-2 border-b-2 border-[var(--border)] font-display text-[9px] uppercase">Tâches · {order.length}</div>
+          <div className="px-3 py-2 border-b-2 border-[var(--border)] font-display text-[9px] uppercase flex items-center justify-between">
+            <span>Tâches · {order.length}</span>
+            {(() => { const r = order.filter((id) => runs[id]?.status === "running").length; return r > 0 ? <span className="text-[var(--warning)] flex items-center gap-1"><span className="w-2 h-2 bg-[var(--warning)] pulse-dot" /> {r} en cours</span> : null; })()}
+          </div>
           <div className="divide-y-2 divide-[var(--border)] max-h-52 overflow-auto">
             {order.map((id) => { const t = runs[id]; if (!t) return null; return (
               <div key={id} className="flex items-center gap-2 px-3 py-2 text-base">

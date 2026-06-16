@@ -213,3 +213,11 @@ export async function readEngineMemory(): Promise<MemoryDoc[]> {
   docs.push(await readDoc("context/SOUL.md"));
   return docs.filter((d): d is MemoryDoc => d !== null);
 }
+
+/** Read a single skill's SKILL.md content by its folder name. */
+export async function readEngineSkill(name: string): Promise<string | null> {
+  const safe = name.replace(/[^a-z0-9_-]/gi, "");
+  if (!safe) return null;
+  const doc = await readDoc(`.claude/skills/${safe}/SKILL.md`);
+  return doc?.content ?? null;
+}
