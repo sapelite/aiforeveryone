@@ -254,3 +254,29 @@ img, svg, .pixelated { image-rendering: pixelated; }
 }
 .modal-input:focus { box-shadow: inset 2px 2px 0 0 color-mix(in srgb, var(--accent) 50%, transparent); }
 .modal-input::placeholder { color: var(--text-muted); }
+
+/* ─── Pixel cursor ─── */
+.pixcur, .pixcur * { cursor: none !important; }
+.pixcur-arrow {
+  position: fixed; left: 0; top: 0; z-index: 100000;
+  pointer-events: none; will-change: transform;
+  margin-left: -1px; margin-top: -1px;
+  transition: opacity .12s ease;
+}
+.pixcur-arrow svg {
+  display: block; image-rendering: pixelated;
+  transform-origin: 0 0; transition: transform .07s ease;
+  filter: drop-shadow(1px 1px 0 color-mix(in srgb, var(--border) 60%, transparent));
+}
+.pixcur-arrow--down svg { transform: scale(0.78); }
+
+@keyframes pixcur-burst {
+  0%   { transform: translate(-50%, -50%) scale(0.3); opacity: 0.9; }
+  100% { transform: translate(-50%, -50%) scale(1.7); opacity: 0; }
+}
+.pixcur-burst {
+  position: fixed; z-index: 99999; pointer-events: none;
+  width: 20px; height: 20px;
+  border: 2px solid var(--accent);
+  animation: pixcur-burst .42s steps(6, end) forwards;
+}
