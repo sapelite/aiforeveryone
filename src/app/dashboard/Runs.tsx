@@ -112,6 +112,15 @@ export default function Runs() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    try {
+      const m = localStorage.getItem("runs.model"); if (m) setModel(m);
+      const s = localStorage.getItem("runs.safe"); if (s !== null) setSafe(s !== "0");
+    } catch { /* no storage */ }
+  }, []);
+  useEffect(() => { try { localStorage.setItem("runs.model", model); } catch { /* */ } }, [model]);
+  useEffect(() => { try { localStorage.setItem("runs.safe", safe ? "1" : "0"); } catch { /* */ } }, [safe]);
+
   async function launch() {
     const g = goal.trim();
     if (!g || busy) return;

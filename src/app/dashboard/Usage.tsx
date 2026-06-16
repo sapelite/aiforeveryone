@@ -21,6 +21,7 @@ export default function Usage() {
     { label: "Coût réel cumulé", value: `$${(u.cost || 0).toFixed(2)}` },
     { label: "Tokens consommés", value: (u.tokens || 0).toLocaleString("fr-FR") },
   ];
+  const statusColor = (s: string) => s === "done" || s === "completed" ? "var(--accent)" : s === "failed" || s === "error" ? "var(--destructive)" : s === "running" ? "var(--warning)" : "var(--text-muted)";
 
   return (
     <div className="space-y-4">
@@ -35,18 +36,28 @@ export default function Usage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="win-flat">
           <div className="px-3 py-2 border-b-2 border-[var(--border)] font-display text-[9px] uppercase">Par modèle</div>
-          <div className="p-3 space-y-1">
+          <div className="p-3 space-y-1.5">
             {Object.keys(u.byModel || {}).length === 0
               ? <p className="text-sm text-[var(--text-muted)]">aucune donnée</p>
-              : Object.entries(u.byModel).map(([m, n]) => <div key={m} className="flex justify-between text-base"><span className="font-mono">{m}</span><span className="text-[var(--text-muted)]">{n}</span></div>)}
+              : (() => { const max = Math.max(...Object.values(u.byModel)); return Object.entries(u.byModel).sort((a, b) => b[1] - a[1]).map(([m, n]) => (
+                  <div key={m} className="text-base">
+                    <div className="flex justify-between mb-0.5"><span className="font-mono">{m}</span><span className="text-[var(--text-muted)]">{n}</span></div>
+                    <div className="h-2 border-2 border-[var(--border)] bg-[var(--bg)]"><div className="h-full bg-[var(--accent)]" style={{ width: `${max ? (n / max) * 100 : 0}%` }} /></div>
+                  </div>
+                )); })()}
           </div>
         </div>
         <div className="win-flat">
           <div className="px-3 py-2 border-b-2 border-[var(--border)] font-display text-[9px] uppercase">Par statut</div>
-          <div className="p-3 space-y-1">
+          <div className="p-3 space-y-1.5">
             {Object.keys(u.byStatus || {}).length === 0
               ? <p className="text-sm text-[var(--text-muted)]">aucune donnée</p>
-              : Object.entries(u.byStatus).map(([s, n]) => <div key={s} className="flex justify-between text-base"><span className="font-mono">{s}</span><span className="text-[var(--text-muted)]">{n}</span></div>)}
+              : (() => { const max = Math.max(...Object.values(u.byStatus)); return Object.entries(u.byStatus).sort((a, b) => b[1] - a[1]).map(([s, n]) => (
+                  <div key={s} className="text-base">
+                    <div className="flex justify-between mb-0.5"><span className="font-mono">{s}</span><span className="text-[var(--text-muted)]">{n}</span></div>
+                    <div className="h-2 border-2 border-[var(--border)] bg-[var(--bg)]"><div className="h-full" style={{ width: `${max ? (n / max) * 100 : 0}%`, background: statusColor(s) }} /></div>
+                  </div>
+                )); })()}
           </div>
         </div>
       </div>
