@@ -256,6 +256,16 @@ export async function getRecentFiles(limit = 16): Promise<RecentFile[]> {
   catch { return []; }
 }
 
+/* ─── context files (the engine's knowledge base) ─── */
+export type ContextFile = { name: string; path: string; size: number; modifiedAt: string; type: "memory" | "learnings" | "soul" | "user" | "other" };
+export async function getEngineContext(clientId?: string | null): Promise<ContextFile[]> {
+  try {
+    const q = clientId ? `?clientId=${encodeURIComponent(clientId)}` : "";
+    const res = await engineFetch(`/api/context${q}`);
+    return res.ok ? ((await res.json()) as ContextFile[]) : [];
+  } catch { return []; }
+}
+
 /* ─── task history (filtered, sorted, paginated) ─── */
 export type HistoryTask = {
   id: string; title: string; status: string;
