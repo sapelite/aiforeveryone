@@ -13,6 +13,7 @@ import Integrations from "./Integrations";
 import AgentInsights from "./AgentInsights";
 import Runs from "./Runs";
 import Deliverables from "./Deliverables";
+import History from "./History";
 import AttentionBell from "./AttentionBell";
 import RecentActivity from "./RecentActivity";
 import Skills from "./Skills";
@@ -48,7 +49,7 @@ import {
 
 type ViewId =
   | "mission" | "scheduled" | "agents" | "chat" | "runs" | "deliverables"
-  | "memories" | "skills" | "memory" | "hive" | "usage" | "audit" | "warroom" | "integrations" | "settings";
+  | "memories" | "skills" | "memory" | "hive" | "usage" | "audit" | "history" | "warroom" | "integrations" | "settings";
 
 const nav: { section: string; items: { id: ViewId; label: string; pic: string }[] }[] = [
   { section: "Espace", items: [
@@ -66,6 +67,7 @@ const nav: { section: string; items: { id: ViewId; label: string; pic: string }[
     { id: "hive", label: "Hive Mind", pic: "share" },
     { id: "usage", label: "Usage", pic: "chart-bar" },
     { id: "audit", label: "Audit", pic: "shield" },
+    { id: "history", label: "Historique", pic: "clock" },
   ]},
   { section: "Collaborer", items: [{ id: "warroom", label: "War Room", pic: "sword" }] },
   { section: "Configurer", items: [
@@ -88,6 +90,7 @@ const VIEW_META: Record<ViewId, { title: string; pic: string; w: number; h: numb
   hive: { title: "HIVE MIND", pic: "share", w: 880, h: 620 },
   usage: { title: "USAGE", pic: "chart-bar", w: 800, h: 460 },
   audit: { title: "AUDIT", pic: "shield", w: 760, h: 540 },
+  history: { title: "HISTORIQUE", pic: "clock", w: 860, h: 620 },
   warroom: { title: "WAR ROOM", pic: "sword", w: 900, h: 600 },
   integrations: { title: "INTEGRATIONS", pic: "blocks", w: 920, h: 620 },
   settings: { title: "REGLAGES", pic: "settings-2", w: 720, h: 620 },
@@ -445,6 +448,7 @@ export default function Console({ data }: { data: InstanceData }) {
       case "memories": return <Brain instanceId={data.id} />;
       case "runs": return <Runs />;
       case "deliverables": return <Deliverables />;
+      case "history": return <History />;
       case "skills": return <Skills />;
       case "memory": return <Memory />;
       case "hive": return <HiveGraph agents={data.agents.map((a) => a.display)} tasks={data.tasks.map((t) => ({ title: t.title, agent: t.agent, status: t.status }))} entities={data.entities} />;

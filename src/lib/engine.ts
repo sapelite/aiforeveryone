@@ -256,6 +256,23 @@ export async function getRecentFiles(limit = 16): Promise<RecentFile[]> {
   catch { return []; }
 }
 
+/* ─── task history (filtered, sorted, paginated) ─── */
+export type HistoryTask = {
+  id: string; title: string; status: string;
+  costUsd?: number | null; tokensUsed?: number | null; durationMs?: number | null; model?: string | null;
+  completedAt?: string | null; startedAt?: string | null; createdAt?: string | null;
+  errorMessage?: string | null; projectSlug?: string | null;
+};
+
+export async function getEngineTaskHistory(opts: Record<string, string | number | null | undefined> = {}): Promise<{ tasks: HistoryTask[]; total: number }> {
+  try {
+    const qs = new URLSearchParams();
+    for (const [k, v] of Object.entries(opts)) if (v != null && v !== "") qs.set(k, String(v));
+    const res = await engineFetch(`/api/tasks/history?${qs.toString()}`);
+    return res.ok ? ((await res.json()) as { tasks: HistoryTask[]; total: number }) : { tasks: [], total: 0 };
+  } catch { return { tasks: [], total: 0 }; }
+}
+
 /** Preview a produced file. Text files return content; binaries are flagged. */
 export async function previewFile(relPath: string): Promise<FilePreview | null> {
   if (relPath.includes("..")) return null;
