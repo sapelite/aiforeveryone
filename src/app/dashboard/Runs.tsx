@@ -264,6 +264,7 @@ export default function Runs() {
               <div key={id} className="flex items-center gap-2 px-3 py-2 text-base">
                 <span className={`w-2 h-2 shrink-0 ${dotFor(t)}`} />
                 <button onClick={() => openDetail(id)} className="flex-1 truncate text-left hover:text-[var(--accent)] transition-colors" title="Voir le détail">{id === mineId && <span className="text-[var(--accent)]">★ </span>}{t.title}</button>
+                {t.model && <span className="text-sm text-[var(--text-muted)] font-mono hidden sm:inline" title="Modèle">{t.model}</span>}
                 {t.costUsd != null && <span className="text-sm text-[var(--text-muted)] font-mono">${t.costUsd.toFixed(3)}</span>}
                 <span className={`text-sm font-mono ${t.status === "completed" || t.status === "done" ? "text-[var(--accent)]" : t.status === "failed" || t.status === "error" ? "text-[var(--destructive)]" : "text-[var(--text-muted)]"}`}>{t.needsInput ? "validation" : t.status}</span>
                 {t.status === "running" && <button onClick={() => cancel(id)} className="win-btn shrink-0" title="Arrêter la tâche" aria-label="Arrêter"><PixelIcon name="close" size={11} /></button>}
