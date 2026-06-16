@@ -103,6 +103,7 @@ const initialForm: FormState = {
 export default function OnboardingPage() {
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
+  const [taskId, setTaskId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(initialForm);
 
   const update: Update = (field, value) => setForm((f) => ({ ...f, [field]: value }));
@@ -137,7 +138,16 @@ export default function OnboardingPage() {
 
   const next = () => { if (stepValid(step)) setStep((s) => Math.min(s + 1, stepsMeta.length - 1)); };
   const prev = () => setStep((s) => Math.max(s - 1, 0));
-  const handleSubmit = () => { if (!allValid) return; console.log("Onboarding submitted:", form); setSubmitted(true); };
+  const handleSubmit = async () => {
+    if (!allValid) return;
+    setSubmitted(true);
+    try {
+      const goal = `Construis la fondation de marque pour ${str("company")} (secteur : ${str("industry")}). Pitch : ${str("pitch")}. Client idéal : ${str("icp") || "à définir"}. Différenciateurs : ${str("differentiators") || "à définir"}. Voix souhaitée : ${str("brandVoice") || "à définir"}. Utilise les skills mkt-brand-voice, mkt-positioning et mkt-icp, puis sauvegarde les livrables dans projects/.`;
+      const res = await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ goal, model: "auto" }) });
+      const j = await res.json();
+      if (j.ok) setTaskId(j.taskId);
+    } catch { /* moteur hors ligne : on garde le message 48h */ }
+  };
 
   if (submitted) {
     return (
@@ -148,13 +158,16 @@ export default function OnboardingPage() {
             <div className="w-20 h-20 border-2 border-[var(--border)] bg-[var(--accent)] flex items-center justify-center mx-auto mb-6" style={{ boxShadow: "4px 4px 0 0 var(--border)" }}>
               <CheckCircle2 className="w-10 h-10 text-[#1b1b1b]" />
             </div>
-            <h1 className="font-display text-[clamp(0.9rem,3vw,1.3rem)] mb-4">Demande reçue</h1>
+            <h1 className="font-display text-[clamp(0.9rem,3vw,1.3rem)] mb-4">{taskId ? "C'est lancé" : "Demande reçue"}</h1>
             <p className="text-lg text-[var(--text-muted)] mb-8 leading-snug">
-              Merci. Notre équipe analyse votre profil et revient sous 48h avec une architecture d&apos;AI OS sur mesure :
-              agents, workflows, dashboard et votre <span className="text-[var(--text)]">Brain</span> (vault Obsidian) prêts à être instanciés.
+              {taskId ? (
+                <>Un agent construit votre fondation de marque en ce moment (tâche <span className="font-mono text-[var(--text)]">{taskId.slice(0, 8)}</span>) : voix, positionnement et client idéal. Suivez-la en direct dans la démo.</>
+              ) : (
+                <>Merci. Notre équipe analyse votre profil et revient sous 48h avec une architecture d&apos;AI OS sur mesure : agents, workflows, dashboard et votre <span className="text-[var(--text)]">Brain</span> (vault Obsidian) prêts à être instanciés.</>
+              )}
             </p>
-            <a href="/" className="pbtn pbtn-primary mx-auto">
-              Retour à l&apos;accueil
+            <a href={taskId ? "/dashboard?view=runs" : "/"} className="pbtn pbtn-primary mx-auto">
+              {taskId ? "Suivre dans la démo →" : "Retour à l'accueil"}
             </a>
           </div>
         </main>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { PixelIcon } from "@/components/PixelIcon";
 import { play } from "@/lib/sound";
 
@@ -84,6 +85,10 @@ export default function Runs() {
         else if (type === "task:log") pushFeed(type, `${star}${ev.logEntry?.message ?? t.activityLabel ?? "log"}`, "info");
         else if (type === "task:progress") { if (t.activityLabel) pushFeed(type, `${star}${t.activityLabel}`, "info"); }
         else if (type === "task:output") pushFeed(type, `${star}sortie reçue`, "info");
+        if (type === "task:status" && t.id === mine.current) {
+          if (t.status === "completed" || t.status === "done") toast.success("Tâche terminée", { description: t.title });
+          else if (t.status === "failed" || t.status === "error") toast.error("Tâche échouée", { description: t.errorMessage ?? t.title });
+        }
       } catch { /* ignore malformed */ }
     };
     EVENT_TYPES.forEach((ty) => es.addEventListener(ty, handler(ty)));
