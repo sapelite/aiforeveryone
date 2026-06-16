@@ -294,7 +294,7 @@ export default function Console({ data }: { data: InstanceData }) {
       case "mission":
         return (
           <div className="space-y-4">
-            <EngineKpis />
+            <EngineKpis onOpen={(v) => openWindow(v as ViewId)} />
 
             <AgentInsights data={data} onCreate={(name) => openAdd(name)} />
 
