@@ -266,6 +266,17 @@ export async function getEngineContext(clientId?: string | null): Promise<Contex
   } catch { return []; }
 }
 
+/* ─── brand foundation (voice / positioning / icp presence) ─── */
+export type BrandContext = { hasBrandContext: boolean; files: { voiceProfile: boolean; positioning: boolean; icp: boolean } };
+export async function getEngineBrand(clientId?: string | null): Promise<BrandContext> {
+  try {
+    const q = clientId ? `?clientId=${encodeURIComponent(clientId)}` : "";
+    const res = await engineFetch(`/api/context/brand${q}`);
+    if (res.ok) return (await res.json()) as BrandContext;
+  } catch { /* offline */ }
+  return { hasBrandContext: false, files: { voiceProfile: false, positioning: false, icp: false } };
+}
+
 /* ─── task history (filtered, sorted, paginated) ─── */
 export type HistoryTask = {
   id: string; title: string; status: string;

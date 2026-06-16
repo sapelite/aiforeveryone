@@ -14,6 +14,7 @@ import AgentInsights from "./AgentInsights";
 import Runs from "./Runs";
 import Board from "./Board";
 import Context from "./Context";
+import Brand from "./Brand";
 import Deliverables from "./Deliverables";
 import History from "./History";
 import AttentionBell from "./AttentionBell";
@@ -52,7 +53,7 @@ import {
 
 type ViewId =
   | "mission" | "scheduled" | "agents" | "chat" | "runs" | "board" | "deliverables"
-  | "memories" | "skills" | "memory" | "context" | "hive" | "usage" | "audit" | "history" | "warroom" | "integrations" | "settings";
+  | "memories" | "skills" | "memory" | "context" | "brand" | "hive" | "usage" | "audit" | "history" | "warroom" | "integrations" | "settings";
 
 const nav: { section: string; items: { id: ViewId; label: string; pic: string }[] }[] = [
   { section: "Espace", items: [
@@ -69,6 +70,7 @@ const nav: { section: string; items: { id: ViewId; label: string; pic: string }[
     { id: "skills", label: "Skills", pic: "command" },
     { id: "memory", label: "Mémoire", pic: "memory-stick" },
     { id: "context", label: "Contexte", pic: "article" },
+    { id: "brand", label: "Marque", pic: "bookmark" },
     { id: "hive", label: "Hive Mind", pic: "share" },
     { id: "usage", label: "Usage", pic: "chart-bar" },
     { id: "audit", label: "Audit", pic: "shield" },
@@ -94,6 +96,7 @@ const VIEW_META: Record<ViewId, { title: string; pic: string; w: number; h: numb
   skills: { title: "SKILLS", pic: "command", w: 920, h: 620 },
   memory: { title: "MEMOIRE", pic: "memory-stick", w: 880, h: 640 },
   context: { title: "CONTEXTE", pic: "article", w: 880, h: 640 },
+  brand: { title: "MARQUE", pic: "bookmark", w: 820, h: 560 },
   hive: { title: "HIVE MIND", pic: "share", w: 880, h: 620 },
   usage: { title: "USAGE", pic: "chart-bar", w: 800, h: 460 },
   audit: { title: "AUDIT", pic: "shield", w: 760, h: 540 },
@@ -473,6 +476,7 @@ export default function Console({ data }: { data: InstanceData }) {
       case "skills": return <Skills />;
       case "memory": return <Memory />;
       case "context": return <Context />;
+      case "brand": return <Brand />;
       case "hive": return <HiveGraph agents={data.agents.map((a) => a.display)} tasks={data.tasks.map((t) => ({ title: t.title, agent: t.agent, status: t.status }))} entities={data.entities} />;
       case "warroom": return <WarRoom instanceId={data.id} agents={data.agents.filter((a) => a.status === "online").map((a) => ({ slug: a.slug, display: a.display, role: a.role }))} />;
       case "chat": return <Chat instanceId={data.id} name={data.name} />;
