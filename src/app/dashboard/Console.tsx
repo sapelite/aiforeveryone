@@ -12,6 +12,7 @@ import Brain from "./Brain";
 import Integrations from "./Integrations";
 import AgentInsights from "./AgentInsights";
 import Runs from "./Runs";
+import Board from "./Board";
 import Deliverables from "./Deliverables";
 import History from "./History";
 import AttentionBell from "./AttentionBell";
@@ -49,7 +50,7 @@ import {
 } from "lucide-react";
 
 type ViewId =
-  | "mission" | "scheduled" | "agents" | "chat" | "runs" | "deliverables"
+  | "mission" | "scheduled" | "agents" | "chat" | "runs" | "board" | "deliverables"
   | "memories" | "skills" | "memory" | "hive" | "usage" | "audit" | "history" | "warroom" | "integrations" | "settings";
 
 const nav: { section: string; items: { id: ViewId; label: string; pic: string }[] }[] = [
@@ -59,6 +60,7 @@ const nav: { section: string; items: { id: ViewId; label: string; pic: string }[
     { id: "agents", label: "Agents", pic: "users" },
     { id: "chat", label: "Chat", pic: "message-text" },
     { id: "runs", label: "Runs", pic: "terminal" },
+    { id: "board", label: "Tableau", pic: "list" },
     { id: "deliverables", label: "Livrables", pic: "folder" },
   ]},
   { section: "Intelligence", items: [
@@ -84,6 +86,7 @@ const VIEW_META: Record<ViewId, { title: string; pic: string; w: number; h: numb
   agents: { title: "AGENTS", pic: "users", w: 900, h: 600 },
   chat: { title: "CHAT", pic: "message-text", w: 720, h: 580 },
   runs: { title: "RUNS", pic: "terminal", w: 860, h: 640 },
+  board: { title: "TABLEAU", pic: "list", w: 1000, h: 640 },
   deliverables: { title: "LIVRABLES", pic: "folder", w: 900, h: 620 },
   memories: { title: "BRAIN", pic: "notebook", w: 920, h: 640 },
   skills: { title: "SKILLS", pic: "command", w: 920, h: 620 },
@@ -461,6 +464,7 @@ export default function Console({ data }: { data: InstanceData }) {
 
       case "memories": return <Brain instanceId={data.id} />;
       case "runs": return <Runs />;
+      case "board": return <Board />;
       case "deliverables": return <Deliverables />;
       case "history": return <History />;
       case "skills": return <Skills />;
