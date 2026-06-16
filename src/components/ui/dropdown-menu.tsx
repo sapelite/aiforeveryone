@@ -22,7 +22,7 @@ function DropdownMenuContent({
         sideOffset={sideOffset}
         style={{ backgroundColor: "var(--popover, #161619)" }}
         className={cn(
-          "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 z-50 min-w-[12rem] overflow-hidden rounded-lg border border-[var(--border)] p-1 shadow-xl",
+          "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 z-[9999] min-w-[12rem] overflow-hidden rounded-lg border border-[var(--border)] p-1 shadow-xl",
           className
         )}
         {...props}

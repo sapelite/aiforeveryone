@@ -175,6 +175,19 @@ function tileRect(i: number, n: number, W: number, H: number): Rect {
   return { x: pad + col * (tileW + gap), y: pad + row * (tileH + gap), w: tileW, h: tileH };
 }
 
+const WIN_Z_BASE = 10;
+/**
+ * Re-pack window z-indices into a compact band [WIN_Z_BASE, +N) with `id` on top.
+ * Keeps windows below overlays (dropdowns z-9999, modals z-50+) no matter how many
+ * times they are focused, instead of an ever-growing counter that climbs over them.
+ */
+function bringToFront(wins: Win[], id: ViewId): Win[] {
+  const ordered = [...wins].sort((a, b) => a.z - b.z).filter((w) => w.id !== id);
+  const top = wins.find((w) => w.id === id);
+  const order = top ? [...ordered, top] : ordered;
+  return wins.map((w) => ({ ...w, z: WIN_Z_BASE + order.findIndex((o) => o.id === w.id) }));
+}
+
 /* ─── auto-tiled window ─── */
 function PixWindow({
   win, rect, active, onFocus, onClose, onMin, onMax, children,
@@ -208,8 +221,6 @@ export default function Console({ data }: { data: InstanceData }) {
   const deskRef = useRef<HTMLDivElement>(null);
 
   const [windows, setWindows] = useState<Win[]>([]);
-  const zRef = useRef(10);
-  const nextZ = () => (zRef.current += 1);
   const [deskSize, setDeskSize] = useState({ w: typeof window !== "undefined" ? window.innerWidth : 1280, h: typeof window !== "undefined" ? window.innerHeight - 68 : 700 });
   const [query, setQuery] = useState("");
   const [addOpen, setAddOpen] = useState(false);
@@ -220,18 +231,16 @@ export default function Console({ data }: { data: InstanceData }) {
   const [taskModal, setTaskModal] = useState<null | "new" | InstanceData["tasks"][number]>(null);
   const [menuHint, setMenuHint] = useState(false);
 
-  const openWindow = (id: ViewId) => {
-    const z = nextZ();
-    setWindows((prev) => {
-      const found = prev.find((w) => w.id === id);
-      if (found) return prev.map((w) => (w.id === id ? { ...w, z, min: false } : w));
-      return [...prev, { id, z, max: false, min: false }];
-    });
-  };
-  const focusWindow = (id: ViewId) => { const z = nextZ(); setWindows((prev) => prev.map((w) => (w.id === id ? { ...w, z, min: false } : w))); };
+  const openWindow = (id: ViewId) => setWindows((prev) => {
+    const base = prev.some((w) => w.id === id)
+      ? prev.map((w) => (w.id === id ? { ...w, min: false } : w))
+      : [...prev, { id, z: 0, max: false, min: false }];
+    return bringToFront(base, id);
+  });
+  const focusWindow = (id: ViewId) => setWindows((prev) => bringToFront(prev.map((w) => (w.id === id ? { ...w, min: false } : w)), id));
   const closeWindow = (id: ViewId) => setWindows((prev) => prev.filter((w) => w.id !== id));
   const toggleMin = (id: ViewId) => setWindows((prev) => prev.map((w) => (w.id === id ? { ...w, min: !w.min } : w)));
-  const toggleMax = (id: ViewId) => { const z = nextZ(); setWindows((prev) => prev.map((w) => (w.id === id ? { ...w, max: !w.max, z } : w))); };
+  const toggleMax = (id: ViewId) => setWindows((prev) => bringToFront(prev.map((w) => (w.id === id ? { ...w, max: !w.max } : w)), id));
 
   // ⌘K palette
   useEffect(() => {
