@@ -13,6 +13,8 @@ type TaskLite = {
 type ApprovalReq = { id: string; toolName: string; title: string; description: string | null };
 type Tone = "info" | "ok" | "warn" | "err";
 type FeedLine = { id: string; ts: string; type: string; text: string; tone: Tone };
+type TaskLog = { id: string; type: string; content: string; toolName?: string };
+type TaskOut = { id: string; fileName: string; relativePath: string; extension: string; sizeBytes: number | null };
 
 const EVENT_TYPES = [
   "connected", "offline", "task:created", "task:updated", "task:status",
@@ -42,6 +44,8 @@ export default function Runs() {
   const [questions, setQuestions] = useState<Record<string, string>>({});
   const [replyText, setReplyText] = useState<Record<string, string>>({});
   const [mineId, setMineId] = useState<string | null>(null);
+  const [detail, setDetail] = useState<string | null>(null);
+  const [detailData, setDetailData] = useState<{ logs: TaskLog[]; outputs: TaskOut[] } | null>(null);
   const mine = useRef<string | null>(null);
   const scroller = useRef<HTMLDivElement>(null);
 
@@ -147,6 +151,11 @@ export default function Runs() {
     pushFeed("cancel", `arrêt demandé → ${taskId.slice(0, 8)}`, "warn");
   }
 
+  function openDetail(taskId: string) {
+    setDetail(taskId); setDetailData(null);
+    fetch(`/api/engine/task?taskId=${encodeURIComponent(taskId)}`).then((r) => r.json()).then(setDetailData).catch(() => setDetailData({ logs: [], outputs: [] }));
+  }
+
   const pendingApprovals = Object.entries(approvals).flatMap(([taskId, list]) => list.map((r) => ({ taskId, ...r })));
   const pendingQuestions = order.filter((id) => runs[id]?.needsInput && !(approvals[id]?.length)).map((id) => ({ taskId: id, question: questions[id] }));
 
@@ -224,7 +233,7 @@ export default function Runs() {
             {order.map((id) => { const t = runs[id]; if (!t) return null; return (
               <div key={id} className="flex items-center gap-2 px-3 py-2 text-base">
                 <span className={`w-2 h-2 shrink-0 ${dotFor(t)}`} />
-                <span className="flex-1 truncate">{id === mineId && <span className="text-[var(--accent)]">★ </span>}{t.title}</span>
+                <button onClick={() => openDetail(id)} className="flex-1 truncate text-left hover:text-[var(--accent)] transition-colors" title="Voir le détail">{id === mineId && <span className="text-[var(--accent)]">★ </span>}{t.title}</button>
                 {t.costUsd != null && <span className="text-sm text-[var(--text-muted)] font-mono">${t.costUsd.toFixed(3)}</span>}
                 <span className={`text-sm font-mono ${t.status === "completed" || t.status === "done" ? "text-[var(--accent)]" : t.status === "failed" || t.status === "error" ? "text-[var(--destructive)]" : "text-[var(--text-muted)]"}`}>{t.needsInput ? "validation" : t.status}</span>
                 {t.status === "running" && <button onClick={() => cancel(id)} className="win-btn shrink-0" title="Arrêter la tâche" aria-label="Arrêter"><PixelIcon name="close" size={11} /></button>}
@@ -243,6 +252,45 @@ export default function Runs() {
           ))}
         </div>
       </div>
+
+      {detail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setDetail(null)}>
+          <div className="win-flat w-full max-w-2xl max-h-[80vh] flex flex-col bg-[var(--bg)]" onClick={(e) => e.stopPropagation()}>
+            <div className="px-3 py-2 border-b-2 border-[var(--border)] font-display text-[9px] uppercase flex items-center justify-between gap-2">
+              <span className="truncate">{runs[detail]?.title ?? "Tâche"}</span>
+              <button onClick={() => setDetail(null)} className="win-btn shrink-0" aria-label="Fermer"><PixelIcon name="close" size={11} /></button>
+            </div>
+            <div className="overflow-auto p-3 space-y-3">
+              {detailData === null && <p className="text-sm text-[var(--text-muted)]">chargement<span className="blink">_</span></p>}
+              {detailData && detailData.outputs.length > 0 && (
+                <div>
+                  <p className="font-display text-[8px] uppercase text-[var(--text-muted)] mb-1.5">Fichiers produits · {detailData.outputs.length}</p>
+                  <div className="space-y-1">
+                    {detailData.outputs.map((o) => (
+                      <div key={o.id} className="flex items-center gap-2 text-sm font-mono">
+                        <PixelIcon name="file" size={12} className="text-[var(--accent)]" />
+                        <span className="flex-1 truncate" title={o.relativePath}>{o.relativePath}</span>
+                        {o.sizeBytes != null && <span className="text-[var(--text-muted)] shrink-0">{(o.sizeBytes / 1024).toFixed(1)} ko</span>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {detailData && (
+                <div>
+                  <p className="font-display text-[8px] uppercase text-[var(--text-muted)] mb-1.5">Journal</p>
+                  <div className="space-y-1.5 font-mono text-sm">
+                    {detailData.logs.filter((l) => (l.content && l.content.trim()) || l.toolName).length === 0 && <p className="text-[var(--text-muted)]">aucune sortie pour l&apos;instant.</p>}
+                    {detailData.logs.map((l) => l.type === "tool_use"
+                      ? <p key={l.id} className="text-[var(--text-muted)]">→ {l.toolName ?? "outil"}</p>
+                      : (l.content && l.content.trim() ? <p key={l.id} className="whitespace-pre-wrap leading-snug">{l.content}</p> : null))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -221,3 +221,20 @@ export async function readEngineSkill(name: string): Promise<string | null> {
   const doc = await readDoc(`.claude/skills/${safe}/SKILL.md`);
   return doc?.content ?? null;
 }
+
+/* ─── task inspection (logs + produced files) ─── */
+export type TaskLogEntry = { id: string; type: string; timestamp: string; content: string; toolName?: string };
+export type TaskOutputFile = { id: string; fileName: string; relativePath: string; extension: string; sizeBytes: number | null };
+
+export async function getTaskLogs(taskId: string): Promise<TaskLogEntry[]> {
+  try {
+    const res = await engineFetch(`/api/tasks/${encodeURIComponent(taskId)}/logs`);
+    return res.ok ? ((await res.json()) as TaskLogEntry[]) : [];
+  } catch { return []; }
+}
+export async function getTaskOutputs(taskId: string): Promise<TaskOutputFile[]> {
+  try {
+    const res = await engineFetch(`/api/tasks/${encodeURIComponent(taskId)}/outputs`);
+    return res.ok ? ((await res.json()) as TaskOutputFile[]) : [];
+  } catch { return []; }
+}
