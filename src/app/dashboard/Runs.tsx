@@ -17,14 +17,14 @@ const EVENT_TYPES = [
   "connected", "offline", "task:created", "task:updated", "task:status",
   "task:progress", "task:output", "task:question", "task:log", "task:deleted",
 ];
-const MODELS: [string, string][] = [["sonnet", "Sonnet (défaut)"], ["haiku", "Haiku (éco)"], ["opus", "Opus (puissant)"]];
+const MODELS: [string, string][] = [["auto", "Auto (éco)"], ["sonnet", "Sonnet"], ["haiku", "Haiku (éco)"], ["opus", "Opus (puissant)"]];
 
 let counter = 0;
 const uid = () => `f${++counter}`;
 
 export default function Runs() {
   const [goal, setGoal] = useState("");
-  const [model, setModel] = useState("sonnet");
+  const [model, setModel] = useState("auto");
   const [safe, setSafe] = useState(true);
   const [busy, setBusy] = useState(false);
   const [online, setOnline] = useState<boolean | null>(null);
@@ -101,7 +101,7 @@ export default function Runs() {
         body: JSON.stringify({ goal: g, model, permissionMode: safe ? "default" : "bypassPermissions" }),
       });
       const j = await res.json();
-      if (j.ok) { mine.current = j.taskId; setMineId(j.taskId); setGoal(""); pushFeed("run", `but lancé → tâche ${String(j.taskId).slice(0, 8)} (${j.title})`, "ok"); }
+      if (j.ok) { mine.current = j.taskId; setMineId(j.taskId); setGoal(""); pushFeed("run", `but lancé → tâche ${String(j.taskId).slice(0, 8)}${j.routed ? ` · auto → ${j.model}` : ""}`, "ok"); }
       else if (j.offline) pushFeed("run", "moteur hors ligne. démarre le command-centre Agentic OS.", "err");
       else pushFeed("run", `échec : ${j.error ?? "inconnu"}`, "err");
     } catch { pushFeed("run", "erreur réseau.", "err"); }
