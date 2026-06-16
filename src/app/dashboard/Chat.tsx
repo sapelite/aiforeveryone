@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Send, Bot, Sparkles } from "lucide-react";
+import { Send, Bot, Sparkles, Zap } from "lucide-react";
 import { play } from "@/lib/sound";
 
 type Msg = { role: "user" | "assistant"; content: string };
@@ -47,6 +47,23 @@ export default function Chat({ instanceId, name }: { instanceId: string; name: s
     }
   }
 
+  async function launchTask() {
+    const text = input.trim();
+    if (!text || busy) return;
+    setBusy(true); play("send");
+    setMessages((m) => [...m, { role: "user", content: text }]);
+    setInput("");
+    scroll();
+    try {
+      const res = await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ goal: text, model: "auto" }) });
+      const j = await res.json();
+      if (j.ok) { setMessages((m) => [...m, { role: "assistant", content: `Tâche lancée (${String(j.taskId).slice(0, 8)})${j.routed ? ` · modèle ${j.model}` : ""}. Suis-la en direct dans l'onglet Exécutions.` }]); play("receive"); }
+      else if (j.offline) setNotice("Moteur hors ligne : démarre le command-centre pour exécuter des tâches autonomes.");
+      else setMessages((m) => [...m, { role: "assistant", content: "Échec du lancement : " + (j.error ?? "inconnu") }]);
+    } catch { setMessages((m) => [...m, { role: "assistant", content: "Erreur réseau." }]); }
+    finally { setBusy(false); scroll(); }
+  }
+
   return (
     <div className="flex flex-col border-2 border-[var(--border)] bg-[var(--bg-card)] h-full min-h-[420px]">
       <div ref={scroller} className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -88,7 +105,10 @@ export default function Chat({ instanceId, name }: { instanceId: string; name: s
           placeholder="Écris ton message…"
           className="flex-1 bg-[var(--bg-card)] border-2 border-[var(--border)] rounded-lg px-3 h-9 text-sm placeholder:text-[var(--text-muted)] outline-none acc-ring"
         />
-        <button onClick={send} disabled={busy || !input.trim()} data-sfx="send" className="w-9 h-9 grid place-items-center rounded-lg acc-bg disabled:opacity-40 text-white">
+        <button onClick={launchTask} disabled={busy || !input.trim()} title="Lancer comme tâche autonome" className="w-9 h-9 grid place-items-center rounded-lg border-2 border-[var(--border)] disabled:opacity-40">
+          <Zap className="w-4 h-4 acc-text" />
+        </button>
+        <button onClick={send} disabled={busy || !input.trim()} data-sfx="send" title="Demander (réponse rapide)" className="w-9 h-9 grid place-items-center rounded-lg acc-bg disabled:opacity-40 text-white">
           <Send className="w-4 h-4" />
         </button>
       </div>
