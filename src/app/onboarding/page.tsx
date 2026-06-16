@@ -166,7 +166,7 @@ export default function OnboardingPage() {
                 <>Merci. Notre équipe analyse votre profil et revient sous 48h avec une architecture d&apos;AI OS sur mesure : agents, workflows, dashboard et votre <span className="text-[var(--text)]">Brain</span> (vault Obsidian) prêts à être instanciés.</>
               )}
             </p>
-            <a href={taskId ? "/dashboard?view=runs" : "/"} className="pbtn pbtn-primary mx-auto">
+            <a href={taskId ? `/dashboard?view=runs&task=${taskId}` : "/"} className="pbtn pbtn-primary mx-auto">
               {taskId ? "Suivre dans la démo →" : "Retour à l'accueil"}
             </a>
           </div>

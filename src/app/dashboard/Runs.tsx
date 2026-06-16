@@ -106,6 +106,12 @@ export default function Runs() {
     return () => es.close();
   }, []);
 
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get("task");
+    if (t) openDetail(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   async function launch() {
     const g = goal.trim();
     if (!g || busy) return;
@@ -154,6 +160,10 @@ export default function Runs() {
   function openDetail(taskId: string) {
     setDetail(taskId); setDetailData(null);
     fetch(`/api/engine/task?taskId=${encodeURIComponent(taskId)}`).then((r) => r.json()).then(setDetailData).catch(() => setDetailData({ logs: [], outputs: [] }));
+  }
+
+  async function stopAll() {
+    for (const id of order.filter((i) => runs[i]?.status === "running")) await cancel(id);
   }
 
   const pendingApprovals = Object.entries(approvals).flatMap(([taskId, list]) => list.map((r) => ({ taskId, ...r })));
@@ -227,7 +237,12 @@ export default function Runs() {
         <div className="win-flat">
           <div className="px-3 py-2 border-b-2 border-[var(--border)] font-display text-[9px] uppercase flex items-center justify-between">
             <span>Tâches · {order.length}</span>
-            {(() => { const r = order.filter((id) => runs[id]?.status === "running").length; return r > 0 ? <span className="text-[var(--warning)] flex items-center gap-1"><span className="w-2 h-2 bg-[var(--warning)] pulse-dot" /> {r} en cours</span> : null; })()}
+            {(() => { const r = order.filter((id) => runs[id]?.status === "running").length; return r > 0 ? (
+              <span className="flex items-center gap-2">
+                <span className="text-[var(--warning)] flex items-center gap-1"><span className="w-2 h-2 bg-[var(--warning)] pulse-dot" /> {r} en cours</span>
+                <button onClick={stopAll} className="win-btn" title="Tout arrêter" aria-label="Tout arrêter"><PixelIcon name="close" size={11} /></button>
+              </span>
+            ) : null; })()}
           </div>
           <div className="divide-y-2 divide-[var(--border)] max-h-52 overflow-auto">
             {order.map((id) => { const t = runs[id]; if (!t) return null; return (
