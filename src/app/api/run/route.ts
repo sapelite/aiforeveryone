@@ -22,26 +22,25 @@ async function triageModel(goal: string): Promise<"haiku" | "sonnet" | "opus"> {
  * Triggered autonomy. POST { goal, clientId?, model?, permissionMode? }.
  * model can be "haiku"|"sonnet"|"opus" or "auto" (cheap-first routing).
  */
+const MODES = new Set(["default", "acceptEdits", "bypassPermissions", "plan"]);
+const MODELS = new Set(["haiku", "sonnet", "opus", "auto"]);
+
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
-  const goal = typeof body.goal === "string" ? body.goal.trim() : "";
+  const goal = (typeof body.goal === "string" ? body.goal.trim() : "").slice(0, 4000);
   if (!goal) return NextResponse.json({ error: "goal requis" }, { status: 400 });
 
-  let model: "haiku" | "sonnet" | "opus" | null = body.model ?? null;
+  const requested: string | null = MODELS.has(body.model) ? body.model : null;
+  let model: "haiku" | "sonnet" | "opus" | null = requested === "auto" ? null : (requested as "haiku" | "sonnet" | "opus" | null);
   let routed = false;
-  if (model === ("auto" as unknown)) {
-    model = await triageModel(goal);
-    routed = true;
-  }
+  if (requested === "auto") { model = await triageModel(goal); routed = true; }
+
+  const permissionMode = (MODES.has(body.permissionMode) ? body.permissionMode : "default") as "default" | "acceptEdits" | "bypassPermissions" | "plan";
+  const title = typeof body.title === "string" ? body.title.slice(0, 200) : null;
+  const clientId = typeof body.clientId === "string" ? body.clientId : null;
 
   try {
-    const result = await runGoal({
-      goal,
-      clientId: body.clientId ?? null,
-      model,
-      title: body.title ?? null,
-      permissionMode: body.permissionMode ?? "default",
-    });
+    const result = await runGoal({ goal, clientId, model, title, permissionMode });
     return NextResponse.json({ ok: true, ...result, model, routed });
   } catch (e) {
     if (e instanceof EngineOfflineError) {
