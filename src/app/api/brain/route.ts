@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { NextResponse } from "next/server";
+import { safeId } from "@/lib/ids";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,8 +23,10 @@ async function readConfig(id: string): Promise<{ vaultPath?: string; connectedAt
   try { return JSON.parse(await fs.readFile(configFile(id), "utf8")); } catch { return {}; }
 }
 async function writeConfig(id: string, cfg: object) {
-  await fs.mkdir(path.join(CLIENTS, id), { recursive: true });
-  await fs.writeFile(configFile(id), JSON.stringify(cfg, null, 2), "utf8");
+  try {
+    await fs.mkdir(path.join(CLIENTS, id), { recursive: true });
+    await fs.writeFile(configFile(id), JSON.stringify(cfg, null, 2), "utf8");
+  } catch { /* hôte en lecture seule (ex. Vercel) */ }
 }
 async function isDir(p: string) {
   try { return (await fs.stat(p)).isDirectory(); } catch { return false; }
@@ -70,7 +73,7 @@ async function listNotes(vaultPath: string) {
 /* GET ?id=  → status + notes ; GET ?id=&file=REL → note content */
 export async function GET(req: Request) {
   const url = new URL(req.url);
-  const id = url.searchParams.get("id") ?? "acme-corp";
+  const id = safeId(url.searchParams.get("id"));
   const file = url.searchParams.get("file");
   const vault = await vaultFor(id);
 
@@ -96,13 +99,18 @@ export async function GET(req: Request) {
 /* POST connect {id, vaultPath} | disconnect {id, disconnect:true} */
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
-  const id = body.id ?? "acme-corp";
+  const id = safeId(body.id);
 
   if (body.disconnect) {
     await writeConfig(id, {});
     const vault = await vaultFor(id);
     const notes = await listNotes(vault.path);
     return NextResponse.json({ ok: true, connected: false, vaultPath: vault.path, count: notes.length });
+  }
+
+  // Sur un hôte partagé, lire un dossier arbitraire du serveur est un risque (LFI). Désactivé en prod.
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "Connexion d'un vault externe indisponible sur la démo hébergée." }, { status: 403 });
   }
 
   const vaultPath = (body.vaultPath ?? "").trim();
@@ -118,7 +126,7 @@ export async function POST(req: Request) {
 /* PUT save/create {id, file, content} → writes the note to disk */
 export async function PUT(req: Request) {
   const body = await req.json().catch(() => ({}));
-  const id = body.id ?? "acme-corp";
+  const id = safeId(body.id);
   let file = (body.file ?? "").trim();
   if (!file) return NextResponse.json({ error: "fichier requis" }, { status: 400 });
   if (!file.toLowerCase().endsWith(".md")) file += ".md";
@@ -127,7 +135,11 @@ export async function PUT(req: Request) {
   const target = safeJoin(vault.path, file);
   if (!target) return NextResponse.json({ error: "chemin invalide" }, { status: 400 });
 
-  await fs.mkdir(path.dirname(target), { recursive: true });
-  await fs.writeFile(target, body.content ?? "", "utf8");
+  try {
+    await fs.mkdir(path.dirname(target), { recursive: true });
+    await fs.writeFile(target, body.content ?? "", "utf8");
+  } catch {
+    return NextResponse.json({ ok: false, error: "Vault en lecture seule sur cet hébergement (démo)." });
+  }
   return NextResponse.json({ ok: true, file, vaultPath: vault.path });
 }

@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PixelIcon } from "@/components/PixelIcon";
+import { play } from "@/lib/sound";
 
 type Cta = { label: string; href: string };
 type Msg = { role: "user" | "assistant"; content: string; cta?: Cta };
@@ -87,6 +88,7 @@ export default function SiteChat() {
       const r = await fetch("/api/assistant", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: next }) });
       const j = await r.json();
       setMessages((m) => [...m, { role: "assistant", content: j.text ?? "…", cta: cta ?? undefined }]);
+      play("receive");
     } catch {
       setMessages((m) => [...m, { role: "assistant", content: "Désolé, une erreur est survenue. Réessayez ?" }]);
     } finally { setBusy(false); scroll(); }
@@ -150,7 +152,7 @@ export default function SiteChat() {
           <div className="p-2.5 border-t-2 border-[var(--border)] flex items-center gap-2 bg-[var(--bg-card)]">
             <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} placeholder="Écris ton message…"
               className="pinput flex-1" />
-            <button onClick={() => send()} disabled={busy || !input.trim()} className="pbtn pbtn-primary pbtn-sm shrink-0" aria-label="Envoyer">
+            <button onClick={() => send()} disabled={busy || !input.trim()} data-sfx="send" className="pbtn pbtn-primary pbtn-sm shrink-0" aria-label="Envoyer">
               <PixelIcon name="send" size={14} />
             </button>
           </div>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
+import SoundToggle from "@/components/SoundToggle";
 import { PixelIcon } from "@/components/PixelIcon";
 
 const links = [
@@ -31,11 +32,13 @@ export default function Navbar() {
           </div>
 
           <div className="hidden md:flex items-center gap-2 shrink-0">
+            <SoundToggle />
             <ThemeToggle />
             <Link href="/onboarding" className="pbtn pbtn-primary pbtn-sm">Commencer</Link>
           </div>
 
           <div className="md:hidden flex items-center gap-1.5">
+            <SoundToggle />
             <ThemeToggle />
             <button onClick={() => setOpen(!open)} className="win-btn" style={{ width: 28, height: 28 }} aria-label="Menu">
               <PixelIcon name={open ? "close" : "menu"} size={16} />

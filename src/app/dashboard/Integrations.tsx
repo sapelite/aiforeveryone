@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { BrandLogo } from "./BrandLogo";
 import { Loader2, Plus, Check, Boxes } from "lucide-react";
+import { play } from "@/lib/sound";
 
 type Item = {
   key: string; name: string; category: string; icon: string; domain?: string; brain?: boolean;
@@ -42,7 +43,8 @@ export default function Integrations({ instanceId, onConnectBrain }: { instanceI
         body: JSON.stringify({ id: instanceId, key: it.key }),
       });
       toast[connect ? "success" : "message"](connect ? `${it.name} connecté` : `${it.name} déconnecté`,
-        connect ? { description: it.brain ? "Vault Obsidian relié — données vivantes." : "Accès lecture activé · écriture validée." } : undefined);
+        connect ? { description: it.brain ? "Vault Obsidian relié, données vivantes." : "Accès lecture activé, écriture validée." } : undefined);
+      play(connect ? "success" : "close");
       load();
     } finally { setBusy(null); }
   }
@@ -56,6 +58,7 @@ export default function Integrations({ instanceId, onConnectBrain }: { instanceI
         body: JSON.stringify({ id: instanceId, custom: true, ...form }),
       });
       toast.success(`${form.name} connecté`, { description: "Serveur MCP personnalisé." });
+      play("success");
       setAddOpen(false);
       setForm({ name: "", url: "", category: "MCP" });
       load();

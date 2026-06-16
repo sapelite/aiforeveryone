@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { readTasks, ago } from "./tasks";
+import { safeId } from "./ids";
 
 /* ════════════════════════════════════════════════
    Couche de données — lit clients/<id>/ sur le disque.
@@ -177,6 +178,7 @@ const RUNTIME = {
 
 /* ─── point d'entrée ─── */
 export async function loadInstance(id = "acme-corp"): Promise<InstanceData> {
+  id = safeId(id);
   const base = path.join(CLIENTS, id);
   const personality = await readJson<Personality>(path.join(base, "business-personality.json"));
   const agentsRaw = await loadAgents(base);

@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Send, Bot, Sparkles } from "lucide-react";
+import { play } from "@/lib/sound";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -31,6 +32,7 @@ export default function Chat({ instanceId, name }: { instanceId: string; name: s
       const j = await res.json();
       if (j.ok && j.text) {
         setMessages((m) => [...m, { role: "assistant", content: j.text }]);
+        play("receive");
       } else if (j.fallback) {
         setNotice("Chat IA en direct indisponible : connecte-toi à Claude Code (abonnement Max/Pro) sur cette machine, puis relance le serveur.");
         setMessages((m) => [...m, { role: "assistant", content: "(Mode démo — session Claude introuvable. Une fois connecté à Claude Code, je réponds en direct en m'appuyant sur la mémoire de l'entreprise.)" }]);
@@ -86,7 +88,7 @@ export default function Chat({ instanceId, name }: { instanceId: string; name: s
           placeholder="Écris ton message…"
           className="flex-1 bg-[var(--bg-card)] border-2 border-[var(--border)] rounded-lg px-3 h-9 text-sm placeholder:text-[var(--text-muted)] outline-none acc-ring"
         />
-        <button onClick={send} disabled={busy || !input.trim()} className="w-9 h-9 grid place-items-center rounded-lg acc-bg disabled:opacity-40 text-white">
+        <button onClick={send} disabled={busy || !input.trim()} data-sfx="send" className="w-9 h-9 grid place-items-center rounded-lg acc-bg disabled:opacity-40 text-white">
           <Send className="w-4 h-4" />
         </button>
       </div>

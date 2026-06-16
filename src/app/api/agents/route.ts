@@ -2,6 +2,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import { NextResponse } from "next/server";
 import { loadInstance } from "@/lib/instance";
+import { safeId } from "@/lib/ids";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,13 +22,15 @@ async function readState(base: string): Promise<AgentState> {
   catch { return {}; }
 }
 async function writeState(base: string, state: AgentState) {
-  await fs.mkdir(base, { recursive: true });
-  await fs.writeFile(path.join(base, "agent-state.json"), JSON.stringify(state, null, 2), "utf8");
+  try {
+    await fs.mkdir(base, { recursive: true });
+    await fs.writeFile(path.join(base, "agent-state.json"), JSON.stringify(state, null, 2), "utf8");
+  } catch { /* hôte en lecture seule (ex. Vercel) */ }
 }
 
 /* GET /api/agents?id=acme-corp */
 export async function GET(req: Request) {
-  const id = new URL(req.url).searchParams.get("id") ?? "acme-corp";
+  const id = safeId(new URL(req.url).searchParams.get("id"));
   const data = await loadInstance(id);
   return NextResponse.json({ agents: data.agents });
 }
@@ -35,14 +38,17 @@ export async function GET(req: Request) {
 /* POST — créer un agent (écrit persona + config.yaml + state) */
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
-  const id = body.id ?? "acme-corp";
+  const id = safeId(body.id);
   const display = (body.displayName || body.name || "").trim();
   if (!display) return NextResponse.json({ error: "displayName requis" }, { status: 400 });
 
   const slug = kebab(body.name || display);
   const base = path.join(CLIENTS, id);
   const agentsDir = path.join(base, "03-agents");
-  await fs.mkdir(agentsDir, { recursive: true });
+  const tryWrite = async (p: string, content: string) => {
+    try { await fs.mkdir(path.dirname(p), { recursive: true }); await fs.writeFile(p, content, "utf8"); }
+    catch { /* hôte en lecture seule (ex. Vercel) */ }
+  };
 
   const model = body.model || "claude-sonnet-4-6";
   const description = (body.description || "").trim();
@@ -70,7 +76,7 @@ ${description || "À préciser."}
 ## Garde-fous
 - Aucune action sortante sans validation.
 `;
-  await fs.writeFile(path.join(agentsDir, `${slug}.md`), persona, "utf8");
+  await tryWrite(path.join(agentsDir, `${slug}.md`), persona);
 
   // config.yaml
   const yaml = `name: ${slug}
@@ -81,7 +87,7 @@ telegram:
   bot_token: \${${slug.toUpperCase().replace(/-/g, "_")}_BOT_TOKEN}   # à définir dans l'environnement
 status: online
 `;
-  await fs.writeFile(path.join(agentsDir, `${slug}.config.yaml`), yaml, "utf8");
+  await tryWrite(path.join(agentsDir, `${slug}.config.yaml`), yaml);
 
   // state
   const state = await readState(base);
@@ -97,7 +103,7 @@ status: online
 /* PATCH — kill-switch / réactivation */
 export async function PATCH(req: Request) {
   const body = await req.json().catch(() => ({}));
-  const id = body.id ?? "acme-corp";
+  const id = safeId(body.id);
   const slug = body.slug;
   if (!slug) return NextResponse.json({ error: "slug requis" }, { status: 400 });
 

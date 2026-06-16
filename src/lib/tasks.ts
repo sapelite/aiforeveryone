@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { randomUUID } from "crypto";
+import { safeId } from "./ids";
 
 /* Real, persisted task store — one tasks.json per client instance. */
 
@@ -19,6 +20,10 @@ export type Task = {
 
 const CLIENTS = path.join(process.cwd(), "clients");
 const fileFor = (id: string) => path.join(CLIENTS, id, "tasks.json");
+
+/* Fallback en mémoire pour les hôtes à système de fichiers en lecture seule
+   (ex. Vercel). Persiste le temps de vie de l'instance, sinon repart du seed. */
+const mem = new Map<string, Task[]>();
 
 /** Starter tasks — written once to disk on first read, then fully editable/persisted. */
 function seed(): Task[] {
@@ -41,19 +46,27 @@ function seed(): Task[] {
 }
 
 export async function readTasks(id: string): Promise<Task[]> {
+  id = safeId(id);
+  if (mem.has(id)) return mem.get(id)!;
   try {
     const raw = JSON.parse(await fs.readFile(fileFor(id), "utf8"));
     return Array.isArray(raw) ? raw : [];
   } catch {
     const s = seed();
     await writeTasks(id, s);
-    return s;
+    return mem.get(id) ?? s;
   }
 }
 
 export async function writeTasks(id: string, tasks: Task[]): Promise<void> {
-  await fs.mkdir(path.join(CLIENTS, id), { recursive: true });
-  await fs.writeFile(fileFor(id), JSON.stringify(tasks, null, 2), "utf8");
+  id = safeId(id);
+  mem.set(id, tasks); // toujours en mémoire (cache local + repli serverless)
+  try {
+    await fs.mkdir(path.join(CLIENTS, id), { recursive: true });
+    await fs.writeFile(fileFor(id), JSON.stringify(tasks, null, 2), "utf8");
+  } catch {
+    /* hôte en lecture seule : la mémoire conserve la valeur pour cette instance */
+  }
 }
 
 export function newTask(input: Partial<Task>): Task {

@@ -11,8 +11,13 @@ import Chat from "./Chat";
 import Brain from "./Brain";
 import Integrations from "./Integrations";
 import AgentInsights from "./AgentInsights";
+import Runs from "./Runs";
+import Skills from "./Skills";
 import { useSettings, ACCENT_PRESETS, MODELS } from "./useSettings";
 import ThemeToggle from "@/components/ThemeToggle";
+import SoundToggle from "@/components/SoundToggle";
+import EngineStatus from "@/components/EngineStatus";
+import { play } from "@/lib/sound";
 import { PixelIcon } from "@/components/PixelIcon";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -33,8 +38,8 @@ import {
 } from "lucide-react";
 
 type ViewId =
-  | "mission" | "scheduled" | "agents" | "chat"
-  | "memories" | "hive" | "usage" | "audit" | "warroom" | "integrations" | "settings";
+  | "mission" | "scheduled" | "agents" | "chat" | "runs"
+  | "memories" | "skills" | "hive" | "usage" | "audit" | "warroom" | "integrations" | "settings";
 
 const nav: { section: string; items: { id: ViewId; label: string; pic: string }[] }[] = [
   { section: "Espace", items: [
@@ -42,9 +47,11 @@ const nav: { section: string; items: { id: ViewId; label: string; pic: string }[
     { id: "scheduled", label: "Planifié", pic: "calendar" },
     { id: "agents", label: "Agents", pic: "users" },
     { id: "chat", label: "Chat", pic: "message-text" },
+    { id: "runs", label: "Runs", pic: "terminal" },
   ]},
   { section: "Intelligence", items: [
     { id: "memories", label: "Brain", pic: "notebook" },
+    { id: "skills", label: "Skills", pic: "command" },
     { id: "hive", label: "Hive Mind", pic: "share" },
     { id: "usage", label: "Usage", pic: "chart-bar" },
     { id: "audit", label: "Audit", pic: "shield" },
@@ -62,7 +69,9 @@ const VIEW_META: Record<ViewId, { title: string; pic: string; w: number; h: numb
   scheduled: { title: "PLANIFIE", pic: "calendar", w: 780, h: 520 },
   agents: { title: "AGENTS", pic: "users", w: 900, h: 600 },
   chat: { title: "CHAT", pic: "message-text", w: 720, h: 580 },
+  runs: { title: "RUNS", pic: "terminal", w: 860, h: 640 },
   memories: { title: "BRAIN", pic: "notebook", w: 920, h: 640 },
+  skills: { title: "SKILLS", pic: "command", w: 920, h: 620 },
   hive: { title: "HIVE MIND", pic: "share", w: 880, h: 620 },
   usage: { title: "USAGE", pic: "chart-bar", w: 800, h: 460 },
   audit: { title: "AUDIT", pic: "shield", w: 760, h: 540 },
@@ -110,7 +119,7 @@ function Empty({ label }: { label: string }) {
 /* ─── desktop icon ─── */
 function DesktopIcon({ pic, label, onOpen }: { pic: string; label: string; onOpen: () => void }) {
   return (
-    <button onDoubleClick={onOpen} onClick={onOpen}
+    <button onDoubleClick={onOpen} onClick={onOpen} data-sfx="open"
       className="w-[88px] flex flex-col items-center gap-1.5 p-2 group select-none focus:outline-none">
       <span className="w-12 h-12 grid place-items-center border-2 border-[var(--border)] bg-[var(--bg-card)] text-[var(--text)] group-hover:bg-[var(--accent)] group-hover:text-[#1b1b1b] transition-colors" style={{ boxShadow: "2px 2px 0 0 var(--border)" }}>
         <PixelIcon name={pic} size={26} />
@@ -166,9 +175,9 @@ function PixWindow({
       <div className={`win-title ${active ? "" : "opacity-70"}`} onDoubleClick={onMax}>
         <span className="flex items-center gap-1.5 truncate"><PixelIcon name={m.pic} size={11} /> {m.title}</span>
         <span className="flex items-center gap-1 shrink-0">
-          <button className="win-btn" onClick={(e) => { e.stopPropagation(); onMin(); }} aria-label="Réduire">_</button>
-          <button className="win-btn" onClick={(e) => { e.stopPropagation(); onMax(); }} aria-label="Agrandir">o</button>
-          <button className="win-btn" onClick={(e) => { e.stopPropagation(); onClose(); }} aria-label="Fermer">x</button>
+          <button className="win-btn" data-sfx="min" onClick={(e) => { e.stopPropagation(); onMin(); }} aria-label="Réduire">_</button>
+          <button className="win-btn" data-sfx="max" onClick={(e) => { e.stopPropagation(); onMax(); }} aria-label="Agrandir">o</button>
+          <button className="win-btn" data-sfx="close" onClick={(e) => { e.stopPropagation(); onClose(); }} aria-label="Fermer">x</button>
         </span>
       </div>
       <div className="flex-1 overflow-auto bg-[var(--bg-card)] p-3 md:p-4">{children}</div>
@@ -240,6 +249,7 @@ export default function Console({ data }: { data: InstanceData }) {
     const valid = ALL_ITEMS.map((i) => i.id);
     const target = (raw && (alias[raw] ?? (raw as ViewId))) || null;
     if (target && valid.includes(target)) openWindow(target);
+    else openWindow("runs"); // greet with the live agentic Runs window so the fusion is front-and-centre
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -262,6 +272,7 @@ export default function Console({ data }: { data: InstanceData }) {
       body: JSON.stringify({ id: data.id, slug, killed }) });
     setBusy(false);
     toast[killed ? "warning" : "success"](killed ? "Agent arrêté" : "Agent réactivé", { description: slug });
+    play(killed ? "error" : "success");
     router.refresh();
   }
 
@@ -453,6 +464,8 @@ export default function Console({ data }: { data: InstanceData }) {
         );
 
       case "memories": return <Brain instanceId={data.id} />;
+      case "runs": return <Runs />;
+      case "skills": return <Skills />;
       case "hive": return <HiveGraph agents={data.agents.map((a) => a.display)} tasks={data.tasks.map((t) => ({ title: t.title, agent: t.agent, status: t.status }))} entities={data.entities} />;
       case "warroom": return <WarRoom instanceId={data.id} agents={data.agents.filter((a) => a.status === "online").map((a) => ({ slug: a.slug, display: a.display, role: a.role }))} />;
       case "chat": return <Chat instanceId={data.id} name={data.name} />;
@@ -577,7 +590,8 @@ export default function Console({ data }: { data: InstanceData }) {
           </div>
         </div>
         <div className="flex items-center h-full pr-1">
-          <span className="hidden md:flex items-center gap-1.5 text-sm px-2"><span className="w-2 h-2 bg-[var(--accent)] pulse-dot" /> Tout est opérationnel</span>
+          <EngineStatus />
+          <SoundToggle />
           <ThemeToggle />
           <Clock />
         </div>
@@ -663,7 +677,7 @@ export default function Console({ data }: { data: InstanceData }) {
         id={data.id}
         initialName={addPrefill}
         defaultModel={settings.model}
-        onCreated={(slug) => { setAddOpen(false); setAddPrefill(undefined); toast.success("Agent créé", { description: slug }); router.refresh(); }}
+        onCreated={(slug) => { setAddOpen(false); setAddPrefill(undefined); toast.success("Agent créé", { description: slug }); play("success"); router.refresh(); }}
       />
 
       {/* ─── SCHEDULED CONFIG ─── */}
@@ -825,6 +839,7 @@ function TaskModal({ taskModal, instanceId, agentNames, onClose, onDone }: {
         await fetch("/api/tasks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: instanceId, ...form }) });
         toast.success("Tâche créée");
       }
+      play("success");
       onDone();
     } finally { setBusy(false); }
   }
@@ -834,6 +849,7 @@ function TaskModal({ taskModal, instanceId, agentNames, onClose, onDone }: {
     try {
       await fetch(`/api/tasks?id=${instanceId}&taskId=${editing.id}`, { method: "DELETE" });
       toast.message("Tâche supprimée");
+      play("close");
       onDone();
     } finally { setBusy(false); }
   }
