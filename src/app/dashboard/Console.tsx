@@ -14,6 +14,7 @@ import AgentInsights from "./AgentInsights";
 import Runs from "./Runs";
 import Board from "./Board";
 import Inbox from "./Inbox";
+import Agents from "./Agents";
 import Context from "./Context";
 import Brand from "./Brand";
 import Deliverables from "./Deliverables";
@@ -437,38 +438,7 @@ export default function Console({ data }: { data: InstanceData }) {
 
       case "scheduled": return <Scheduled />;
 
-      case "agents":
-        return (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-            {data.agents.map((a) => {
-              const Icon = iconFor(a.slug);
-              const killed = a.status === "killed";
-              return (
-                <Panel key={a.slug} className={`p-4 ${killed ? "opacity-60" : ""}`}>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-10 h-10 border-2 border-[var(--border)] bg-[var(--accent)] grid place-items-center"><Icon className="w-5 h-5 text-[#1b1b1b]" /></div>
-                    <button className={`pbtn pbtn-sm ${killed ? "" : "pbtn-primary"}`} disabled={busy} onClick={() => toggleKill(a.slug, !killed)}>
-                      <Power className="w-3 h-3" /> {killed ? "Réactiver" : "Kill"}
-                    </button>
-                  </div>
-                  <p className="font-display text-[10px]">{a.display}</p>
-                  <p className="text-sm text-[var(--text-muted)] mt-1">{a.role}</p>
-                  <p className="text-sm text-[var(--text-muted)] mt-3 mb-4 leading-snug">{a.task}</p>
-                  <div className="flex items-center justify-between pt-3 border-t-2 border-[var(--border)]">
-                    <span className="text-sm font-mono text-[var(--text-muted)] truncate">{a.model}</span>
-                    <Badge variant={killed ? "secondary" : "success"}>
-                      <span className={`w-2 h-2 ${killed ? "bg-[var(--text-muted)]" : "bg-[var(--accent)] pulse-dot"}`} />
-                      {killed ? "arrêté" : "en ligne"}
-                    </Badge>
-                  </div>
-                </Panel>
-              );
-            })}
-            <button onClick={() => openAdd()} className="border-2 border-dashed border-[var(--border)] grid place-items-center min-h-[160px] text-[var(--text-muted)] hover:text-[var(--accent)] hover:border-[var(--accent)] transition-colors">
-              <div className="text-center"><Plus className="w-6 h-6 mx-auto mb-2" /><span className="text-base">Ajouter un agent</span></div>
-            </button>
-          </div>
-        );
+      case "agents": return <Agents />;
 
       case "memories": return <Brain instanceId={data.id} />;
       case "runs": return <Runs />;

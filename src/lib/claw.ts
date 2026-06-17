@@ -48,6 +48,19 @@ export async function clawHistory(limit = 40): Promise<ClawTurn[]> {
   }
 }
 
+export type ClawAgent = { id: string; name: string; description: string; model: string; running: boolean; todayTurns: number; todayCost: number };
+
+export async function clawAgents(): Promise<ClawAgent[]> {
+  try {
+    const r = await fetch(clawUrl("/api/agents"), { signal: AbortSignal.timeout(5000) });
+    if (!r.ok) return [];
+    const j = (await r.json()) as { agents?: ClawAgent[] };
+    return Array.isArray(j.agents) ? j.agents : [];
+  } catch {
+    return [];
+  }
+}
+
 export async function clawSend(message: string): Promise<{ ok: boolean; error?: string }> {
   try {
     const r = await fetch(clawUrl("/api/chat/send"), {
