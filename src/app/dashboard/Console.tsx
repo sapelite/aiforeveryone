@@ -480,7 +480,7 @@ export default function Console({ data }: { data: InstanceData }) {
       case "context": return <Context />;
       case "brand": return <Brand />;
       case "hive": return <HiveGraph />;
-      case "warroom": return <WarRoom instanceId={data.id} agents={data.agents.filter((a) => a.status === "online").map((a) => ({ slug: a.slug, display: a.display, role: a.role }))} />;
+      case "warroom": return <WarRoom />;
       case "chat": return <Chat instanceId={data.id} name={data.name} />;
       case "inbox": return <Inbox />;
       case "integrations": return <Integrations instanceId={data.id} onConnectBrain={() => openWindow("memories")} />;
