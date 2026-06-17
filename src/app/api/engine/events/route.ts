@@ -14,11 +14,11 @@ const SSE_HEADERS = {
  * subscribe without cross-origin headaches. Emits an "offline" event when the
  * engine is unreachable instead of failing the connection.
  */
-export async function GET() {
+export async function GET(req: Request) {
   const base = await engineBaseUrl();
   if (!base) return new Response(`event: offline\ndata: {"online":false}\n\n`, { headers: SSE_HEADERS });
   try {
-    const upstream = await fetch(`${base}/api/events`, { headers: { Accept: "text/event-stream" } });
+    const upstream = await fetch(`${base}/api/events`, { headers: { Accept: "text/event-stream" }, signal: req.signal });
     if (!upstream.ok || !upstream.body) {
       return new Response(`event: offline\ndata: {"online":false}\n\n`, { headers: SSE_HEADERS });
     }

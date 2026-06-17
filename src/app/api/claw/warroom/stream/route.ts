@@ -10,7 +10,7 @@ export async function GET(req: Request) {
   const meetingId = new URL(req.url).searchParams.get("meetingId") ?? "";
   if (!meetingId) return OFFLINE();
   try {
-    const upstream = await fetch(clawUrl("/api/warroom/text/stream", { meetingId, sinceSeq: "0" }), { headers: { Accept: "text/event-stream" } });
+    const upstream = await fetch(clawUrl("/api/warroom/text/stream", { meetingId, sinceSeq: "0" }), { headers: { Accept: "text/event-stream" }, signal: req.signal });
     if (!upstream.ok || !upstream.body) return OFFLINE();
     return new Response(upstream.body, {
       headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache, no-transform", Connection: "keep-alive" },
