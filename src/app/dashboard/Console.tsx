@@ -13,6 +13,7 @@ import Integrations from "./Integrations";
 import AgentInsights from "./AgentInsights";
 import Runs from "./Runs";
 import Board from "./Board";
+import Inbox from "./Inbox";
 import Context from "./Context";
 import Brand from "./Brand";
 import Deliverables from "./Deliverables";
@@ -52,7 +53,7 @@ import {
 } from "lucide-react";
 
 type ViewId =
-  | "mission" | "scheduled" | "agents" | "chat" | "runs" | "board" | "deliverables"
+  | "mission" | "scheduled" | "agents" | "chat" | "inbox" | "runs" | "board" | "deliverables"
   | "memories" | "skills" | "memory" | "context" | "brand" | "hive" | "usage" | "audit" | "history" | "warroom" | "integrations" | "settings";
 
 const nav: { section: string; items: { id: ViewId; label: string; pic: string }[] }[] = [
@@ -61,6 +62,7 @@ const nav: { section: string; items: { id: ViewId; label: string; pic: string }[
     { id: "scheduled", label: "Planifié", pic: "calendar" },
     { id: "agents", label: "Agents", pic: "users" },
     { id: "chat", label: "Chat", pic: "message-text" },
+    { id: "inbox", label: "Inbox", pic: "inbox" },
     { id: "runs", label: "Runs", pic: "terminal" },
     { id: "board", label: "Tableau", pic: "list" },
     { id: "deliverables", label: "Livrables", pic: "folder" },
@@ -89,6 +91,7 @@ const VIEW_META: Record<ViewId, { title: string; pic: string; w: number; h: numb
   scheduled: { title: "PLANIFIE", pic: "calendar", w: 780, h: 520 },
   agents: { title: "AGENTS", pic: "users", w: 900, h: 600 },
   chat: { title: "CHAT", pic: "message-text", w: 720, h: 580 },
+  inbox: { title: "INBOX", pic: "inbox", w: 760, h: 600 },
   runs: { title: "RUNS", pic: "terminal", w: 860, h: 640 },
   board: { title: "TABLEAU", pic: "list", w: 1000, h: 640 },
   deliverables: { title: "LIVRABLES", pic: "folder", w: 900, h: 620 },
@@ -479,6 +482,7 @@ export default function Console({ data }: { data: InstanceData }) {
       case "hive": return <HiveGraph agents={data.agents.map((a) => a.display)} tasks={data.tasks.map((t) => ({ title: t.title, agent: t.agent, status: t.status }))} entities={data.entities} />;
       case "warroom": return <WarRoom instanceId={data.id} agents={data.agents.filter((a) => a.status === "online").map((a) => ({ slug: a.slug, display: a.display, role: a.role }))} />;
       case "chat": return <Chat instanceId={data.id} name={data.name} />;
+      case "inbox": return <Inbox />;
       case "integrations": return <Integrations instanceId={data.id} onConnectBrain={() => openWindow("memories")} />;
 
       case "usage": return <Usage />;
