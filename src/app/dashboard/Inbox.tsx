@@ -44,9 +44,11 @@ export default function Inbox() {
     const es = new EventSource("/api/claw/events");
     const handler = (type: string) => (e: MessageEvent) => {
       try {
-        const ev = JSON.parse(e.data) as { content?: string; url?: string; caption?: string; processing?: boolean; timestamp?: number; description?: string };
+        const ev = JSON.parse(e.data) as { content?: string; url?: string; caption?: string; processing?: boolean; timestamp?: number; description?: string; source?: string };
         const ts = ev.timestamp ?? Date.now();
-        if (type === "user_message" && ev.content) { setMsgs((m) => [...m, { id: uid(), role: "user", content: ev.content!, ts }]); }
+        // Only echo INCOMING user messages (Telegram/WhatsApp). Messages we sent from
+        // here are already shown optimistically, so skip the dashboard-sourced echo.
+        if (type === "user_message" && ev.content && ev.source !== "dashboard") { setMsgs((m) => [...m, { id: uid(), role: "user", content: ev.content!, ts }]); }
         else if (type === "assistant_message" && ev.content) { setMsgs((m) => [...m, { id: uid(), role: "assistant", content: ev.content!, ts }]); play("receive"); }
         else if (type === "assistant_photo") { setMsgs((m) => [...m, { id: uid(), role: "assistant", content: ev.caption ?? "", url: ev.url, ts }]); }
         else if (type === "processing") { setBusy(!!ev.processing); }
