@@ -5,6 +5,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /** GET → inventory of the engine's context files (soul, user, learnings, memory). */
-export async function GET() {
-  return NextResponse.json({ files: await getEngineContext() });
+export async function GET(req: Request) {
+  const clientId = new URL(req.url).searchParams.get("clientId");
+  return NextResponse.json({ files: await getEngineContext(clientId) });
 }

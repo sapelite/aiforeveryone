@@ -104,6 +104,7 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [taskId, setTaskId] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(initialForm);
 
   const update: Update = (field, value) => setForm((f) => ({ ...f, [field]: value }));
@@ -146,6 +147,7 @@ export default function OnboardingPage() {
       const res = await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ goal, model: "auto", permissionMode: "acceptEdits" }) });
       const j = await res.json();
       if (j.ok) setTaskId(j.taskId);
+      else if (!j.offline) setSubmitError(j.error || "L'envoi a échoué. Réessayez.");
     } catch { /* moteur hors ligne : on garde le message 48h */ }
   };
 
@@ -155,20 +157,26 @@ export default function OnboardingPage() {
         <Navbar />
         <main className="min-h-screen flex items-center justify-center pt-20">
           <div className="text-center max-w-lg px-6">
-            <div className="w-20 h-20 border-2 border-[var(--border)] bg-[var(--accent)] flex items-center justify-center mx-auto mb-6" style={{ boxShadow: "4px 4px 0 0 var(--border)" }}>
+            <div className="w-20 h-20 border-2 border-[var(--border)] flex items-center justify-center mx-auto mb-6" style={{ boxShadow: "4px 4px 0 0 var(--border)", background: submitError && !taskId ? "var(--destructive)" : "var(--accent)" }}>
               <CheckCircle2 className="w-10 h-10 text-[#1b1b1b]" />
             </div>
-            <h1 className="font-display text-[clamp(0.9rem,3vw,1.3rem)] mb-4">{taskId ? "C'est lancé" : "Demande reçue"}</h1>
+            <h1 className="font-display text-[clamp(0.9rem,3vw,1.3rem)] mb-4">{taskId ? "C'est lancé" : submitError ? "Envoi impossible" : "Demande reçue"}</h1>
             <p className="text-lg text-[var(--text-muted)] mb-8 leading-snug">
               {taskId ? (
                 <>Un agent construit votre fondation de marque en ce moment (tâche <span className="font-mono text-[var(--text)]">{taskId.slice(0, 8)}</span>) : voix, positionnement et client idéal. Suivez-la en direct dans la démo.</>
+              ) : submitError ? (
+                <>{submitError}</>
               ) : (
                 <>Merci. Notre équipe analyse votre profil et revient sous 48h avec une architecture d&apos;AI OS sur mesure : agents, workflows, dashboard et votre <span className="text-[var(--text)]">Brain</span> (vault Obsidian) prêts à être instanciés.</>
               )}
             </p>
-            <a href={taskId ? `/dashboard?view=runs&task=${taskId}` : "/"} className="pbtn pbtn-primary mx-auto">
-              {taskId ? "Suivre dans la démo →" : "Retour à l'accueil"}
-            </a>
+            {submitError && !taskId ? (
+              <button onClick={() => { setSubmitted(false); setSubmitError(null); }} className="pbtn pbtn-primary mx-auto">Réessayer</button>
+            ) : (
+              <a href={taskId ? `/dashboard?view=runs&task=${taskId}` : "/"} className="pbtn pbtn-primary mx-auto">
+                {taskId ? "Suivre dans la démo →" : "Retour à l'accueil"}
+              </a>
+            )}
           </div>
         </main>
         <Footer />

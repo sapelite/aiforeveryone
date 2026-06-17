@@ -14,7 +14,7 @@ type CronJob = {
 
 const DAYS = ["daily", "weekdays", "weekends", "mon,wed,fri"];
 const MODELS = ["sonnet", "haiku", "opus"];
-const empty = { name: "", time: "09:00", days: "weekdays", model: "sonnet", prompt: "" };
+const empty = { name: "", time: "09:00", days: "weekdays", model: "sonnet", prompt: "", description: "" };
 
 export default function Scheduled() {
   const [jobs, setJobs] = useState<CronJob[] | null>(null);
@@ -39,7 +39,7 @@ export default function Scheduled() {
     if (!form.name.trim() || !form.prompt.trim()) { setErr("Nom et instruction requis."); return; }
     setSaving(true); setErr(null);
     try {
-      const res = await fetch("/api/engine/cron", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "create", description: form.name, ...form }) });
+      const res = await fetch("/api/engine/cron", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "create", ...form }) });
       const j = await res.json();
       if (j.ok) { play("success"); setForm(empty); setCreating(false); setTimeout(load, 400); }
       else setErr(j.error ?? "échec");
@@ -60,6 +60,7 @@ export default function Scheduled() {
         {creating && (
           <div className="p-3 border-t-2 border-[var(--border)] space-y-2">
             <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Nom (ex : Veille concurrentielle)" className="pinput" />
+            <input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Description (optionnel)" className="pinput" />
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
               <input value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} placeholder="09:00 / every_2h" className="pinput font-mono" />
               <PixSelect value={form.days} onChange={(v) => setForm({ ...form, days: v })} options={DAYS.map((d) => [d, d] as [string, string])} />

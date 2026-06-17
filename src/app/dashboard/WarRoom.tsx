@@ -15,33 +15,10 @@ type Msg = {
 const uid = () => Math.random().toString(36).slice(2);
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-/* ─── moteur de perspective (stand-in démo ; remplaçable par un appel Claude API) ─── */
-function standupLine(a: Agent): string {
-  const byRole: Record<string, string> = {
-    Stratège: "J'ai cadré la revue trimestrielle Globex et arbitré la priorité Q2 sur la qualification de leads.",
-    Opérations: "J'ai optimisé le process d'onboarding (–2 étapes manuelles) et préparé l'automatisation du reporting.",
-    Ventes: "12 leads qualifiés, proposition Umbrella envoyée, relance Initech programmée. Pipeline à 210 k€.",
-    Reporting: "Rapport S23 généré : temps automatisé +24%, mais satisfaction support à surveiller.",
-    Support: "Ticket Soylent escaladé aux Ops, 4 fiches FAQ créées à partir des questions récurrentes.",
-  };
-  return byRole[a.display] ?? `Avancement sur mes sujets (${a.role}) : tâches traitées, rien de bloquant de mon côté.`;
-}
-
-function discussLine(a: Agent, q: string): string {
-  const topic = q.replace(/^\/discuss\s*/i, "").trim() || "cette décision";
-  const byRole: Record<string, string> = {
-    Stratège: `Sur « ${topic} » : la vraie question est l'alignement avec nos objectifs. Je le ferais seulement si l'impact est mesurable sous 90 jours — sinon on disperse l'équipe.`,
-    Opérations: `« ${topic} » ajoute de l'overhead. Avant de lancer, montrez-moi le process : qui fait quoi, avec quel outil. Sans ça, on automatise le chaos.`,
-    Ventes: `Côté pipeline, « ${topic} » n'a de sens que si ça raccourcit le cycle ou augmente la valeur du deal. Sinon c'est une distraction par rapport au closing.`,
-    Reporting: `Je ne peux pas valider « ${topic} » sans baseline. Définissons le KPI de succès et la période avant d'engager quoi que ce soit.`,
-    Support: `Pensez à l'impact client de « ${topic} ». Un compte à risque comme Soylent ne pardonnera pas une priorité mal placée.`,
-  };
-  return byRole[a.display] ?? `Mon angle (${a.role}) sur « ${topic} » : utile si ça sert directement mon périmètre, à challenger sinon.`;
-}
-
 export default function WarRoom({ agents, instanceId }: { agents: Agent[]; instanceId: string }) {
   const colored = agents.map((a, i) => ({ ...a, color: PALETTE[i % PALETTE.length] }));
   const [messages, setMessages] = useState<Msg[]>([]);
+  const [notice, setNotice] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [running, setRunning] = useState(false);
   const [excluded, setExcluded] = useState<Set<string>>(new Set());
@@ -96,9 +73,11 @@ export default function WarRoom({ agents, instanceId }: { agents: Agent[]; insta
           body: JSON.stringify({ id: instanceId, slug: p.slug, kind: isStandup ? "standup" : "discuss", topic }),
         });
         const j = await res.json();
-        text = j.ok && j.text ? j.text : isStandup ? standupLine(p) : discussLine(p, cmd);
+        if (j.ok && j.text) { text = j.text; }
+        else { setNotice("War Room en direct indisponible : connecte-toi à Claude Code (abonnement Max/Pro) sur cette machine, puis relance le serveur."); text = "(Mode démo — session Claude introuvable.)"; }
       } catch {
-        text = isStandup ? standupLine(p) : discussLine(p, cmd);
+        setNotice("Erreur réseau — War Room en direct indisponible.");
+        text = "(Mode démo — session Claude introuvable.)";
       }
       update(id, { thinking: false, text });
       scroll();
@@ -145,6 +124,8 @@ export default function WarRoom({ agents, instanceId }: { agents: Agent[]; insta
             )
           )}
         </div>
+
+        {notice && <p className="px-4 py-2 text-xs text-amber-400/80 border-t-2 border-[var(--border)]">{notice}</p>}
 
         {/* saisie */}
         <div className="border-t-2 border-[var(--border)] p-3 flex items-center gap-2">

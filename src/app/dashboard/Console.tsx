@@ -234,7 +234,6 @@ export default function Console({ data }: { data: InstanceData }) {
   const [query, setQuery] = useState("");
   const [addOpen, setAddOpen] = useState(false);
   const [addPrefill, setAddPrefill] = useState<string | undefined>(undefined);
-  const [schedTask, setSchedTask] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [taskModal, setTaskModal] = useState<null | "new" | InstanceData["tasks"][number]>(null);
@@ -666,28 +665,6 @@ export default function Console({ data }: { data: InstanceData }) {
         defaultModel={settings.model}
         onCreated={(slug) => { setAddOpen(false); setAddPrefill(undefined); toast.success("Agent créé", { description: slug }); play("success"); router.refresh(); }}
       />
-
-      {/* ─── SCHEDULED CONFIG ─── */}
-      <Dialog open={!!schedTask} onOpenChange={(o) => !o && setSchedTask(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Configurer · {schedTask}</DialogTitle>
-            <DialogDescription>Planification et agent assigné pour ce workflow.</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Field label="Déclencheur (cron)"><Input defaultValue="0 8 * * 1" className="font-mono" /></Field>
-            <Field label="Agent assigné">
-              <select className="modal-input font-mono">{data.agents.map((a) => <option key={a.slug}>{a.display}</option>)}</select>
-            </Field>
-            <Field label="Fenêtre d'exécution"><Input defaultValue="08:00 - 09:00 Europe/Paris" /></Field>
-            <label className="flex items-center gap-2 text-sm text-[var(--text-muted)]"><input type="checkbox" defaultChecked className="accent-[var(--accent)]" /> Actif</label>
-          </div>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setSchedTask(null)}>Annuler</Button>
-            <Button onClick={() => { setSchedTask(null); toast.success("Workflow mis à jour", { description: schedTask ?? "" }); }}>Enregistrer</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* ─── TASK CREATE / EDIT ─── */}
       <TaskModal
