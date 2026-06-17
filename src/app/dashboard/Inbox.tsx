@@ -16,6 +16,7 @@ export default function Inbox() {
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [progressLabel, setProgressLabel] = useState<string | null>(null);
   const [status, setStatus] = useState<{ online: boolean; telegramConnected?: boolean } | null>(null);
   const scroller = useRef<HTMLDivElement>(null);
 
@@ -49,10 +50,10 @@ export default function Inbox() {
         // Only echo INCOMING user messages (Telegram/WhatsApp). Messages we sent from
         // here are already shown optimistically, so skip the dashboard-sourced echo.
         if (type === "user_message" && ev.content && ev.source !== "dashboard") { setMsgs((m) => [...m, { id: uid(), role: "user", content: ev.content!, ts }]); }
-        else if (type === "assistant_message" && ev.content) { setMsgs((m) => [...m, { id: uid(), role: "assistant", content: ev.content!, ts }]); play("receive"); }
+        else if (type === "assistant_message" && ev.content) { setMsgs((m) => [...m, { id: uid(), role: "assistant", content: ev.content!, ts }]); setProgressLabel(null); play("receive"); }
         else if (type === "assistant_photo") { setMsgs((m) => [...m, { id: uid(), role: "assistant", content: ev.caption ?? "", url: ev.url, ts }]); }
-        else if (type === "processing") { setBusy(!!ev.processing); }
-        else if (type === "progress" && ev.description) { setMsgs((m) => [...m, { id: uid(), role: "system", content: ev.description!, ts }]); }
+        else if (type === "processing") { setBusy(!!ev.processing); if (!ev.processing) setProgressLabel(null); }
+        else if (type === "progress" && ev.description) { setProgressLabel(ev.description!); }
         else if (type === "error" && ev.content) { setMsgs((m) => [...m, { id: uid(), role: "system", content: "⚠ " + ev.content, ts }]); }
         scroll();
       } catch { /* ignore */ }
@@ -98,11 +99,11 @@ export default function Inbox() {
             </div>
           </div>
         ))}
-        {busy && <p className="text-sm text-[var(--text-muted)] pl-9">ClaudeClaw réfléchit<span className="blink">_</span></p>}
+        {busy && <p className="text-sm text-[var(--text-muted)] pl-9">{progressLabel ?? "ClaudeClaw réfléchit"}<span className="blink">_</span></p>}
       </div>
       <div className="border-t-2 border-[var(--border)] p-3 flex items-center gap-2">
-        <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} placeholder="Écris à ClaudeClaw (arrive aussi sur Telegram)…" className="pinput flex-1" />
-        <button onClick={send} disabled={!input.trim() || busy} data-sfx="send" className="pbtn pbtn-sm pbtn-primary shrink-0"><PixelIcon name="send" size={14} /></button>
+        <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} disabled={status !== null && !status.online} placeholder={status !== null && !status.online ? "ClaudeClaw hors ligne…" : "Écris à ClaudeClaw (arrive aussi sur Telegram)…"} className="pinput flex-1" />
+        <button onClick={send} disabled={!input.trim() || busy || (status !== null && !status.online)} data-sfx="send" className="pbtn pbtn-sm pbtn-primary shrink-0"><PixelIcon name="send" size={14} /></button>
       </div>
     </div>
   );

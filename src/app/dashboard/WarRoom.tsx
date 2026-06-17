@@ -19,6 +19,7 @@ export default function WarRoom() {
   const [busy, setBusy] = useState(false);
   const [statusLabel, setStatusLabel] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [offline, setOffline] = useState(false);
   const scroller = useRef<HTMLDivElement>(null);
   const colorRef = useRef<Record<string, string>>({});
   const rosterRef = useRef<Agent[]>([]);
@@ -38,7 +39,7 @@ export default function WarRoom() {
     (async () => {
       const nw = await fetch("/api/claw/warroom/new", { method: "POST" }).then((r) => r.json()).catch(() => null);
       if (!alive) return;
-      if (!nw?.meetingId) { setNotice("WarRoom ClaudeClaw injoignable — démarre ClaudeClaw."); return; }
+      if (!nw?.meetingId) { setOffline(true); setNotice("WarRoom ClaudeClaw injoignable — démarre ClaudeClaw."); return; }
       const mid = nw.meetingId as string;
       setMeetingId(mid);
       const hist = await fetch(`/api/claw/warroom/history?meetingId=${encodeURIComponent(mid)}`).then((r) => r.json()).catch(() => null);
@@ -98,7 +99,7 @@ export default function WarRoom() {
           <span className="flex items-center gap-2"><PixelIcon name="sword" size={12} /> War Room · ClaudeClaw</span>
           <span className="flex items-center gap-1.5 text-sm">
             <span className={`w-2 h-2 ${meetingId ? "bg-[var(--accent)] pulse-dot" : "bg-[var(--destructive)]"}`} />
-            {meetingId ? "réunion ouverte" : "…"}
+            {meetingId ? "réunion ouverte" : offline ? "hors ligne" : "…"}
           </span>
         </div>
         <div ref={scroller} className="flex-1 overflow-y-auto p-3 space-y-2 bg-[var(--bg)]">

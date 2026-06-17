@@ -73,7 +73,7 @@ export default function HiveGraph() {
   useEffect(() => {
     let alive = true;
     const j = (u: string) => fetch(u).then((r) => r.json()).catch(() => null);
-    Promise.all([j("/api/engine/skills"), j("/api/engine/projects"), j("/api/engine/tasks"), j("/api/engine/context")]).then(([sk, pr, ta, cx]) => {
+    const load = () => Promise.all([j("/api/engine/skills"), j("/api/engine/projects"), j("/api/engine/tasks"), j("/api/engine/context")]).then(([sk, pr, ta, cx]) => {
       if (!alive) return;
       setData({
         skills: (sk?.skills ?? []) as RawSkill[],
@@ -82,7 +82,9 @@ export default function HiveGraph() {
         ctx: (cx?.files ?? []) as RawCtx[],
       });
     });
-    return () => { alive = false; };
+    load();
+    const id = setInterval(load, 20000);
+    return () => { alive = false; clearInterval(id); };
   }, []);
 
   const { nodes, edges } = useMemo(() => buildGraph(data), [data]);
