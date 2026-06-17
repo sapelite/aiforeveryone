@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PixelIcon } from "@/components/PixelIcon";
 import { play } from "@/lib/sound";
+import { useT } from "@/lib/i18n";
 
 type Cta = { label: string; href: string };
 type Msg = { role: "user" | "assistant"; content: string; cta?: Cta };
@@ -58,6 +59,7 @@ function MenuPanel({ onGo, onAsk }: { onGo: (href: string) => void; onAsk: (q: s
 }
 
 export default function SiteChat() {
+  const tr = useT();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -90,13 +92,13 @@ export default function SiteChat() {
       setMessages((m) => [...m, { role: "assistant", content: j.text ?? "…", cta: cta ?? undefined }]);
       play("receive");
     } catch {
-      setMessages((m) => [...m, { role: "assistant", content: "Désolé, une erreur est survenue. Réessayez ?" }]);
+      setMessages((m) => [...m, { role: "assistant", content: tr("sitechat.errorMessage", "Désolé, une erreur est survenue. Réessayez ?") }]);
     } finally { setBusy(false); scroll(); }
   }
 
   return (
     <>
-      <button onClick={() => setOpen((o) => !o)} aria-label="Assistant Clio"
+      <button onClick={() => setOpen((o) => !o)} aria-label={tr("sitechat.toggleAria", "Assistant Clio")}
         className="fixed bottom-5 right-5 z-[60] w-13 h-13 grid place-items-center border-2 border-[var(--border)] text-[#1b1b1b] transition-transform hover:-translate-y-0.5 active:translate-y-0"
         style={{ width: 52, height: 52, background: "var(--accent)", boxShadow: "4px 4px 0 0 var(--border)" }}>
         <PixelIcon name={open ? "close" : "message-text"} size={24} />
@@ -107,21 +109,21 @@ export default function SiteChat() {
           <div className="win-title">
             <span className="flex items-center gap-1.5"><PixelIcon name="robot-face-happy" size={12} /> CLIO.EXE</span>
             <span className="flex items-center gap-1">
-              <button onClick={() => setMenuOpen((v) => !v)} className="win-btn" aria-label="Menu"><PixelIcon name={menuOpen ? "close" : "menu"} size={11} /></button>
-              <button onClick={() => setOpen(false)} className="win-btn" aria-label="Fermer">x</button>
+              <button onClick={() => setMenuOpen((v) => !v)} className="win-btn" aria-label={tr("sitechat.menuAria", "Menu")}><PixelIcon name={menuOpen ? "close" : "menu"} size={11} /></button>
+              <button onClick={() => setOpen(false)} className="win-btn" aria-label={tr("sitechat.closeAria", "Fermer")}>x</button>
             </span>
           </div>
 
           <div className="px-3 py-2 border-b-2 border-[var(--border)] flex items-center gap-2 bg-[var(--bg-card)]">
             <span className="w-2 h-2 bg-[var(--accent)] pulse-dot" />
-            <span className="text-sm text-[var(--text-muted)]">Clio · assistante · en ligne</span>
+            <span className="text-sm text-[var(--text-muted)]">{tr("sitechat.statusOnline", "Clio · assistante · en ligne")}</span>
           </div>
 
           <div ref={scroller} className="flex-1 overflow-y-auto p-3 space-y-2.5 relative bg-[var(--bg)]">
             {messages.length === 0 && (
               <div>
                 <div className="win-flat p-3 mb-3">
-                  <p className="text-base leading-snug">Bonjour. Je suis Clio. Choisis une rubrique pour naviguer, ou pose ta question.</p>
+                  <p className="text-base leading-snug">{tr("sitechat.greeting", "Bonjour. Je suis Clio. Choisis une rubrique pour naviguer, ou pose ta question.")}</p>
                 </div>
                 <MenuPanel onGo={go} onAsk={send} />
               </div>
@@ -140,7 +142,7 @@ export default function SiteChat() {
                 )}
               </div>
             ))}
-            {busy && <p className="text-sm text-[var(--text-muted)] pl-1">Clio écrit<span className="blink">_</span></p>}
+            {busy && <p className="text-sm text-[var(--text-muted)] pl-1">{tr("sitechat.typing", "Clio écrit")}<span className="blink">_</span></p>}
 
             {menuOpen && messages.length > 0 && (
               <div className="absolute inset-0 bg-[var(--bg)] p-3 overflow-y-auto">
@@ -150,9 +152,9 @@ export default function SiteChat() {
           </div>
 
           <div className="p-2.5 border-t-2 border-[var(--border)] flex items-center gap-2 bg-[var(--bg-card)]">
-            <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} placeholder="Écris ton message…"
+            <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} placeholder={tr("sitechat.inputPlaceholder", "Écris ton message…")}
               className="pinput flex-1" />
-            <button onClick={() => send()} disabled={busy || !input.trim()} data-sfx="send" className="pbtn pbtn-primary pbtn-sm shrink-0" aria-label="Envoyer">
+            <button onClick={() => send()} disabled={busy || !input.trim()} data-sfx="send" className="pbtn pbtn-primary pbtn-sm shrink-0" aria-label={tr("sitechat.sendAria", "Envoyer")}>
               <PixelIcon name="send" size={14} />
             </button>
           </div>

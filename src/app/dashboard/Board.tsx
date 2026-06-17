@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PixelIcon } from "@/components/PixelIcon";
+import { useT } from "@/lib/i18n";
 
 type BTask = {
   id: string; title: string; status: string; needsInput?: boolean | number;
@@ -10,11 +11,11 @@ type BTask = {
 type Log = { id: string; type: string; content: string; toolName?: string };
 type Out = { id: string; fileName: string; relativePath: string; extension: string; sizeBytes: number | null };
 
-const COLUMNS: { key: string; label: string; icon: string }[] = [
-  { key: "queue", label: "En file", icon: "inbox" },
-  { key: "running", label: "En cours", icon: "zap" },
-  { key: "review", label: "À valider", icon: "alert" },
-  { key: "done", label: "Terminé", icon: "check" },
+const COLUMNS: { key: string; tKey: string; label: string; icon: string }[] = [
+  { key: "queue", tKey: "colQueue", label: "En file", icon: "inbox" },
+  { key: "running", tKey: "colRunning", label: "En cours", icon: "zap" },
+  { key: "review", tKey: "colReview", label: "À valider", icon: "alert" },
+  { key: "done", tKey: "colDone", label: "Terminé", icon: "check" },
 ];
 
 function colOf(t: BTask): string {
@@ -25,6 +26,7 @@ function colOf(t: BTask): string {
 }
 
 export default function Board() {
+  const tr = useT();
   const [tasks, setTasks] = useState<BTask[] | null>(null);
   const [detail, setDetail] = useState<BTask | null>(null);
   const [detailData, setDetailData] = useState<{ logs: Log[]; outputs: Out[] } | null>(null);
@@ -55,8 +57,8 @@ export default function Board() {
     : t.needsInput || t.status === "running" ? "bg-[var(--warning)] pulse-dot"
       : t.status === "done" || t.status === "completed" ? "bg-[var(--accent)]" : "bg-[var(--text-muted)]";
 
-  if (tasks === null) return <p role="status" className="text-base text-[var(--text-muted)]">chargement du tableau<span className="blink">_</span></p>;
-  if (tasks.length === 0) return <div role="status" className="win-flat p-4 text-base text-[var(--text-muted)]">Aucune tâche. Lance un but depuis <span className="text-[var(--text)]">Runs</span> et il apparaîtra ici, rangé par colonne.</div>;
+  if (tasks === null) return <p role="status" className="text-base text-[var(--text-muted)]">{tr("board.loadingBoard", "chargement du tableau")}<span className="blink">_</span></p>;
+  if (tasks.length === 0) return <div role="status" className="win-flat p-4 text-base text-[var(--text-muted)]">{tr("board.emptyPrefix", "Aucune tâche. Lance un but depuis")} <span className="text-[var(--text)]">{tr("board.runsLink", "Runs")}</span> {tr("board.emptySuffix", "et il apparaîtra ici, rangé par colonne.")}</div>;
 
   const byCol = (key: string) => tasks.filter((t) => colOf(t) === key).sort((a, b) => String(b.updatedAt ?? "").localeCompare(String(a.updatedAt ?? "")));
 
@@ -67,10 +69,10 @@ export default function Board() {
         return (
           <div key={c.key} className="win-flat flex flex-col min-h-[12rem]">
             <div className="px-3 py-2 border-b-2 border-[var(--border)] font-display text-[9px] uppercase flex items-center gap-2">
-              <PixelIcon name={c.icon} size={12} /> {c.label} <span className="text-[var(--text-muted)]">· {items.length}</span>
+              <PixelIcon name={c.icon} size={12} /> {tr(`board.${c.tKey}`, c.label)} <span className="text-[var(--text-muted)]">· {items.length}</span>
             </div>
             <div className="p-2 space-y-2 overflow-auto max-h-[64vh]">
-              {items.length === 0 && <p className="text-sm text-[var(--text-muted)] px-1 py-2">vide</p>}
+              {items.length === 0 && <p className="text-sm text-[var(--text-muted)] px-1 py-2">{tr("board.columnEmpty", "vide")}</p>}
               {items.map((t) => (
                 <button key={t.id} onClick={() => open(t)} className="w-full text-left win-flat p-2 hover:bg-[var(--bg-card-hover)] transition-colors">
                   <div className="flex items-center gap-1.5">
@@ -95,20 +97,20 @@ export default function Board() {
           <div className="win-flat w-full max-w-2xl max-h-[80vh] flex flex-col bg-[var(--bg)]" onClick={(e) => e.stopPropagation()}>
             <div className="px-3 py-2 border-b-2 border-[var(--border)] font-display text-[9px] uppercase flex items-center justify-between gap-2">
               <span className="truncate">{detail.title}</span>
-              <button onClick={() => setDetail(null)} className="win-btn shrink-0" aria-label="Fermer"><PixelIcon name="close" size={11} /></button>
+              <button onClick={() => setDetail(null)} className="win-btn shrink-0" aria-label={tr("board.close", "Fermer")}><PixelIcon name="close" size={11} /></button>
             </div>
             <div className="overflow-auto p-3 space-y-3">
               {detail.errorMessage && <p className="text-sm text-[var(--destructive)] font-mono whitespace-pre-wrap">{detail.errorMessage}</p>}
-              {detailData === null && <p role="status" className="text-sm text-[var(--text-muted)]">chargement<span className="blink">_</span></p>}
+              {detailData === null && <p role="status" className="text-sm text-[var(--text-muted)]">{tr("board.loading", "chargement")}<span className="blink">_</span></p>}
               {detailData && detailData.outputs.length > 0 && (
                 <div>
-                  <p className="font-display text-[8px] uppercase text-[var(--text-muted)] mb-1.5">Fichiers produits · {detailData.outputs.length}</p>
+                  <p className="font-display text-[8px] uppercase text-[var(--text-muted)] mb-1.5">{tr("board.producedFiles", "Fichiers produits")} · {detailData.outputs.length}</p>
                   <div className="space-y-1">
                     {detailData.outputs.map((o) => (
                       <a key={o.id} href={`/api/engine/download?path=${encodeURIComponent(o.relativePath)}`} className="flex items-center gap-2 text-sm font-mono hover:text-[var(--accent)]">
                         <PixelIcon name="file" size={12} className="text-[var(--accent)]" />
                         <span className="flex-1 truncate" title={o.relativePath}>{o.relativePath}</span>
-                        {o.sizeBytes != null && <span className="text-[var(--text-muted)] shrink-0">{(o.sizeBytes / 1024).toFixed(1)} ko</span>}
+                        {o.sizeBytes != null && <span className="text-[var(--text-muted)] shrink-0">{(o.sizeBytes / 1024).toFixed(1)} {tr("board.kilobytes", "ko")}</span>}
                       </a>
                     ))}
                   </div>
@@ -116,11 +118,11 @@ export default function Board() {
               )}
               {detailData && (
                 <div>
-                  <p className="font-display text-[8px] uppercase text-[var(--text-muted)] mb-1.5">Journal</p>
+                  <p className="font-display text-[8px] uppercase text-[var(--text-muted)] mb-1.5">{tr("board.journal", "Journal")}</p>
                   <div className="space-y-1.5 font-mono text-sm">
-                    {detailData.logs.filter((l) => (l.content && l.content.trim()) || l.toolName).length === 0 && <p className="text-[var(--text-muted)]">aucune sortie enregistrée.</p>}
+                    {detailData.logs.filter((l) => (l.content && l.content.trim()) || l.toolName).length === 0 && <p className="text-[var(--text-muted)]">{tr("board.noOutput", "aucune sortie enregistrée.")}</p>}
                     {detailData.logs.map((l) => l.type === "tool_use"
-                      ? <p key={l.id} className="text-[var(--text-muted)]">→ {l.toolName ?? "outil"}</p>
+                      ? <p key={l.id} className="text-[var(--text-muted)]">→ {l.toolName ?? tr("board.tool", "outil")}</p>
                       : (l.content && l.content.trim() ? <p key={l.id} className="whitespace-pre-wrap leading-snug">{l.content}</p> : null))}
                   </div>
                 </div>

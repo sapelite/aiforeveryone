@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useT } from "@/lib/i18n";
 
 type Usage = { count: number; cost: number; tokens: number; byModel: Record<string, number>; byStatus: Record<string, number> };
 
 export default function Usage() {
+  const tr = useT();
   const [u, setU] = useState<Usage | null>(null);
 
   useEffect(() => {
@@ -14,12 +16,12 @@ export default function Usage() {
     return () => clearInterval(id);
   }, []);
 
-  if (!u) return <p role="status" className="text-base text-[var(--text-muted)]">lecture de la consommation réelle<span className="blink">_</span></p>;
+  if (!u) return <p role="status" className="text-base text-[var(--text-muted)]">{tr("usage.loading", "lecture de la consommation réelle")}<span className="blink">_</span></p>;
 
   const cards = [
-    { label: "Tâches exécutées", value: String(u.count) },
-    { label: "Coût réel cumulé", value: `$${(u.cost || 0).toFixed(2)}` },
-    { label: "Tokens consommés", value: (u.tokens || 0).toLocaleString("fr-FR") },
+    { label: tr("usage.cardTasksRun", "Tâches exécutées"), value: String(u.count) },
+    { label: tr("usage.cardTotalCost", "Coût réel cumulé"), value: `$${(u.cost || 0).toFixed(2)}` },
+    { label: tr("usage.cardTokensUsed", "Tokens consommés"), value: (u.tokens || 0).toLocaleString("fr-FR") },
   ];
   const statusColor = (s: string) => s === "done" || s === "completed" ? "var(--accent)" : s === "failed" || s === "error" ? "var(--destructive)" : s === "running" ? "var(--warning)" : "var(--text-muted)";
   const totalRuns = Object.values(u.byModel || {}).reduce((a, b) => a + b, 0);
@@ -37,10 +39,10 @@ export default function Usage() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="win-flat">
-          <div className="px-3 py-2 border-b-2 border-[var(--border)] font-display text-[9px] uppercase">Par modèle</div>
+          <div className="px-3 py-2 border-b-2 border-[var(--border)] font-display text-[9px] uppercase">{tr("usage.byModel", "Par modèle")}</div>
           <div className="p-3 space-y-1.5">
             {Object.keys(u.byModel || {}).length === 0
-              ? <p className="text-sm text-[var(--text-muted)]">aucune donnée</p>
+              ? <p className="text-sm text-[var(--text-muted)]">{tr("usage.noData", "aucune donnée")}</p>
               : (() => { const max = Math.max(...Object.values(u.byModel)); return Object.entries(u.byModel).sort((a, b) => b[1] - a[1]).map(([m, n]) => (
                   <div key={m} className="text-base">
                     <div className="flex justify-between mb-0.5"><span className="font-mono">{m}</span><span className="text-[var(--text-muted)]">{n}</span></div>
@@ -50,10 +52,10 @@ export default function Usage() {
           </div>
         </div>
         <div className="win-flat">
-          <div className="px-3 py-2 border-b-2 border-[var(--border)] font-display text-[9px] uppercase">Par statut</div>
+          <div className="px-3 py-2 border-b-2 border-[var(--border)] font-display text-[9px] uppercase">{tr("usage.byStatus", "Par statut")}</div>
           <div className="p-3 space-y-1.5">
             {Object.keys(u.byStatus || {}).length === 0
-              ? <p className="text-sm text-[var(--text-muted)]">aucune donnée</p>
+              ? <p className="text-sm text-[var(--text-muted)]">{tr("usage.noData", "aucune donnée")}</p>
               : (() => { const max = Math.max(...Object.values(u.byStatus)); return Object.entries(u.byStatus).sort((a, b) => b[1] - a[1]).map(([s, n]) => (
                   <div key={s} className="text-base">
                     <div className="flex justify-between mb-0.5"><span className="font-mono">{s}</span><span className="text-[var(--text-muted)]">{n}</span></div>
@@ -63,8 +65,8 @@ export default function Usage() {
           </div>
         </div>
       </div>
-      {totalRuns > 0 && <p className="text-base"><span className="text-[var(--accent)] font-mono">{ecoPct}%</span> <span className="text-[var(--text-muted)]">des tâches tournent sur des modèles économiques (haiku/sonnet) via le routage cheap-first.</span></p>}
-      <p className="text-sm text-[var(--text-muted)]">Coût réel issu des tâches du moteur (cost_usd). Lancez les tâches simples sur Haiku pour réduire la facture.</p>
+      {totalRuns > 0 && <p className="text-base"><span className="text-[var(--accent)] font-mono">{ecoPct}%</span> <span className="text-[var(--text-muted)]">{tr("usage.ecoNote", "des tâches tournent sur des modèles économiques (haiku/sonnet) via le routage cheap-first.")}</span></p>}
+      <p className="text-sm text-[var(--text-muted)]">{tr("usage.footerNote", "Coût réel issu des tâches du moteur (cost_usd). Lancez les tâches simples sur Haiku pour réduire la facture.")}</p>
     </div>
   );
 }

@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { PixelIcon } from "@/components/PixelIcon";
+import { useT } from "@/lib/i18n";
 
 type Kpi = { online: boolean; tasks: number; cost: number; skills: number };
 
 export default function EngineKpis({ onOpen }: { onOpen?: (view: string) => void }) {
+  const tr = useT();
   const [d, setD] = useState<Kpi | null>(null);
 
   useEffect(() => {
@@ -31,10 +33,10 @@ export default function EngineKpis({ onOpen }: { onOpen?: (view: string) => void
   }, []);
 
   const cards: { icon: string; label: string; value: string; muted?: boolean; view: string }[] = [
-    { icon: "cpu", label: "Moteur", value: d ? (d.online ? "en ligne" : "hors ligne") : "…", muted: d ? !d.online : true, view: "runs" },
-    { icon: "terminal", label: "Tâches moteur", value: d ? String(d.tasks) : "…", view: "runs" },
-    { icon: "coin", label: "Coût réel", value: d ? `$${(d.cost || 0).toFixed(2)}` : "…", view: "usage" },
-    { icon: "command", label: "Skills", value: d ? String(d.skills) : "…", view: "skills" },
+    { icon: "cpu", label: tr("kpis.engineLabel", "Moteur"), value: d ? (d.online ? tr("kpis.online", "en ligne") : tr("kpis.offline", "hors ligne")) : "…", muted: d ? !d.online : true, view: "runs" },
+    { icon: "terminal", label: tr("kpis.engineTasks", "Tâches moteur"), value: d ? String(d.tasks) : "…", view: "runs" },
+    { icon: "coin", label: tr("kpis.realCost", "Coût réel"), value: d ? `$${(d.cost || 0).toFixed(2)}` : "…", view: "usage" },
+    { icon: "command", label: tr("kpis.skills", "Skills"), value: d ? String(d.skills) : "…", view: "skills" },
   ];
 
   return (

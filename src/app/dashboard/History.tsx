@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { PixelIcon } from "@/components/PixelIcon";
 import { PixSelect } from "@/components/PixSelect";
+import { useT } from "@/lib/i18n";
 
 type HTask = {
   id: string; title: string; status: string;
@@ -11,10 +12,6 @@ type HTask = {
 };
 type Log = { id: string; type: string; content: string; toolName?: string };
 type Out = { id: string; fileName: string; relativePath: string; extension: string; sizeBytes: number | null };
-
-const STATUS: [string, string][] = [["", "Tout"], ["done", "Terminées"], ["review", "En revue"], ["failed", "Échouées"]];
-const RANGE: [string, string][] = [["", "Toujours"], ["today", "Aujourd'hui"], ["week", "7 jours"], ["month", "30 jours"], ["90days", "90 jours"]];
-const SORT: [string, string][] = [["completedAt", "Date"], ["costUsd", "Coût"], ["durationMs", "Durée"], ["tokensUsed", "Tokens"]];
 
 function Select({ label, value, set, opts }: { label: string; value: string; set: (v: string) => void; opts: [string, string][] }) {
   return (
@@ -26,6 +23,10 @@ function Select({ label, value, set, opts }: { label: string; value: string; set
 }
 
 export default function History() {
+  const tr = useT();
+  const STATUS_OPTS: [string, string][] = [["", tr("history.statusAll", "Tout")], ["done", tr("history.statusDone", "Terminées")], ["review", tr("history.statusReview", "En revue")], ["failed", tr("history.statusFailed", "Échouées")]];
+  const RANGE_OPTS: [string, string][] = [["", tr("history.rangeAll", "Toujours")], ["today", tr("history.rangeToday", "Aujourd'hui")], ["week", tr("history.rangeWeek", "7 jours")], ["month", tr("history.rangeMonth", "30 jours")], ["90days", tr("history.range90days", "90 jours")]];
+  const SORT_OPTS: [string, string][] = [["completedAt", tr("history.sortDate", "Date")], ["costUsd", tr("history.sortCost", "Coût")], ["durationMs", tr("history.sortDuration", "Durée")], ["tokensUsed", tr("history.sortTokens", "Tokens")]];
   const [status, setStatus] = useState("");
   const [range, setRange] = useState("");
   const [sortBy, setSortBy] = useState("completedAt");
@@ -62,16 +63,16 @@ export default function History() {
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap gap-3">
-        <Select label="État" value={status} set={setStatus} opts={STATUS} />
-        <Select label="Période" value={range} set={setRange} opts={RANGE} />
-        <Select label="Tri" value={sortBy} set={setSortBy} opts={SORT} />
+        <Select label={tr("history.labelStatus", "État")} value={status} set={setStatus} opts={STATUS_OPTS} />
+        <Select label={tr("history.labelRange", "Période")} value={range} set={setRange} opts={RANGE_OPTS} />
+        <Select label={tr("history.labelSort", "Tri")} value={sortBy} set={setSortBy} opts={SORT_OPTS} />
       </div>
 
-      {data === null && <p role="status" className="text-base text-[var(--text-muted)]">chargement de l&apos;historique<span className="blink">_</span></p>}
-      {data && data.tasks.length === 0 && <div role="status" className="win-flat p-4 text-base text-[var(--text-muted)]">Aucune tâche dans l&apos;historique pour ces filtres.</div>}
+      {data === null && <p role="status" className="text-base text-[var(--text-muted)]">{tr("history.loading", "chargement de l'historique")}<span className="blink">_</span></p>}
+      {data && data.tasks.length === 0 && <div role="status" className="win-flat p-4 text-base text-[var(--text-muted)]">{tr("history.empty", "Aucune tâche dans l'historique pour ces filtres.")}</div>}
       {data && data.tasks.length > 0 && (
         <div className="win-flat">
-          <div className="px-3 py-2 border-b-2 border-[var(--border)] font-display text-[9px] uppercase">{data.tasks.length} sur {data.total}</div>
+          <div className="px-3 py-2 border-b-2 border-[var(--border)] font-display text-[9px] uppercase">{data.tasks.length} {tr("history.countSeparator", "sur")} {data.total}</div>
           <div className="divide-y-2 divide-[var(--border)] max-h-[58vh] overflow-auto">
             {data.tasks.map((t) => (
               <button key={t.id} onClick={() => open(t)} className="w-full flex items-center gap-2 px-3 py-2 text-left text-base hover:bg-[var(--bg-card-hover)] transition-colors">
@@ -92,20 +93,20 @@ export default function History() {
           <div className="win-flat w-full max-w-2xl max-h-[80vh] flex flex-col bg-[var(--bg)]" onClick={(e) => e.stopPropagation()}>
             <div className="px-3 py-2 border-b-2 border-[var(--border)] font-display text-[9px] uppercase flex items-center justify-between gap-2">
               <span className="truncate">{detail.title}</span>
-              <button onClick={() => setDetail(null)} className="win-btn shrink-0" aria-label="Fermer"><PixelIcon name="close" size={11} /></button>
+              <button onClick={() => setDetail(null)} className="win-btn shrink-0" aria-label={tr("history.closeAria", "Fermer")}><PixelIcon name="close" size={11} /></button>
             </div>
             <div className="overflow-auto p-3 space-y-3">
               {detail.errorMessage && <p className="text-sm text-[var(--destructive)] font-mono whitespace-pre-wrap">{detail.errorMessage}</p>}
-              {detailData === null && <p role="status" className="text-sm text-[var(--text-muted)]">chargement<span className="blink">_</span></p>}
+              {detailData === null && <p role="status" className="text-sm text-[var(--text-muted)]">{tr("history.detailLoading", "chargement")}<span className="blink">_</span></p>}
               {detailData && detailData.outputs.length > 0 && (
                 <div>
-                  <p className="font-display text-[8px] uppercase text-[var(--text-muted)] mb-1.5">Fichiers produits · {detailData.outputs.length}</p>
+                  <p className="font-display text-[8px] uppercase text-[var(--text-muted)] mb-1.5">{tr("history.outputsTitle", "Fichiers produits")} · {detailData.outputs.length}</p>
                   <div className="space-y-1">
                     {detailData.outputs.map((o) => (
                       <a key={o.id} href={`/api/engine/download?path=${encodeURIComponent(o.relativePath)}`} className="flex items-center gap-2 text-sm font-mono hover:text-[var(--accent)]">
                         <PixelIcon name="file" size={12} className="text-[var(--accent)]" />
                         <span className="flex-1 truncate" title={o.relativePath}>{o.relativePath}</span>
-                        {o.sizeBytes != null && <span className="text-[var(--text-muted)] shrink-0">{(o.sizeBytes / 1024).toFixed(1)} ko</span>}
+                        {o.sizeBytes != null && <span className="text-[var(--text-muted)] shrink-0">{(o.sizeBytes / 1024).toFixed(1)} {tr("history.unitKilobytes", "ko")}</span>}
                       </a>
                     ))}
                   </div>
@@ -113,11 +114,11 @@ export default function History() {
               )}
               {detailData && (
                 <div>
-                  <p className="font-display text-[8px] uppercase text-[var(--text-muted)] mb-1.5">Journal</p>
+                  <p className="font-display text-[8px] uppercase text-[var(--text-muted)] mb-1.5">{tr("history.logTitle", "Journal")}</p>
                   <div className="space-y-1.5 font-mono text-sm">
-                    {detailData.logs.filter((l) => (l.content && l.content.trim()) || l.toolName).length === 0 && <p className="text-[var(--text-muted)]">aucune sortie enregistrée.</p>}
+                    {detailData.logs.filter((l) => (l.content && l.content.trim()) || l.toolName).length === 0 && <p className="text-[var(--text-muted)]">{tr("history.logEmpty", "aucune sortie enregistrée.")}</p>}
                     {detailData.logs.map((l) => l.type === "tool_use"
-                      ? <p key={l.id} className="text-[var(--text-muted)]">→ {l.toolName ?? "outil"}</p>
+                      ? <p key={l.id} className="text-[var(--text-muted)]">→ {l.toolName ?? tr("history.toolFallback", "outil")}</p>
                       : (l.content && l.content.trim() ? <p key={l.id} className="whitespace-pre-wrap leading-snug">{l.content}</p> : null))}
                   </div>
                 </div>

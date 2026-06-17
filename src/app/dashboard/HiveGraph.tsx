@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PixelIcon } from "@/components/PixelIcon";
+import { useT } from "@/lib/i18n";
 
 type RawSkill = { name?: string; title?: string; category?: string };
 type RawProject = { slug: string; name: string; status: string };
@@ -61,6 +62,7 @@ function buildGraph(d: Brain | null): { nodes: GNode[]; edges: GEdge[] } {
 }
 
 export default function HiveGraph() {
+  const tr = useT();
   const [data, setData] = useState<Brain | null>(null);
   const [active, setActive] = useState<Set<string>>(new Set(["skills", "projects", "tasks", "memory"]));
   const [query, setQuery] = useState("");
@@ -110,12 +112,12 @@ export default function HiveGraph() {
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex items-center gap-2 px-2.5 h-8 win-flat">
           <PixelIcon name="search" size={14} className="text-[var(--text-muted)]" />
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Chercher un nœud…" className="bg-transparent text-sm placeholder:text-[var(--text-muted)] outline-none w-44" />
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={tr("hive.searchPlaceholder", "Chercher un nœud…")} className="bg-transparent text-sm placeholder:text-[var(--text-muted)] outline-none w-44" />
         </div>
         <div className="flex-1" />
-        <button onClick={() => zoom(1 / 1.2)} className="win-btn" aria-label="Dézoomer"><PixelIcon name="minus" size={14} /></button>
-        <button onClick={() => zoom(1.2)} className="win-btn" aria-label="Zoomer"><PixelIcon name="plus" size={14} /></button>
-        <button onClick={resetView} className="win-btn" aria-label="Recentrer"><PixelIcon name="reload" size={14} /></button>
+        <button onClick={() => zoom(1 / 1.2)} className="win-btn" aria-label={tr("hive.zoomOut", "Dézoomer")}><PixelIcon name="minus" size={14} /></button>
+        <button onClick={() => zoom(1.2)} className="win-btn" aria-label={tr("hive.zoomIn", "Zoomer")}><PixelIcon name="plus" size={14} /></button>
+        <button onClick={resetView} className="win-btn" aria-label={tr("hive.recenter", "Recentrer")}><PixelIcon name="reload" size={14} /></button>
       </div>
 
       <div className="flex flex-wrap gap-1.5">
@@ -131,7 +133,7 @@ export default function HiveGraph() {
       </div>
 
       <div className="relative win-flat bg-[var(--bg)] overflow-hidden">
-        {!data && <p role="status" className="absolute inset-0 grid place-items-center text-base text-[var(--text-muted)]">tissage du graphe depuis le cerveau<span className="blink">_</span></p>}
+        {!data && <p role="status" className="absolute inset-0 grid place-items-center text-base text-[var(--text-muted)]">{tr("hive.loading", "tissage du graphe depuis le cerveau")}<span className="blink">_</span></p>}
         <svg
           viewBox="0 0 800 600"
           className="w-full h-[460px] cursor-grab active:cursor-grabbing touch-none"
@@ -177,28 +179,28 @@ export default function HiveGraph() {
         {selected && (
           <div className="absolute top-2 right-2 win-flat bg-[var(--bg-card)] p-3 w-[230px] text-sm">
             <div className="flex items-center justify-between gap-2 mb-1.5">
-              <span className="font-display text-[9px] uppercase text-[var(--text-muted)]">{selected.kind === "core" ? "Cerveau" : selected.kind === "cluster" ? "Cluster" : "Nœud"}</span>
-              <button onClick={() => setSelected(null)} className="win-btn" aria-label="Fermer"><PixelIcon name="close" size={10} /></button>
+              <span className="font-display text-[9px] uppercase text-[var(--text-muted)]">{selected.kind === "core" ? tr("hive.kindBrain", "Cerveau") : selected.kind === "cluster" ? tr("hive.kindCluster", "Cluster") : tr("hive.kindNode", "Nœud")}</span>
+              <button onClick={() => setSelected(null)} className="win-btn" aria-label={tr("hive.close", "Fermer")}><PixelIcon name="close" size={10} /></button>
             </div>
             <p className="text-base text-[var(--text)] leading-snug break-words">{selected.label}</p>
             {selected.sub && <p className="text-sm text-[var(--text-muted)] mt-0.5">{selected.sub}</p>}
             {selected.kind === "core" && counts && (
               <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-0.5 text-sm text-[var(--text-muted)] font-mono">
-                <span>{counts.skills} skills</span><span>{counts.projects} projets</span>
-                <span>{counts.tasks} tâches</span><span>{counts.memory} mémoire</span>
+                <span>{counts.skills} {tr("hive.unitSkills", "skills")}</span><span>{counts.projects} {tr("hive.unitProjects", "projets")}</span>
+                <span>{counts.tasks} {tr("hive.unitTasks", "tâches")}</span><span>{counts.memory} {tr("hive.unitMemory", "mémoire")}</span>
               </div>
             )}
             {selected.kind === "cluster" && counts && (
-              <p className="mt-2 text-sm text-[var(--text-muted)] font-mono">{counts[selected.cluster as keyof typeof counts]} éléments dans ce cluster</p>
+              <p className="mt-2 text-sm text-[var(--text-muted)] font-mono">{counts[selected.cluster as keyof typeof counts]} {tr("hive.elementsInCluster", "éléments dans ce cluster")}</p>
             )}
             {selected.kind === "leaf" && (
-              <p className="mt-2 text-sm text-[var(--text-muted)] font-mono">cluster : {CLUSTERS.find((c) => c.id === selected.cluster)?.label.toLowerCase()}</p>
+              <p className="mt-2 text-sm text-[var(--text-muted)] font-mono">{tr("hive.clusterLabel", "cluster :")} {CLUSTERS.find((c) => c.id === selected.cluster)?.label.toLowerCase()}</p>
             )}
           </div>
         )}
       </div>
 
-      <p className="text-sm text-[var(--text-muted)]">Graphe vivant tissé depuis le cerveau du moteur : skills, projets, tâches et mémoire réels. Clique un cluster pour le masquer, molette pour zoomer.</p>
+      <p className="text-sm text-[var(--text-muted)]">{tr("hive.footer", "Graphe vivant tissé depuis le cerveau du moteur : skills, projets, tâches et mémoire réels. Clique un cluster pour le masquer, molette pour zoomer.")}</p>
     </div>
   );
 }

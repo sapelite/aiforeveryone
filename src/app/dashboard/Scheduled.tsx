@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { PixelIcon } from "@/components/PixelIcon";
 import { PixSelect } from "@/components/PixSelect";
 import { play } from "@/lib/sound";
+import { useT } from "@/lib/i18n";
 
 type CronJob = {
   name: string; slug: string; description?: string; time: string; days: string;
@@ -17,6 +18,7 @@ const MODELS = ["sonnet", "haiku", "opus"];
 const empty = { name: "", time: "09:00", days: "weekdays", model: "sonnet", prompt: "", description: "" };
 
 export default function Scheduled() {
+  const tr = useT();
   const [jobs, setJobs] = useState<CronJob[] | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
@@ -36,14 +38,14 @@ export default function Scheduled() {
   }
 
   async function create() {
-    if (!form.name.trim() || !form.prompt.trim()) { setErr("Nom et instruction requis."); return; }
+    if (!form.name.trim() || !form.prompt.trim()) { setErr(tr("scheduled.errNameAndPrompt", "Nom et instruction requis.")); return; }
     setSaving(true); setErr(null);
     try {
       const res = await fetch("/api/engine/cron", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "create", ...form }) });
       const j = await res.json();
       if (j.ok) { play("success"); setForm(empty); setCreating(false); setTimeout(load, 400); }
-      else setErr(j.error ?? "échec");
-    } catch { setErr("moteur hors ligne"); }
+      else setErr(j.error ?? tr("scheduled.errGeneric", "échec"));
+    } catch { setErr(tr("scheduled.errEngineOffline", "moteur hors ligne")); }
     finally { setSaving(false); }
   }
 
@@ -55,29 +57,29 @@ export default function Scheduled() {
       <div className="win-flat">
         <button onClick={() => setCreating((c) => !c)} className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-[var(--bg-card-hover)]">
           <PixelIcon name={creating ? "close" : "plus"} size={14} className="text-[var(--accent)]" />
-          <span className="font-display text-[9px] uppercase flex-1">Nouveau job planifié</span>
+          <span className="font-display text-[9px] uppercase flex-1">{tr("scheduled.newScheduledJob", "Nouveau job planifié")}</span>
         </button>
         {creating && (
           <div className="p-3 border-t-2 border-[var(--border)] space-y-2">
-            <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Nom (ex : Veille concurrentielle)" className="pinput" />
-            <input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Description (optionnel)" className="pinput" />
+            <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder={tr("scheduled.namePlaceholder", "Nom (ex : Veille concurrentielle)")} className="pinput" />
+            <input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder={tr("scheduled.descriptionPlaceholder", "Description (optionnel)")} className="pinput" />
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
               <input value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} placeholder="09:00 / every_2h" className="pinput font-mono" />
               <PixSelect value={form.days} onChange={(v) => setForm({ ...form, days: v })} options={DAYS.map((d) => [d, d] as [string, string])} />
               <PixSelect value={form.model} onChange={(v) => setForm({ ...form, model: v })} options={MODELS.map((m) => [m, m] as [string, string])} />
             </div>
-            <textarea value={form.prompt} onChange={(e) => setForm({ ...form, prompt: e.target.value })} rows={3} placeholder="Instruction de l'agent (ex : résume les nouveautés du marché et sauve un briefing dans projects/)" className="modal-input resize-none" />
+            <textarea value={form.prompt} onChange={(e) => setForm({ ...form, prompt: e.target.value })} rows={3} placeholder={tr("scheduled.promptPlaceholder", "Instruction de l'agent (ex : résume les nouveautés du marché et sauve un briefing dans projects/)")} className="modal-input resize-none" />
             {err && <p className="text-sm text-[var(--destructive)]">{err}</p>}
             <div className="flex justify-end gap-2">
-              <button onClick={() => { setCreating(false); setErr(null); }} className="pbtn pbtn-sm">Annuler</button>
-              <button onClick={create} disabled={saving} className="pbtn pbtn-sm pbtn-primary"><PixelIcon name="check" size={12} /> {saving ? "…" : "Créer"}</button>
+              <button onClick={() => { setCreating(false); setErr(null); }} className="pbtn pbtn-sm">{tr("scheduled.cancel", "Annuler")}</button>
+              <button onClick={create} disabled={saving} className="pbtn pbtn-sm pbtn-primary"><PixelIcon name="check" size={12} /> {saving ? "…" : tr("scheduled.create", "Créer")}</button>
             </div>
           </div>
         )}
       </div>
 
-      {jobs === null && <p className="text-base text-[var(--text-muted)]">chargement des jobs<span className="blink">_</span></p>}
-      {jobs?.length === 0 && <div className="win-flat p-4 text-base text-[var(--text-muted)]">Aucun job planifié. Crée-en un ci-dessus, ou demande à un agent &laquo; planifie un job qui… &raquo;.</div>}
+      {jobs === null && <p className="text-base text-[var(--text-muted)]">{tr("scheduled.loadingJobs", "chargement des jobs")}<span className="blink">_</span></p>}
+      {jobs?.length === 0 && <div className="win-flat p-4 text-base text-[var(--text-muted)]">{tr("scheduled.emptyState", "Aucun job planifié. Crée-en un ci-dessus, ou demande à un agent « planifie un job qui… ».")}</div>}
 
       {jobs?.map((j) => (
         <div key={j.slug} className={`win-flat p-3 ${j.active ? "" : "opacity-60"}`}>
@@ -86,23 +88,23 @@ export default function Scheduled() {
               <div className="flex items-center gap-2 flex-wrap">
                 <PixelIcon name="calendar" size={14} className="text-[var(--accent)] shrink-0" />
                 <p className="font-mono text-base truncate">{j.name}</p>
-                <span className="text-sm border-2 border-[var(--border)] px-1.5">{j.active ? "actif" : "en pause"}</span>
+                <span className="text-sm border-2 border-[var(--border)] px-1.5">{j.active ? tr("scheduled.statusActive", "actif") : tr("scheduled.statusPaused", "en pause")}</span>
                 {j.model && <span className="text-sm text-[var(--text-muted)] font-mono">{j.model}</span>}
               </div>
               {j.description && j.description !== j.name && <p className="text-sm text-[var(--text-muted)] mt-1 leading-snug">{j.description}</p>}
               <p className="text-sm text-[var(--text-muted)] font-mono mt-1.5">
                 <PixelIcon name="clock" size={12} className="inline -mt-0.5" /> {j.time} · {j.days}
-                {j.nextRun && <span> · suivant : {j.nextRun}</span>}
+                {j.nextRun && <span> · {tr("scheduled.next", "suivant :")} {j.nextRun}</span>}
               </p>
               <p className="text-sm mt-0.5">
-                {j.lastRun?.result && <span className={`font-mono ${resultTone(j.lastRun.result)}`}>dernier : {j.lastRun.result}</span>}
-                {j.stats?.totalRuns != null && <span className="text-[var(--text-muted)] font-mono"> · {j.stats.totalRuns} runs</span>}
-                {j.stats?.avgCostUsd != null && j.stats.avgCostUsd > 0 && <span className="text-[var(--text-muted)] font-mono"> · ~${j.stats.avgCostUsd.toFixed(3)}/run</span>}
+                {j.lastRun?.result && <span className={`font-mono ${resultTone(j.lastRun.result)}`}>{tr("scheduled.last", "dernier :")} {j.lastRun.result}</span>}
+                {j.stats?.totalRuns != null && <span className="text-[var(--text-muted)] font-mono"> · {j.stats.totalRuns} {tr("scheduled.runs", "runs")}</span>}
+                {j.stats?.avgCostUsd != null && j.stats.avgCostUsd > 0 && <span className="text-[var(--text-muted)] font-mono"> · ~${j.stats.avgCostUsd.toFixed(3)}{tr("scheduled.perRun", "/run")}</span>}
               </p>
             </div>
             <div className="flex flex-col gap-1.5 shrink-0">
-              <button onClick={() => act(j.slug, "run")} disabled={busy === j.slug + "run"} className="pbtn pbtn-sm pbtn-primary"><PixelIcon name="zap" size={12} /> Lancer</button>
-              <button onClick={() => act(j.slug, "toggle")} disabled={busy === j.slug + "toggle"} className="pbtn pbtn-sm"><PixelIcon name={j.active ? "pause" : "play"} size={12} /> {j.active ? "Pause" : "Activer"}</button>
+              <button onClick={() => act(j.slug, "run")} disabled={busy === j.slug + "run"} className="pbtn pbtn-sm pbtn-primary"><PixelIcon name="zap" size={12} /> {tr("scheduled.run", "Lancer")}</button>
+              <button onClick={() => act(j.slug, "toggle")} disabled={busy === j.slug + "toggle"} className="pbtn pbtn-sm"><PixelIcon name={j.active ? "pause" : "play"} size={12} /> {j.active ? tr("scheduled.pause", "Pause") : tr("scheduled.activate", "Activer")}</button>
             </div>
           </div>
         </div>

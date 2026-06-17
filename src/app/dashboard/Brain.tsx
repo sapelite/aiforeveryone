@@ -8,11 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { BrandLogo } from "./BrandLogo";
 import { Loader2, Search, FileText, Plug, Save, Plus, FolderTree, Unplug } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 type Note = { rel: string; title: string; dir: string };
 type Status = { connected: boolean; vaultPath: string; isObsidian: boolean; connectedAt: string | null; count: number; notes: Note[] };
 
 export default function Brain({ instanceId }: { instanceId: string }) {
+  const tr = useT();
   const [s, setS] = useState<Status | null>(null);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
@@ -42,7 +44,7 @@ export default function Brain({ instanceId }: { instanceId: string }) {
     try {
       const j = await (await fetch(`/api/brain?id=${instanceId}&file=${encodeURIComponent(n.rel)}`)).json();
       setContent(j.content ?? "");
-    } catch { setContent("Erreur de chargement."); }
+    } catch { setContent(tr("brain.loadError", "Erreur de chargement.")); }
     finally { setDocLoading(false); }
   }
 
@@ -51,8 +53,8 @@ export default function Brain({ instanceId }: { instanceId: string }) {
     setSaving(true);
     try {
       const j = await (await fetch("/api/brain", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: instanceId, file: open.rel, content }) })).json();
-      if (j.ok) toast.success("Note enregistrée", { description: open.rel });
-      else toast.error(j.error ?? "Échec");
+      if (j.ok) toast.success(tr("brain.noteSaved", "Note enregistrée"), { description: open.rel });
+      else toast.error(j.error ?? tr("brain.failed", "Échec"));
       load();
     } finally { setSaving(false); }
   }
@@ -61,8 +63,8 @@ export default function Brain({ instanceId }: { instanceId: string }) {
     setConnectErr(null); setBusy(true);
     try {
       const j = await (await fetch("/api/brain", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: instanceId, vaultPath: vaultInput }) })).json();
-      if (j.ok) { toast.success("Vault connecté", { description: `${j.count} notes${j.isObsidian ? " · vault Obsidian détecté" : ""}` }); setConnectOpen(false); setVaultInput(""); load(); }
-      else setConnectErr(j.error ?? "Échec de la connexion");
+      if (j.ok) { toast.success(tr("brain.vaultConnected", "Vault connecté"), { description: `${j.count} notes${j.isObsidian ? tr("brain.obsidianDetectedSuffix", " · vault Obsidian détecté") : ""}` }); setConnectOpen(false); setVaultInput(""); load(); }
+      else setConnectErr(j.error ?? tr("brain.connectionFailed", "Échec de la connexion"));
     } finally { setBusy(false); }
   }
 
@@ -70,7 +72,7 @@ export default function Brain({ instanceId }: { instanceId: string }) {
     setBusy(true);
     try {
       await fetch("/api/brain", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: instanceId, disconnect: true }) });
-      toast.message("Vault déconnecté", { description: "Retour au Brain par défaut (company-brain)." });
+      toast.message(tr("brain.vaultDisconnected", "Vault déconnecté"), { description: tr("brain.vaultDisconnectedDesc", "Retour au Brain par défaut (company-brain).") });
       load();
     } finally { setBusy(false); }
   }
@@ -83,7 +85,7 @@ export default function Brain({ instanceId }: { instanceId: string }) {
       const file = name.toLowerCase().endsWith(".md") ? name : `${name}.md`;
       const j = await (await fetch("/api/brain", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: instanceId, file, content: `# ${name.replace(/\.md$/i, "")}\n\n` }) })).json();
       if (j.ok) {
-        toast.success("Note créée", { description: file });
+        toast.success(tr("brain.noteCreated", "Note créée"), { description: file });
         setNewOpen(false); setNewName(""); load();
         openNote({ rel: file, title: name.replace(/\.md$/i, ""), dir: "" });
       }
@@ -102,7 +104,7 @@ export default function Brain({ instanceId }: { instanceId: string }) {
     return [...m.entries()].sort((a, b) => a[0].localeCompare(b[0]));
   }, [filtered]);
 
-  if (loading) return <div role="status" aria-label="Chargement du Brain" className="grid place-items-center h-64 text-[var(--text-muted)]"><Loader2 className="w-5 h-5 animate-spin" /></div>;
+  if (loading) return <div role="status" aria-label={tr("brain.loadingBrain", "Chargement du Brain")} className="grid place-items-center h-64 text-[var(--text-muted)]"><Loader2 className="w-5 h-5 animate-spin" /></div>;
 
   return (
     <div className="space-y-6">
@@ -115,19 +117,19 @@ export default function Brain({ instanceId }: { instanceId: string }) {
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-lg font-semibold tracking-tight">Le Brain</h3>
+                <h3 className="text-lg font-semibold tracking-tight">{tr("brain.title", "Le Brain")}</h3>
                 {s?.connected
-                  ? <Badge variant="success"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> {s.isObsidian ? "Vault Obsidian" : "Vault"} connecté</Badge>
-                  : <Badge variant="secondary">Brain par défaut · company-brain</Badge>}
-                <Badge variant="outline">{s?.count ?? 0} notes</Badge>
+                  ? <Badge variant="success"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> {s.isObsidian ? tr("brain.vaultObsidian", "Vault Obsidian") : tr("brain.vault", "Vault")} {tr("brain.connectedSuffix", "connecté")}</Badge>
+                  : <Badge variant="secondary">{tr("brain.defaultBrain", "Brain par défaut · company-brain")}</Badge>}
+                <Badge variant="outline">{s?.count ?? 0} {tr("brain.notes", "notes")}</Badge>
               </div>
               <p className="text-[13px] text-[var(--text-muted)] mt-1.5 font-mono break-all">{s?.vaultPath}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            {s?.connected && <Button variant="ghost" size="sm" disabled={busy} onClick={disconnect}><Unplug /> Déconnecter</Button>}
+            {s?.connected && <Button variant="ghost" size="sm" disabled={busy} onClick={disconnect}><Unplug /> {tr("brain.disconnect", "Déconnecter")}</Button>}
             <Button variant="outline" size="sm" onClick={() => { setVaultInput(s?.connected ? s.vaultPath : ""); setConnectOpen(true); }}>
-              <Plug /> {s?.connected ? "Changer de vault" : "Connecter Obsidian"}
+              <Plug /> {s?.connected ? tr("brain.changeVault", "Changer de vault") : tr("brain.connectObsidian", "Connecter Obsidian")}
             </Button>
           </div>
         </div>
@@ -137,17 +139,17 @@ export default function Brain({ instanceId }: { instanceId: string }) {
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2 px-3 h-10 rounded-full bg-[var(--bg-card)] border-2 border-[var(--border)] acc-ring flex-1 max-w-md">
           <Search className="w-4 h-4 text-[var(--text-muted)]" />
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Rechercher une note…" className="flex-1 bg-transparent text-sm placeholder:text-[var(--text-muted)] outline-none" />
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={tr("brain.searchPlaceholder", "Rechercher une note…")} className="flex-1 bg-transparent text-sm placeholder:text-[var(--text-muted)] outline-none" />
         </div>
-        <Button size="sm" onClick={() => { setNewName(""); setNewOpen(true); }}><Plus /> Nouvelle note</Button>
+        <Button size="sm" onClick={() => { setNewName(""); setNewOpen(true); }}><Plus /> {tr("brain.newNote", "Nouvelle note")}</Button>
       </div>
 
       {/* notes */}
       {groups.length === 0 ? (
-        <p className="text-sm text-[var(--text-muted)]">Aucune note dans ce vault.</p>
+        <p className="text-sm text-[var(--text-muted)]">{tr("brain.noNotes", "Aucune note dans ce vault.")}</p>
       ) : groups.map(([dir, items]) => (
         <section key={dir}>
-          <h4 className="text-[13px] font-medium text-[var(--text-muted)] mb-3 flex items-center gap-1.5"><FolderTree className="w-3.5 h-3.5" /> {dir === "/" ? "Racine" : dir}</h4>
+          <h4 className="text-[13px] font-medium text-[var(--text-muted)] mb-3 flex items-center gap-1.5"><FolderTree className="w-3.5 h-3.5" /> {dir === "/" ? tr("brain.root", "Racine") : dir}</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {items.map((n) => (
               <button key={n.rel} onClick={() => openNote(n)} className="text-left rounded-2xl border-2 border-[var(--border)] bg-[var(--bg-card)] p-4 hover:bg-[var(--bg-card-hover)] hover:border-[var(--border-light)] transition-colors">
@@ -167,15 +169,15 @@ export default function Brain({ instanceId }: { instanceId: string }) {
         <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle className="font-mono text-sm">{open?.rel}</DialogTitle>
-            <DialogDescription>Édition en direct — l&apos;enregistrement écrit dans le vault sur le disque.</DialogDescription>
+            <DialogDescription>{tr("brain.editorDesc", "Édition en direct — l'enregistrement écrit dans le vault sur le disque.")}</DialogDescription>
           </DialogHeader>
           {docLoading ? <div className="h-64 grid place-items-center"><Loader2 className="w-5 h-5 animate-spin text-[var(--text-muted)]" /></div> : (
             <textarea value={content} onChange={(e) => setContent(e.target.value)} spellCheck={false}
               className="w-full h-[55vh] rounded-xl bg-[var(--bg-card)] border-2 border-[var(--border)] p-4 text-sm font-mono leading-relaxed text-[var(--text)] outline-none focus:border-[var(--border-light)] resize-none" />
           )}
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setOpen(null)}>Fermer</Button>
-            <Button onClick={save} disabled={saving || docLoading}>{saving ? <Loader2 className="animate-spin" /> : <Save />} Enregistrer</Button>
+            <Button variant="ghost" onClick={() => setOpen(null)}>{tr("brain.close", "Fermer")}</Button>
+            <Button onClick={save} disabled={saving || docLoading}>{saving ? <Loader2 className="animate-spin" /> : <Save />} {tr("brain.save", "Enregistrer")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -184,17 +186,17 @@ export default function Brain({ instanceId }: { instanceId: string }) {
       <Dialog open={connectOpen} onOpenChange={setConnectOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Connecter un vault Obsidian</DialogTitle>
-            <DialogDescription>Chemin absolu vers le dossier de votre vault. Le Brain le lira et l&apos;écrira directement.</DialogDescription>
+            <DialogTitle>{tr("brain.connectDialogTitle", "Connecter un vault Obsidian")}</DialogTitle>
+            <DialogDescription>{tr("brain.connectDialogDesc", "Chemin absolu vers le dossier de votre vault. Le Brain le lira et l'écrira directement.")}</DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
-            <Input value={vaultInput} onChange={(e) => setVaultInput(e.target.value)} placeholder="C:\Users\vous\Documents\MonVault" className="font-mono" onKeyDown={(e) => e.key === "Enter" && connect()} />
+            <Input value={vaultInput} onChange={(e) => setVaultInput(e.target.value)} placeholder={tr("brain.vaultPathPlaceholder", "C:\\Users\\vous\\Documents\\MonVault")} className="font-mono" onKeyDown={(e) => e.key === "Enter" && connect()} />
             {connectErr && <p className="text-xs text-red-400">{connectErr}</p>}
-            <p className="text-xs text-[var(--text-muted)]">Astuce : dans Obsidian, clic droit sur le vault → « Reveal in Finder/Explorer » pour copier le chemin.</p>
+            <p className="text-xs text-[var(--text-muted)]">{tr("brain.connectHint", "Astuce : dans Obsidian, clic droit sur le vault → « Reveal in Finder/Explorer » pour copier le chemin.")}</p>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setConnectOpen(false)}>Annuler</Button>
-            <Button onClick={connect} disabled={busy || !vaultInput.trim()}>{busy ? "Connexion…" : "Connecter"}</Button>
+            <Button variant="ghost" onClick={() => setConnectOpen(false)}>{tr("brain.cancel", "Annuler")}</Button>
+            <Button onClick={connect} disabled={busy || !vaultInput.trim()}>{busy ? tr("brain.connecting", "Connexion…") : tr("brain.connect", "Connecter")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -203,13 +205,13 @@ export default function Brain({ instanceId }: { instanceId: string }) {
       <Dialog open={newOpen} onOpenChange={setNewOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Nouvelle note</DialogTitle>
-            <DialogDescription>Créée dans le vault (sous-dossiers autorisés, ex. <span className="font-mono">decisions/note.md</span>).</DialogDescription>
+            <DialogTitle>{tr("brain.newNoteDialogTitle", "Nouvelle note")}</DialogTitle>
+            <DialogDescription>{tr("brain.newNoteDialogDescA", "Créée dans le vault (sous-dossiers autorisés, ex. ")}<span className="font-mono">decisions/note.md</span>{tr("brain.newNoteDialogDescB", ").")}</DialogDescription>
           </DialogHeader>
-          <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="ma-note" className="font-mono" onKeyDown={(e) => e.key === "Enter" && createNote()} />
+          <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder={tr("brain.newNotePlaceholder", "ma-note")} className="font-mono" onKeyDown={(e) => e.key === "Enter" && createNote()} />
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setNewOpen(false)}>Annuler</Button>
-            <Button onClick={createNote} disabled={busy || !newName.trim()}>Créer</Button>
+            <Button variant="ghost" onClick={() => setNewOpen(false)}>{tr("brain.cancel", "Annuler")}</Button>
+            <Button onClick={createNote} disabled={busy || !newName.trim()}>{tr("brain.create", "Créer")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

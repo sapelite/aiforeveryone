@@ -3,10 +3,12 @@
 import { useRef, useState } from "react";
 import { PixelIcon } from "@/components/PixelIcon";
 import { play } from "@/lib/sound";
+import { useT } from "@/lib/i18n";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
 export default function Chat({ instanceId, name }: { instanceId: string; name: string }) {
+  const tr = useT();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -34,13 +36,13 @@ export default function Chat({ instanceId, name }: { instanceId: string; name: s
         setMessages((m) => [...m, { role: "assistant", content: j.text }]);
         play("receive");
       } else if (j.fallback) {
-        setNotice("Chat IA en direct indisponible : connecte-toi à Claude Code (abonnement Max/Pro) sur cette machine, puis relance le serveur.");
-        setMessages((m) => [...m, { role: "assistant", content: "(Mode démo — session Claude introuvable. Une fois connecté à Claude Code, je réponds en direct en m'appuyant sur la mémoire de l'entreprise.)" }]);
+        setNotice(tr("chat.noticeLiveUnavailable", "Chat IA en direct indisponible : connecte-toi à Claude Code (abonnement Max/Pro) sur cette machine, puis relance le serveur."));
+        setMessages((m) => [...m, { role: "assistant", content: tr("chat.demoModeMessage", "(Mode démo — session Claude introuvable. Une fois connecté à Claude Code, je réponds en direct en m'appuyant sur la mémoire de l'entreprise.)") }]);
       } else {
-        setMessages((m) => [...m, { role: "assistant", content: "Erreur : " + (j.error ?? "inconnue") }]);
+        setMessages((m) => [...m, { role: "assistant", content: tr("chat.errorPrefix", "Erreur : ") + (j.error ?? tr("chat.errorUnknownFem", "inconnue")) }]);
       }
     } catch {
-      setMessages((m) => [...m, { role: "assistant", content: "Erreur réseau." }]);
+      setMessages((m) => [...m, { role: "assistant", content: tr("chat.networkError", "Erreur réseau.") }]);
     } finally {
       setBusy(false);
       scroll();
@@ -57,10 +59,10 @@ export default function Chat({ instanceId, name }: { instanceId: string; name: s
     try {
       const res = await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ goal: text, model: "auto" }) });
       const j = await res.json();
-      if (j.ok) { setMessages((m) => [...m, { role: "assistant", content: `Tâche lancée (${String(j.taskId).slice(0, 8)})${j.routed ? ` · modèle ${j.model}` : ""}. Suis-la en direct dans l'onglet Exécutions.` }]); play("receive"); }
-      else if (j.offline) setNotice("Moteur hors ligne : démarre le command-centre pour exécuter des tâches autonomes.");
-      else setMessages((m) => [...m, { role: "assistant", content: "Échec du lancement : " + (j.error ?? "inconnu") }]);
-    } catch { setMessages((m) => [...m, { role: "assistant", content: "Erreur réseau." }]); }
+      if (j.ok) { setMessages((m) => [...m, { role: "assistant", content: `${tr("chat.taskLaunched", "Tâche lancée")} (${String(j.taskId).slice(0, 8)})${j.routed ? ` · ${tr("chat.taskModel", "modèle")} ${j.model}` : ""}. ${tr("chat.taskFollowLive", "Suis-la en direct dans l'onglet Exécutions.")}` }]); play("receive"); }
+      else if (j.offline) setNotice(tr("chat.noticeEngineOffline", "Moteur hors ligne : démarre le command-centre pour exécuter des tâches autonomes."));
+      else setMessages((m) => [...m, { role: "assistant", content: tr("chat.launchFailed", "Échec du lancement : ") + (j.error ?? tr("chat.errorUnknownMasc", "inconnu")) }]);
+    } catch { setMessages((m) => [...m, { role: "assistant", content: tr("chat.networkError", "Erreur réseau.") }]); }
     finally { setBusy(false); scroll(); }
   }
 
@@ -73,8 +75,8 @@ export default function Chat({ instanceId, name }: { instanceId: string; name: s
               <div className="w-12 h-12 grid place-items-center border-2 border-[var(--border)] bg-[var(--accent)] mx-auto mb-3" style={{ boxShadow: "3px 3px 0 0 var(--border)" }}>
                 <PixelIcon name="message-text" size={22} className="text-[#1b1b1b]" />
               </div>
-              <p className="mb-1 text-base">Chat avec l&apos;AI OS de {name}</p>
-              <p className="text-sm text-[var(--text-muted)]">Pose une question sur l&apos;entreprise, ou lance une tâche autonome.</p>
+              <p className="mb-1 text-base">{tr("chat.emptyTitle", "Chat avec l'AI OS de")} {name}</p>
+              <p className="text-sm text-[var(--text-muted)]">{tr("chat.emptySubtitle", "Pose une question sur l'entreprise, ou lance une tâche autonome.")}</p>
             </div>
           </div>
         )}
@@ -90,15 +92,15 @@ export default function Chat({ instanceId, name }: { instanceId: string; name: s
             </div>
           )
         )}
-        {busy && <p className="text-sm text-[var(--text-muted)] pl-9">réflexion<span className="blink">_</span></p>}
+        {busy && <p className="text-sm text-[var(--text-muted)] pl-9">{tr("chat.thinking", "réflexion")}<span className="blink">_</span></p>}
       </div>
 
       {notice && <p className="px-4 py-2 text-sm text-[var(--warning)] border-t-2 border-[var(--border)] leading-snug">{notice}</p>}
 
       <div className="border-t-2 border-[var(--border)] p-3 flex items-center gap-2">
-        <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} placeholder="Écris ton message…" className="pinput flex-1" />
-        <button onClick={launchTask} disabled={busy || !input.trim()} title="Lancer comme tâche autonome" className="pbtn pbtn-sm shrink-0"><PixelIcon name="zap" size={14} /></button>
-        <button onClick={send} disabled={busy || !input.trim()} data-sfx="send" title="Demander (réponse rapide)" className="pbtn pbtn-sm pbtn-primary shrink-0"><PixelIcon name="send" size={14} /></button>
+        <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} placeholder={tr("chat.inputPlaceholder", "Écris ton message…")} className="pinput flex-1" />
+        <button onClick={launchTask} disabled={busy || !input.trim()} title={tr("chat.launchTaskTitle", "Lancer comme tâche autonome")} className="pbtn pbtn-sm shrink-0"><PixelIcon name="zap" size={14} /></button>
+        <button onClick={send} disabled={busy || !input.trim()} data-sfx="send" title={tr("chat.askTitle", "Demander (réponse rapide)")} className="pbtn pbtn-sm pbtn-primary shrink-0"><PixelIcon name="send" size={14} /></button>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@
 
 import type { InstanceData } from "@/lib/instance";
 import { Lightbulb, UserPlus, AlertTriangle, TrendingDown } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 /* Mots-clés pour savoir si une fonction est couverte par un agent existant. */
 const FN_KEYWORDS: Record<string, string[]> = {
@@ -76,6 +77,7 @@ function buildInsights(data: InstanceData): Insight[] {
 }
 
 export default function AgentInsights({ data, onCreate }: { data: InstanceData; onCreate: (name: string) => void }) {
+  const tr = useT();
   const insights = buildInsights(data);
   if (insights.length === 0) return null;
 
@@ -83,8 +85,8 @@ export default function AgentInsights({ data, onCreate }: { data: InstanceData; 
     <div className="rounded-xl border-2 border-[var(--border)] bg-[var(--bg-card)]">
       <div className="flex items-center gap-2 px-4 py-3 border-b-2 border-[var(--border)]">
         <Lightbulb className="w-4 h-4 acc-text-strong" />
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Agent Insights</h3>
-        <span className="text-xs text-[var(--text-muted)]">· proactif · basé sur la personality</span>
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">{tr("insights.heading", "Agent Insights")}</h3>
+        <span className="text-xs text-[var(--text-muted)]">{tr("insights.subtitle", "· proactif · basé sur la personality")}</span>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[var(--border)]">
         {insights.map((ins, i) => (
@@ -100,7 +102,7 @@ export default function AgentInsights({ data, onCreate }: { data: InstanceData; 
                   onClick={() => onCreate(ins.create!)}
                   className="mt-2.5 inline-flex items-center gap-1.5 px-2.5 h-7 rounded-lg text-xs acc-bg text-white hover:opacity-90 transition-opacity"
                 >
-                  <UserPlus className="w-3.5 h-3.5" /> Créer l&apos;agent {ins.create}
+                  <UserPlus className="w-3.5 h-3.5" /> {tr("insights.createAgent", "Créer l'agent")} {ins.create}
                 </button>
               )}
             </div>

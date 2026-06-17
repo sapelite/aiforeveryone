@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PixelIcon } from "@/components/PixelIcon";
+import { useT } from "@/lib/i18n";
 
 type RawSkill = { name?: string; id?: string; slug?: string; title?: string; category?: string; description?: string; desc?: string };
 type Skill = { name: string; category: string; desc: string };
@@ -13,6 +14,7 @@ const norm = (s: RawSkill): Skill => ({
 });
 
 export default function Skills() {
+  const tr = useT();
   const [skills, setSkills] = useState<Skill[] | null>(null);
   const [q, setQ] = useState("");
   const [open, setOpen] = useState<string | null>(null);
@@ -31,13 +33,13 @@ export default function Skills() {
     if (content[name] === undefined) {
       fetch(`/api/engine/skill?name=${encodeURIComponent(name)}`)
         .then((r) => r.json())
-        .then((j) => setContent((c) => ({ ...c, [name]: j.content ?? "(introuvable)" })))
-        .catch(() => setContent((c) => ({ ...c, [name]: "(erreur)" })));
+        .then((j) => setContent((c) => ({ ...c, [name]: j.content ?? tr("skills.notFound", "(introuvable)") })))
+        .catch(() => setContent((c) => ({ ...c, [name]: tr("skills.error", "(erreur)") })));
     }
   }
 
-  if (skills === null) return <p role="status" className="text-base text-[var(--text-muted)]">chargement des skills<span className="blink">_</span></p>;
-  if (skills.length === 0) return <div role="status" className="win-flat p-4 text-base text-[var(--text-muted)]">Aucun skill détecté. Le moteur est-il en ligne ? Les skills vivent dans <span className="font-mono">.claude/skills</span> du workspace.</div>;
+  if (skills === null) return <p role="status" className="text-base text-[var(--text-muted)]">{tr("skills.loading", "chargement des skills")}<span className="blink">_</span></p>;
+  if (skills.length === 0) return <div role="status" className="win-flat p-4 text-base text-[var(--text-muted)]">{tr("skills.emptyBefore", "Aucun skill détecté. Le moteur est-il en ligne ? Les skills vivent dans")} <span className="font-mono">.claude/skills</span> {tr("skills.emptyAfter", "du workspace.")}</div>;
 
   const filtered = skills.filter((s) => (s.name + s.category + s.desc).toLowerCase().includes(q.toLowerCase()));
   const groups = filtered.reduce<Record<string, Skill[]>>((m, s) => { (m[s.category] = m[s.category] || []).push(s); return m; }, {});
@@ -46,7 +48,7 @@ export default function Skills() {
     <div className="space-y-4">
       <div className="flex items-center gap-2 px-3 h-10 win-flat max-w-md">
         <PixelIcon name="search" size={16} className="text-[var(--text-muted)]" />
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Rechercher un skill…" className="flex-1 bg-transparent outline-none text-base placeholder:text-[var(--text-muted)]" />
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={tr("skills.searchPlaceholder", "Rechercher un skill…")} className="flex-1 bg-transparent outline-none text-base placeholder:text-[var(--text-muted)]" />
         <span className="text-sm text-[var(--text-muted)]">{filtered.length}/{skills.length}</span>
       </div>
       {Object.entries(groups).sort((a, b) => a[0].localeCompare(b[0])).map(([cat, items]) => (
@@ -64,7 +66,7 @@ export default function Skills() {
                   {s.desc && <p className="text-sm text-[var(--text-muted)] leading-snug line-clamp-3">{s.desc}</p>}
                 </button>
                 {open === s.name && (
-                  <pre className="px-3 pb-3 pt-2 text-sm font-mono whitespace-pre-wrap leading-snug max-h-72 overflow-auto border-t-2 border-[var(--border)]">{content[s.name] ?? "chargement…"}</pre>
+                  <pre className="px-3 pb-3 pt-2 text-sm font-mono whitespace-pre-wrap leading-snug max-h-72 overflow-auto border-t-2 border-[var(--border)]">{content[s.name] ?? tr("skills.loadingContent", "chargement…")}</pre>
                 )}
               </div>
             ))}

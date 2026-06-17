@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { PixelIcon } from "@/components/PixelIcon";
 import { play } from "@/lib/sound";
+import { useT } from "@/lib/i18n";
 
 type Msg = { id: string; role: "user" | "assistant" | "system"; content: string; url?: string; ts: number };
 
@@ -13,6 +14,7 @@ const EVENTS = ["user_message", "assistant_message", "assistant_photo", "process
 
 /** ClaudeClaw channels (Telegram/WhatsApp/Slack) surfaced live inside the pixel OS. */
 export default function Inbox() {
+  const tr = useT();
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -68,8 +70,8 @@ export default function Inbox() {
     setInput(""); play("send");
     setMsgs((m) => [...m, { id: uid(), role: "user", content: t, ts: Date.now() }]);
     scroll();
-    const r = await fetch("/api/claw/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: t }) }).then((res) => res.json()).catch(() => ({ ok: false, error: "réseau" }));
-    if (!r.ok) setMsgs((m) => [...m, { id: uid(), role: "system", content: "⚠ envoi échoué : " + (r.error ?? ""), ts: Date.now() }]);
+    const r = await fetch("/api/claw/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: t }) }).then((res) => res.json()).catch(() => ({ ok: false, error: tr("inbox.errorNetwork", "réseau") }));
+    if (!r.ok) setMsgs((m) => [...m, { id: uid(), role: "system", content: "⚠ " + tr("inbox.sendFailed", "envoi échoué : ") + (r.error ?? ""), ts: Date.now() }]);
   }
 
   return (
@@ -78,11 +80,11 @@ export default function Inbox() {
         <span className="flex items-center gap-2"><PixelIcon name="inbox" size={12} /> Inbox · ClaudeClaw</span>
         <span className="flex items-center gap-1.5 text-sm">
           <span className={`w-2 h-2 ${status?.online ? "bg-[var(--accent)] pulse-dot" : "bg-[var(--destructive)]"}`} />
-          {status === null ? "…" : status.online ? (status.telegramConnected ? "Telegram connecté" : "en ligne") : "hors ligne"}
+          {status === null ? "…" : status.online ? (status.telegramConnected ? tr("inbox.statusTelegramConnected", "Telegram connecté") : tr("inbox.statusOnline", "en ligne")) : tr("inbox.statusOffline", "hors ligne")}
         </span>
       </div>
       <div ref={scroller} className="flex-1 overflow-y-auto p-3 space-y-2 bg-[var(--bg)]">
-        {msgs.length === 0 && <p className="text-sm text-[var(--text-muted)]">Aucun message. Écris depuis Telegram ou ici — tout arrive aux deux endroits.</p>}
+        {msgs.length === 0 && <p className="text-sm text-[var(--text-muted)]">{tr("inbox.empty", "Aucun message. Écris depuis Telegram ou ici — tout arrive aux deux endroits.")}</p>}
         {msgs.map((m) => m.role === "user" ? (
           <div key={m.id} className="flex justify-end">
             <p className="max-w-[80%] px-3 py-2 border-2 border-[var(--border)] bg-[var(--accent)] text-[#1b1b1b] text-base leading-snug whitespace-pre-wrap">{m.content}</p>
@@ -99,10 +101,10 @@ export default function Inbox() {
             </div>
           </div>
         ))}
-        {busy && <p className="text-sm text-[var(--text-muted)] pl-9">{progressLabel ?? "ClaudeClaw réfléchit"}<span className="blink">_</span></p>}
+        {busy && <p className="text-sm text-[var(--text-muted)] pl-9">{progressLabel ?? tr("inbox.thinking", "ClaudeClaw réfléchit")}<span className="blink">_</span></p>}
       </div>
       <div className="border-t-2 border-[var(--border)] p-3 flex items-center gap-2">
-        <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} disabled={status !== null && !status.online} placeholder={status !== null && !status.online ? "ClaudeClaw hors ligne…" : "Écris à ClaudeClaw (arrive aussi sur Telegram)…"} className="pinput flex-1" />
+        <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} disabled={status !== null && !status.online} placeholder={status !== null && !status.online ? tr("inbox.placeholderOffline", "ClaudeClaw hors ligne…") : tr("inbox.placeholder", "Écris à ClaudeClaw (arrive aussi sur Telegram)…")} className="pinput flex-1" />
         <button onClick={send} disabled={!input.trim() || busy || (status !== null && !status.online)} data-sfx="send" className="pbtn pbtn-sm pbtn-primary shrink-0"><PixelIcon name="send" size={14} /></button>
       </div>
     </div>

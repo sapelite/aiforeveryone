@@ -35,6 +35,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import SoundToggle from "@/components/SoundToggle";
 import EngineStatus from "@/components/EngineStatus";
 import { play } from "@/lib/sound";
+import { useT } from "@/lib/i18n";
 import { PixelIcon } from "@/components/PixelIcon";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -210,6 +211,7 @@ function PixWindow({
   onFocus: () => void; onClose: () => void; onMin: () => void; onMax: () => void;
   children: React.ReactNode;
 }) {
+  const tr = useT();
   const m = VIEW_META[win.id];
   const style: React.CSSProperties = win.max
     ? { left: 6, top: 6, right: 6, bottom: 6, zIndex: win.z }
@@ -219,9 +221,9 @@ function PixWindow({
       <div className={`win-title ${active ? "" : "opacity-70"}`} onDoubleClick={onMax}>
         <span className="flex items-center gap-1.5 truncate"><PixelIcon name={m.pic} size={11} /> {m.title}</span>
         <span className="flex items-center gap-1 shrink-0">
-          <button className="win-btn" data-sfx="min" onClick={(e) => { e.stopPropagation(); onMin(); }} aria-label="Réduire">_</button>
-          <button className="win-btn" data-sfx="max" onClick={(e) => { e.stopPropagation(); onMax(); }} aria-label="Agrandir">o</button>
-          <button className="win-btn" data-sfx="close" onClick={(e) => { e.stopPropagation(); onClose(); }} aria-label="Fermer">x</button>
+          <button className="win-btn" data-sfx="min" onClick={(e) => { e.stopPropagation(); onMin(); }} aria-label={tr("console.minimize", "Réduire")}>_</button>
+          <button className="win-btn" data-sfx="max" onClick={(e) => { e.stopPropagation(); onMax(); }} aria-label={tr("console.maximize", "Agrandir")}>o</button>
+          <button className="win-btn" data-sfx="close" onClick={(e) => { e.stopPropagation(); onClose(); }} aria-label={tr("console.close", "Fermer")}>x</button>
         </span>
       </div>
       <div className="flex-1 overflow-auto bg-[var(--bg-card)] p-3 md:p-4">{children}</div>
@@ -230,6 +232,7 @@ function PixWindow({
 }
 
 export default function Console({ data }: { data: InstanceData }) {
+  const tr = useT();
   const router = useRouter();
   const { settings, update, reset } = useSettings();
   const deskRef = useRef<HTMLDivElement>(null);
@@ -314,7 +317,7 @@ export default function Console({ data }: { data: InstanceData }) {
     await fetch("/api/agents", { method: "PATCH", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: data.id, slug, killed }) });
     setBusy(false);
-    toast[killed ? "warning" : "success"](killed ? "Agent arrêté" : "Agent réactivé", { description: slug });
+    toast[killed ? "warning" : "success"](killed ? tr("console.agentStopped", "Agent arrêté") : tr("console.agentReactivated", "Agent réactivé"), { description: slug });
     play(killed ? "error" : "success");
     router.refresh();
   }
@@ -335,12 +338,12 @@ export default function Console({ data }: { data: InstanceData }) {
               <Panel className="p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Fingerprint className="w-4 h-4 text-[var(--accent)]" />
-                  <h3 className="font-display text-[9px] uppercase">Business Personality</h3>
+                  <h3 className="font-display text-[9px] uppercase">{tr("console.businessPersonality", "Business Personality")}</h3>
                 </div>
                 <p className="text-base text-[var(--text-muted)] leading-snug mb-4">{data.personality.summary}</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
-                    <p className="text-sm text-[var(--text-muted)] uppercase mb-2">Fonctions dominantes</p>
+                    <p className="text-sm text-[var(--text-muted)] uppercase mb-2">{tr("console.dominantFunctions", "Fonctions dominantes")}</p>
                     <div className="space-y-1.5">
                       {(() => {
                         const total = Object.values(data.personality.functions).reduce((a, b) => a + b, 0) || 1;
@@ -357,11 +360,11 @@ export default function Console({ data }: { data: InstanceData }) {
                     </div>
                   </div>
                   <div>
-                    <p className="text-sm text-[var(--text-muted)] uppercase mb-2">Traits de voix</p>
+                    <p className="text-sm text-[var(--text-muted)] uppercase mb-2">{tr("console.voiceTraits", "Traits de voix")}</p>
                     <div className="flex flex-wrap gap-1.5 mb-4">
                       {data.personality.traits.map((t) => <Badge key={t} variant="default">{t}</Badge>)}
                     </div>
-                    <p className="text-sm text-[var(--text-muted)] uppercase mb-2">Outils connectés · {data.personality.tools.length}</p>
+                    <p className="text-sm text-[var(--text-muted)] uppercase mb-2">{tr("console.connectedTools", "Outils connectés")} · {data.personality.tools.length}</p>
                     <div className="flex flex-wrap gap-1.5">
                       {data.personality.tools.map((t) => <Badge key={t.name} variant="secondary">{t.name}</Badge>)}
                     </div>
@@ -372,14 +375,14 @@ export default function Console({ data }: { data: InstanceData }) {
 
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
               <Panel className="xl:col-span-2">
-                <PanelHead title="Tâches" action={
+                <PanelHead title={tr("console.tasks", "Tâches")} action={
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1.5 px-2 h-7 border-2 border-[var(--border)]">
                       <Search className="w-3 h-3 text-[var(--text-muted)]" />
-                      <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Filtrer"
+                      <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={tr("console.filter", "Filtrer")}
                         className="bg-transparent text-sm placeholder:text-[var(--text-muted)] outline-none w-16 sm:w-24" />
                     </div>
-                    <button className="pbtn pbtn-sm pbtn-primary" onClick={() => setTaskModal("new")}><Plus className="w-3 h-3" /> Tâche</button>
+                    <button className="pbtn pbtn-sm pbtn-primary" onClick={() => setTaskModal("new")}><Plus className="w-3 h-3" /> {tr("console.task", "Tâche")}</button>
                   </div>
                 } />
                 <div className="divide-y-2 divide-[var(--border)]">
@@ -390,7 +393,7 @@ export default function Console({ data }: { data: InstanceData }) {
                         <span className={`w-2 h-2 shrink-0 ${prioDot[t.prio]}`} />
                         <div className="min-w-0 flex-1">
                           <p className="text-base truncate">{t.title}</p>
-                          <p className="text-sm text-[var(--text-muted)]">{t.agent || "Non assigné"} · {t.when}</p>
+                          <p className="text-sm text-[var(--text-muted)]">{t.agent || tr("console.unassigned", "Non assigné")} · {t.when}</p>
                         </div>
                         <span className={`flex items-center gap-1.5 text-sm ${sm.text} shrink-0`}>
                           <span className={`w-2 h-2 ${sm.dot} ${t.status === "running" ? "pulse-dot" : ""}`} />{sm.label}
@@ -398,13 +401,13 @@ export default function Console({ data }: { data: InstanceData }) {
                       </button>
                     );
                   })}
-                  {filteredTasks.length === 0 && <Empty label="Aucune tâche ne correspond." />}
+                  {filteredTasks.length === 0 && <Empty label={tr("console.noMatchingTask", "Aucune tâche ne correspond.")} />}
                 </div>
               </Panel>
 
               <div className="space-y-4">
                 <Panel>
-                  <PanelHead title="Agents" />
+                  <PanelHead title={tr("console.agents", "Agents")} />
                   <div className="divide-y-2 divide-[var(--border)]">
                     {onlineAgents.map((a) => {
                       const Icon = iconFor(a.slug);
@@ -422,7 +425,7 @@ export default function Console({ data }: { data: InstanceData }) {
                   </div>
                 </Panel>
                 <Panel>
-                  <PanelHead title="Alertes" />
+                  <PanelHead title={tr("console.alerts", "Alertes")} />
                   <div className="p-2.5 space-y-2">
                     {data.alerts.map((al, i) => (
                       <div key={i} className="flex items-start gap-2 p-2 border-2 border-[var(--border)]">
@@ -466,10 +469,10 @@ export default function Console({ data }: { data: InstanceData }) {
             <EngineSettings />
             <Panel className="p-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-display text-[9px] uppercase">Thème & marque</h3>
-                <button className="pbtn pbtn-sm" onClick={reset}><RotateCcw className="w-3 h-3" /> Reset</button>
+                <h3 className="font-display text-[9px] uppercase">{tr("console.themeAndBrand", "Thème & marque")}</h3>
+                <button className="pbtn pbtn-sm" onClick={reset}><RotateCcw className="w-3 h-3" /> {tr("console.reset", "Reset")}</button>
               </div>
-              <p className="text-sm text-[var(--text-muted)] uppercase mb-2">Couleur d&apos;accent</p>
+              <p className="text-sm text-[var(--text-muted)] uppercase mb-2">{tr("console.accentColor", "Couleur d'accent")}</p>
               <div className="flex flex-wrap items-center gap-2 mb-4">
                 {ACCENT_PRESETS.map((p) => (
                   <button key={p.hex} onClick={() => update({ accent: p.hex })} title={p.name}
@@ -483,13 +486,13 @@ export default function Console({ data }: { data: InstanceData }) {
               </div>
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-1.5">
-                  <p className="text-sm text-[var(--text-muted)] uppercase">Échelle</p>
+                  <p className="text-sm text-[var(--text-muted)] uppercase">{tr("console.scale", "Échelle")}</p>
                   <span className="text-sm font-mono text-[var(--text-muted)]">{settings.scale}%</span>
                 </div>
                 <input type="range" min={85} max={125} step={5} value={settings.scale} onChange={(e) => update({ scale: Number(e.target.value) })} className="w-full accent-[var(--accent)]" />
               </div>
               <div>
-                <p className="text-sm text-[var(--text-muted)] uppercase mb-1.5">Modèle par défaut</p>
+                <p className="text-sm text-[var(--text-muted)] uppercase mb-1.5">{tr("console.defaultModel", "Modèle par défaut")}</p>
                 <select value={settings.model} onChange={(e) => update({ model: e.target.value })} className="modal-input font-mono">
                   {MODELS.map((m) => <option key={m}>{m}</option>)}
                 </select>
@@ -497,15 +500,15 @@ export default function Console({ data }: { data: InstanceData }) {
             </Panel>
 
             <Panel>
-              <PanelHead title="Instance" />
+              <PanelHead title={tr("console.instance", "Instance")} />
               <div className="divide-y-2 divide-[var(--border)]">
                 {[
-                  { k: "Dossier", v: `clients/${data.id}` },
-                  { k: "Personality scannée le", v: data.personality?.scannedAt ?? "—" },
-                  { k: "Maturité du système", v: data.personality?.maturity ?? "—" },
-                  { k: "Agents", v: `${data.agents.length} (${onlineAgents.length} en ligne)` },
-                  { k: "Outils connectés", v: data.personality?.tools.map((t) => t.name).join(" · ") ?? "—" },
-                  { k: "Validation actions sortantes", v: "Activée" },
+                  { k: tr("console.folder", "Dossier"), v: `clients/${data.id}` },
+                  { k: tr("console.personalityScannedOn", "Personality scannée le"), v: data.personality?.scannedAt ?? "—" },
+                  { k: tr("console.systemMaturity", "Maturité du système"), v: data.personality?.maturity ?? "—" },
+                  { k: tr("console.agents", "Agents"), v: `${data.agents.length} (${onlineAgents.length} ${tr("console.online", "en ligne")})` },
+                  { k: tr("console.connectedTools", "Outils connectés"), v: data.personality?.tools.map((t) => t.name).join(" · ") ?? "—" },
+                  { k: tr("console.outboundActionValidation", "Validation actions sortantes"), v: tr("console.enabled", "Activée") },
                 ].map((row) => (
                   <div key={row.k} className="flex items-center justify-between px-3 py-3 gap-4">
                     <span className="text-sm text-[var(--text-muted)] shrink-0">{row.k}</span>
@@ -527,26 +530,26 @@ export default function Console({ data }: { data: InstanceData }) {
       <div className="h-8 shrink-0 flex items-center justify-between bg-[var(--bg-card)] border-b-2 border-[var(--border)] text-base">
         <div className="flex items-center h-full">
           <span className="font-display text-[9px] px-3 flex items-center gap-1.5"><PixelIcon name="computer" size={14} className="text-[var(--accent)]" /> <span className="hidden sm:inline">AIFOREVERYONE.OS</span></span>
-          <MenuDropdown label="Fichier" items={[
-            { label: "Nouvel agent", pic: "user-plus", onSelect: () => openAdd() },
-            { label: "Nouvelle tâche", pic: "note-plus", onSelect: () => setTaskModal("new") },
-            { label: "Palette (⌘K)", pic: "search", onSelect: () => setPaletteOpen(true) },
+          <MenuDropdown label={tr("console.file", "Fichier")} items={[
+            { label: tr("console.newAgent", "Nouvel agent"), pic: "user-plus", onSelect: () => openAdd() },
+            { label: tr("console.newTask", "Nouvelle tâche"), pic: "note-plus", onSelect: () => setTaskModal("new") },
+            { label: tr("console.palette", "Palette (⌘K)"), pic: "search", onSelect: () => setPaletteOpen(true) },
           ]} />
           <div className="relative">
             {menuHint && (
               <div className="absolute top-full left-0 mt-2 w-64 win p-2.5 z-[9999] animate-fade-in-up">
                 <div className="flex items-start gap-2">
                   <PixelIcon name="arrow-up" size={18} className="text-[var(--accent)] mt-0.5 shrink-0 blink" />
-                  <p className="text-sm leading-snug">Ouvre tes fenêtres ici, dans <span className="text-[var(--accent)]">Affichage</span>. Elles se rangent toutes seules en grille.</p>
+                  <p className="text-sm leading-snug">{tr("console.menuHintBefore", "Ouvre tes fenêtres ici, dans")} <span className="text-[var(--accent)]">{tr("console.view", "Affichage")}</span>{tr("console.menuHintAfter", ". Elles se rangent toutes seules en grille.")}</p>
                 </div>
-                <button onClick={dismissHint} className="pbtn pbtn-sm pbtn-primary w-full mt-2">Compris</button>
+                <button onClick={dismissHint} className="pbtn pbtn-sm pbtn-primary w-full mt-2">{tr("console.gotIt", "Compris")}</button>
               </div>
             )}
-            <MenuDropdown label="Affichage" onOpen={dismissHint} items={ALL_ITEMS.map((i) => ({ label: i.label, pic: i.pic, onSelect: () => openWindow(i.id) }))} />
+            <MenuDropdown label={tr("console.view", "Affichage")} onOpen={dismissHint} items={ALL_ITEMS.map((i) => ({ label: i.label, pic: i.pic, onSelect: () => openWindow(i.id) }))} />
           </div>
         </div>
         <div className="flex items-center h-full pr-1 gap-1">
-          <button onClick={() => setTutorialOpen(true)} title="Tutoriel" aria-label="Tutoriel" className="hidden sm:flex items-center justify-center w-6 h-6 border-2 border-[var(--border)] hover:bg-[var(--accent)] hover:text-[#1b1b1b] transition-colors"><span className="font-display text-[9px]">?</span></button>
+          <button onClick={() => setTutorialOpen(true)} title={tr("console.tutorial", "Tutoriel")} aria-label={tr("console.tutorial", "Tutoriel")} className="hidden sm:flex items-center justify-center w-6 h-6 border-2 border-[var(--border)] hover:bg-[var(--accent)] hover:text-[#1b1b1b] transition-colors"><span className="font-display text-[9px]">?</span></button>
           <AttentionBell onOpen={() => openWindow("runs")} />
           <PanicButton />
           <EngineStatus />
@@ -582,7 +585,7 @@ export default function Console({ data }: { data: InstanceData }) {
         <div className="shrink-0">
           <DropdownMenu onOpenChange={(o) => o && dismissHint()}>
             <DropdownMenuTrigger asChild>
-              <button className="pbtn pbtn-sm pbtn-primary"><PixelIcon name="menu" size={12} /> Menu</button>
+              <button className="pbtn pbtn-sm pbtn-primary"><PixelIcon name="menu" size={12} /> {tr("console.menu", "Menu")}</button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" side="top" className="w-56">
               <DropdownMenuLabel>{data.name}</DropdownMenuLabel>
@@ -590,8 +593,8 @@ export default function Console({ data }: { data: InstanceData }) {
                 <DropdownMenuItem key={i.id} onClick={() => openWindow(i.id)}><PixelIcon name={i.pic} size={16} /> {i.label}</DropdownMenuItem>
               ))}
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => openAdd()}><PixelIcon name="user-plus" size={16} /> Nouvel agent</DropdownMenuItem>
-              <DropdownMenuItem asChild><Link href="/"><PixelIcon name="external-link" size={16} /> Site web</Link></DropdownMenuItem>
+              <DropdownMenuItem onClick={() => openAdd()}><PixelIcon name="user-plus" size={16} /> {tr("console.newAgent", "Nouvel agent")}</DropdownMenuItem>
+              <DropdownMenuItem asChild><Link href="/"><PixelIcon name="external-link" size={16} /> {tr("console.website", "Site web")}</Link></DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -609,22 +612,22 @@ export default function Console({ data }: { data: InstanceData }) {
 
       {/* ─── COMMAND PALETTE ─── */}
       <CommandDialog open={paletteOpen} onOpenChange={setPaletteOpen}>
-        <CommandInput placeholder="Aller à… ou exécuter une action" />
+        <CommandInput placeholder={tr("console.palettePlaceholder", "Aller à… ou exécuter une action")} />
         <CommandList>
-          <CommandEmpty>Aucun résultat.</CommandEmpty>
+          <CommandEmpty>{tr("console.noResult", "Aucun résultat.")}</CommandEmpty>
           {nav.map((group) => (
             <CommandGroup key={group.section} heading={group.section}>
               {group.items.map((item) => (
                 <CommandItem key={item.id} onSelect={() => { openWindow(item.id); setPaletteOpen(false); }}>
                   <PixelIcon name={item.pic} size={16} /> {item.label}
-                  {windows.some((w) => w.id === item.id && !w.min) && <CommandShortcut>ouvert</CommandShortcut>}
+                  {windows.some((w) => w.id === item.id && !w.min) && <CommandShortcut>{tr("console.open", "ouvert")}</CommandShortcut>}
                 </CommandItem>
               ))}
             </CommandGroup>
           ))}
-          <CommandGroup heading="Actions">
-            <CommandItem onSelect={() => { openAdd(); setPaletteOpen(false); }}><PixelIcon name="user-plus" size={16} /> Nouvel agent</CommandItem>
-            <CommandItem onSelect={() => { openWindow("settings"); setPaletteOpen(false); }}><PixelIcon name="settings-2" size={16} /> Réglages</CommandItem>
+          <CommandGroup heading={tr("console.actions", "Actions")}>
+            <CommandItem onSelect={() => { openAdd(); setPaletteOpen(false); }}><PixelIcon name="user-plus" size={16} /> {tr("console.newAgent", "Nouvel agent")}</CommandItem>
+            <CommandItem onSelect={() => { openWindow("settings"); setPaletteOpen(false); }}><PixelIcon name="settings-2" size={16} /> {tr("console.settings", "Réglages")}</CommandItem>
           </CommandGroup>
         </CommandList>
       </CommandDialog>
@@ -639,7 +642,7 @@ export default function Console({ data }: { data: InstanceData }) {
         id={data.id}
         initialName={addPrefill}
         defaultModel={settings.model}
-        onCreated={(slug) => { setAddOpen(false); setAddPrefill(undefined); toast.success("Agent créé", { description: slug }); play("success"); router.refresh(); }}
+        onCreated={(slug) => { setAddOpen(false); setAddPrefill(undefined); toast.success(tr("console.agentCreated", "Agent créé"), { description: slug }); play("success"); router.refresh(); }}
       />
 
       {/* ─── TASK CREATE / EDIT ─── */}
@@ -681,6 +684,7 @@ function AddAgentModal({
   open: boolean; onOpenChange: (o: boolean) => void; id: string;
   initialName?: string; defaultModel: string; onCreated: (slug: string) => void;
 }) {
+  const tr = useT();
   const kebab = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   const [form, setForm] = useState({ name: "", displayName: "", description: "", model: defaultModel });
   const [busy, setBusy] = useState(false);
@@ -711,39 +715,39 @@ function AddAgentModal({
         {created ? (
           <>
             <DialogHeader>
-              <DialogTitle>Agent créé</DialogTitle>
-              <DialogDescription>Persona et config écrits sur le disque.</DialogDescription>
+              <DialogTitle>{tr("console.agentCreated", "Agent créé")}</DialogTitle>
+              <DialogDescription>{tr("console.personaWrittenToDisk", "Persona et config écrits sur le disque.")}</DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <p className="text-base text-[var(--text-muted)]">
                 <span className="text-[var(--text)] font-mono">{created.slug}</span> : <code className="text-[var(--accent)] font-mono">03-agents/{created.slug}.md</code> + <code className="text-[var(--accent)] font-mono">{created.slug}.config.yaml</code>.
               </p>
               <div className="border-2 border-[var(--border)] bg-[var(--bg)] p-3">
-                <p className="text-sm text-[var(--text-muted)] mb-1">Branche ton bot token Telegram :</p>
+                <p className="text-sm text-[var(--text-muted)] mb-1">{tr("console.plugBotToken", "Branche ton bot token Telegram :")}</p>
                 <code className="text-base text-[var(--accent)] break-all font-mono">{created.env}=&lt;ton_token&gt;</code>
               </div>
             </div>
             <DialogFooter>
-              <Button onClick={() => onCreated(created.slug)}>Terminé</Button>
+              <Button onClick={() => onCreated(created.slug)}>{tr("console.done", "Terminé")}</Button>
             </DialogFooter>
           </>
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle>Nouvel agent</DialogTitle>
-              <DialogDescription>Crée un agent spécialisé avec son propre persona et modèle.</DialogDescription>
+              <DialogTitle>{tr("console.newAgent", "Nouvel agent")}</DialogTitle>
+              <DialogDescription>{tr("console.newAgentDescription", "Crée un agent spécialisé avec son propre persona et modèle.")}</DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
-              <Field label="Nom technique (slug)"><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="finance-agent" className="font-mono" /></Field>
-              <Field label="Nom affiché *"><Input value={form.displayName} onChange={(e) => setForm({ ...form, displayName: e.target.value })} placeholder="Finance" /></Field>
-              <Field label="Description"><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={2} placeholder="Planification financière, MRR, budgets…" className="modal-input resize-none" /></Field>
-              <Field label="Modèle par défaut">
+              <Field label={tr("console.technicalNameSlug", "Nom technique (slug)")}><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="finance-agent" className="font-mono" /></Field>
+              <Field label={tr("console.displayName", "Nom affiché *")}><Input value={form.displayName} onChange={(e) => setForm({ ...form, displayName: e.target.value })} placeholder="Finance" /></Field>
+              <Field label={tr("console.description", "Description")}><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={2} placeholder={tr("console.agentDescriptionPlaceholder", "Planification financière, MRR, budgets…")} className="modal-input resize-none" /></Field>
+              <Field label={tr("console.defaultModel", "Modèle par défaut")}>
                 <select value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} className="modal-input font-mono">{MODELS.map((m) => <option key={m}>{m}</option>)}</select>
               </Field>
             </div>
             <DialogFooter>
-              <Button variant="ghost" onClick={() => onOpenChange(false)}>Annuler</Button>
-              <Button onClick={submit} disabled={busy || !form.displayName.trim()}>{busy ? "Création…" : "Créer l'agent"}</Button>
+              <Button variant="ghost" onClick={() => onOpenChange(false)}>{tr("console.cancel", "Annuler")}</Button>
+              <Button onClick={submit} disabled={busy || !form.displayName.trim()}>{busy ? tr("console.creating", "Création…") : tr("console.createAgent", "Créer l'agent")}</Button>
             </DialogFooter>
           </>
         )}
@@ -757,6 +761,7 @@ function TaskModal({ taskModal, instanceId, agentNames, onClose, onDone }: {
   taskModal: null | "new" | InstanceData["tasks"][number];
   instanceId: string; agentNames: string[]; onClose: () => void; onDone: () => void;
 }) {
+  const tr = useT();
   const editing = taskModal && taskModal !== "new" ? taskModal : null;
   const open = taskModal !== null;
   const [form, setForm] = useState({ title: "", agent: "", status: "queued", prio: "med" });
@@ -774,10 +779,10 @@ function TaskModal({ taskModal, instanceId, agentNames, onClose, onDone }: {
     try {
       if (editing) {
         await fetch("/api/tasks", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: instanceId, taskId: editing.id, ...form }) });
-        toast.success("Tâche mise à jour");
+        toast.success(tr("console.taskUpdated", "Tâche mise à jour"));
       } else {
         await fetch("/api/tasks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: instanceId, ...form }) });
-        toast.success("Tâche créée");
+        toast.success(tr("console.taskCreated", "Tâche créée"));
       }
       play("success");
       onDone();
@@ -788,7 +793,7 @@ function TaskModal({ taskModal, instanceId, agentNames, onClose, onDone }: {
     setBusy(true);
     try {
       await fetch(`/api/tasks?id=${instanceId}&taskId=${editing.id}`, { method: "DELETE" });
-      toast.message("Tâche supprimée");
+      toast.message(tr("console.taskDeleted", "Tâche supprimée"));
       play("close");
       onDone();
     } finally { setBusy(false); }
@@ -798,35 +803,35 @@ function TaskModal({ taskModal, instanceId, agentNames, onClose, onDone }: {
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{editing ? "Modifier la tâche" : "Nouvelle tâche"}</DialogTitle>
-          <DialogDescription>Persistée dans <code className="font-mono">tasks.json</code>, assignable à un agent.</DialogDescription>
+          <DialogTitle>{editing ? tr("console.editTask", "Modifier la tâche") : tr("console.newTask", "Nouvelle tâche")}</DialogTitle>
+          <DialogDescription>{tr("console.taskPersistedBefore", "Persistée dans")} <code className="font-mono">tasks.json</code>{tr("console.taskPersistedAfter", ", assignable à un agent.")}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
-          <Field label="Titre"><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Qualifier les nouveaux leads…" onKeyDown={(e) => e.key === "Enter" && save()} /></Field>
+          <Field label={tr("console.title", "Titre")}><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder={tr("console.taskTitlePlaceholder", "Qualifier les nouveaux leads…")} onKeyDown={(e) => e.key === "Enter" && save()} /></Field>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Agent">
+            <Field label={tr("console.agent", "Agent")}>
               <select value={form.agent} onChange={(e) => setForm({ ...form, agent: e.target.value })} className="modal-input">
-                <option value="">Non assigné</option>
+                <option value="">{tr("console.unassigned", "Non assigné")}</option>
                 {agentNames.map((a) => <option key={a}>{a}</option>)}
               </select>
             </Field>
-            <Field label="Priorité">
+            <Field label={tr("console.priority", "Priorité")}>
               <select value={form.prio} onChange={(e) => setForm({ ...form, prio: e.target.value })} className="modal-input">
-                <option value="high">Haute</option><option value="med">Moyenne</option><option value="low">Basse</option>
+                <option value="high">{tr("console.priorityHigh", "Haute")}</option><option value="med">{tr("console.priorityMed", "Moyenne")}</option><option value="low">{tr("console.priorityLow", "Basse")}</option>
               </select>
             </Field>
           </div>
-          <Field label="Statut">
+          <Field label={tr("console.status", "Statut")}>
             <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="modal-input">
-              <option value="queued">En file</option><option value="running">En cours</option><option value="blocked">Bloqué</option><option value="done">Terminé</option>
+              <option value="queued">{tr("console.statusQueued", "En file")}</option><option value="running">{tr("console.statusRunning", "En cours")}</option><option value="blocked">{tr("console.statusBlocked", "Bloqué")}</option><option value="done">{tr("console.statusDone", "Terminé")}</option>
             </select>
           </Field>
         </div>
         <DialogFooter className="sm:justify-between">
-          {editing ? <Button variant="ghost" className="text-[var(--destructive)]" onClick={remove} disabled={busy}>Supprimer</Button> : <span />}
+          {editing ? <Button variant="ghost" className="text-[var(--destructive)]" onClick={remove} disabled={busy}>{tr("console.delete", "Supprimer")}</Button> : <span />}
           <div className="flex gap-2 justify-end">
-            <Button variant="ghost" onClick={onClose}>Annuler</Button>
-            <Button onClick={save} disabled={busy || !form.title.trim()}>{busy ? "…" : editing ? "Enregistrer" : "Créer"}</Button>
+            <Button variant="ghost" onClick={onClose}>{tr("console.cancel", "Annuler")}</Button>
+            <Button onClick={save} disabled={busy || !form.title.trim()}>{busy ? "…" : editing ? tr("console.save", "Enregistrer") : tr("console.create", "Créer")}</Button>
           </div>
         </DialogFooter>
       </DialogContent>

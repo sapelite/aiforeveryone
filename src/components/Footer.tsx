@@ -1,15 +1,17 @@
 import Link from "next/link";
 import { PixelIcon } from "@/components/PixelIcon";
+import { useT } from "@/lib/i18n";
 
 const links = [
-  { href: "/#features", label: "Fonctionnalités" },
-  { href: "/#pricing", label: "Tarifs" },
-  { href: "/dashboard", label: "Démo" },
-  { href: "/onboarding", label: "Audit gratuit" },
-  { href: "mailto:contact@aiforeveryone.fr", label: "Contact" },
+  { href: "/#features", labelKey: "navFeatures", label: "Fonctionnalités" },
+  { href: "/#pricing", labelKey: "navPricing", label: "Tarifs" },
+  { href: "/dashboard", labelKey: "navDemo", label: "Démo" },
+  { href: "/onboarding", labelKey: "navAudit", label: "Audit gratuit" },
+  { href: "mailto:contact@aiforeveryone.fr", labelKey: "navContact", label: "Contact" },
 ];
 
 export default function Footer() {
+  const tr = useT();
   return (
     <footer className="border-t-2 border-[var(--border)] bg-[var(--bg-card)]">
       <div className="mx-auto max-w-6xl px-5 py-10">
@@ -19,19 +21,19 @@ export default function Footer() {
               <PixelIcon name="computer" size={14} className="text-[var(--accent)]" /> AIFOREVERYONE
             </p>
             <p className="text-base text-[var(--text-muted)] mt-4 leading-snug">
-              Systèmes d&apos;exploitation IA sur mesure pour les entreprises. Agents, workflows, dashboards et une mémoire vivante.
+              {tr("footer.tagline", "Systèmes d'exploitation IA sur mesure pour les entreprises. Agents, workflows, dashboards et une mémoire vivante.")}
             </p>
           </div>
           <div className="flex flex-wrap gap-x-8 gap-y-2 text-lg">
             {links.map((l) => (
-              <Link key={l.href} href={l.href} className="hover:text-[var(--accent)] transition-colors">{l.label}</Link>
+              <Link key={l.href} href={l.href} className="hover:text-[var(--accent)] transition-colors">{tr(`footer.${l.labelKey}`, l.label)}</Link>
             ))}
           </div>
         </div>
         <div className="mt-10 pt-6 border-t-2 border-[var(--border)] flex flex-col sm:flex-row justify-between items-center gap-2 text-base text-[var(--text-muted)]">
           <p>© {new Date().getFullYear()} AIFOREVERYONE</p>
           <p className="flex items-center gap-2">
-            <span className="w-2 h-2 bg-[var(--accent)] pulse-dot" /> Systèmes opérationnels
+            <span className="w-2 h-2 bg-[var(--accent)] pulse-dot" /> {tr("footer.statusOperational", "Systèmes opérationnels")}
           </p>
         </div>
       </div>

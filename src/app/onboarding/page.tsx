@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useT } from "@/lib/i18n";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SiteChat from "@/components/SiteChat";
@@ -101,6 +102,7 @@ const initialForm: FormState = {
 };
 
 export default function OnboardingPage() {
+  const tr = useT();
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [taskId, setTaskId] = useState<string | null>(null);
@@ -147,7 +149,7 @@ export default function OnboardingPage() {
       const res = await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ goal, model: "auto", permissionMode: "acceptEdits" }) });
       const j = await res.json();
       if (j.ok) setTaskId(j.taskId);
-      else if (!j.offline) setSubmitError(j.error || "L'envoi a échoué. Réessayez.");
+      else if (!j.offline) setSubmitError(j.error || tr("onboarding.submitFailed", "L'envoi a échoué. Réessayez."));
     } catch { /* moteur hors ligne : on garde le message 48h */ }
   };
 
@@ -160,21 +162,21 @@ export default function OnboardingPage() {
             <div className="w-20 h-20 border-2 border-[var(--border)] flex items-center justify-center mx-auto mb-6" style={{ boxShadow: "4px 4px 0 0 var(--border)", background: submitError && !taskId ? "var(--destructive)" : "var(--accent)" }}>
               <CheckCircle2 className="w-10 h-10 text-[#1b1b1b]" />
             </div>
-            <h1 className="font-display text-[clamp(0.9rem,3vw,1.3rem)] mb-4">{taskId ? "C'est lancé" : submitError ? "Envoi impossible" : "Demande reçue"}</h1>
+            <h1 className="font-display text-[clamp(0.9rem,3vw,1.3rem)] mb-4">{taskId ? tr("onboarding.successTitleLaunched", "C'est lancé") : submitError ? tr("onboarding.successTitleError", "Envoi impossible") : tr("onboarding.successTitleReceived", "Demande reçue")}</h1>
             <p className="text-lg text-[var(--text-muted)] mb-8 leading-snug">
               {taskId ? (
-                <>Un agent construit votre fondation de marque en ce moment (tâche <span className="font-mono text-[var(--text)]">{taskId.slice(0, 8)}</span>) : voix, positionnement et client idéal. Suivez-la en direct dans la démo.</>
+                <>{tr("onboarding.successBodyLaunchedPre", "Un agent construit votre fondation de marque en ce moment (tâche")} <span className="font-mono text-[var(--text)]">{taskId.slice(0, 8)}</span>{tr("onboarding.successBodyLaunchedPost", ") : voix, positionnement et client idéal. Suivez-la en direct dans la démo.")}</>
               ) : submitError ? (
                 <>{submitError}</>
               ) : (
-                <>Merci. Notre équipe analyse votre profil et revient sous 48h avec une architecture d&apos;AI OS sur mesure : agents, workflows, dashboard et votre <span className="text-[var(--text)]">Brain</span> (vault Obsidian) prêts à être instanciés.</>
+                <>{tr("onboarding.successBodyReceivedPre", "Merci. Notre équipe analyse votre profil et revient sous 48h avec une architecture d'AI OS sur mesure : agents, workflows, dashboard et votre")} <span className="text-[var(--text)]">{tr("onboarding.brain", "Brain")}</span> {tr("onboarding.successBodyReceivedPost", "(vault Obsidian) prêts à être instanciés.")}</>
               )}
             </p>
             {submitError && !taskId ? (
-              <button onClick={() => { setSubmitted(false); setSubmitError(null); }} className="pbtn pbtn-primary mx-auto">Réessayer</button>
+              <button onClick={() => { setSubmitted(false); setSubmitError(null); }} className="pbtn pbtn-primary mx-auto">{tr("onboarding.retry", "Réessayer")}</button>
             ) : (
               <a href={taskId ? `/dashboard?view=runs&task=${taskId}` : "/"} className="pbtn pbtn-primary mx-auto">
-                {taskId ? "Suivre dans la démo →" : "Retour à l'accueil"}
+                {taskId ? tr("onboarding.followInDemo", "Suivre dans la démo →") : tr("onboarding.backHome", "Retour à l'accueil")}
               </a>
             )}
           </div>
@@ -190,9 +192,9 @@ export default function OnboardingPage() {
       <main className="min-h-screen pt-28 pb-20">
         <div className="mx-auto max-w-3xl px-6">
           <div className="mb-10">
-            <h1 className="font-display text-[clamp(0.95rem,3.4vw,1.5rem)] leading-relaxed mb-3">Configurez votre AI OS</h1>
+            <h1 className="font-display text-[clamp(0.95rem,3.4vw,1.5rem)] leading-relaxed mb-3">{tr("onboarding.pageTitle", "Configurez votre AI OS")}</h1>
             <p className="text-lg text-[var(--text-muted)]">
-              Plus vous nous en dites, plus votre système sera précis. Tout reste confidentiel et sert à construire votre Brain et vos agents.
+              {tr("onboarding.pageIntro", "Plus vous nous en dites, plus votre système sera précis. Tout reste confidentiel et sert à construire votre Brain et vos agents.")}
             </p>
           </div>
 
@@ -229,21 +231,21 @@ export default function OnboardingPage() {
             {/* 0 — Entreprise */}
             {step === 0 && (
               <div className="space-y-6">
-                <h2 className="font-display text-[11px] leading-relaxed mb-3">Parlez-nous de votre entreprise</h2>
+                <h2 className="font-display text-[11px] leading-relaxed mb-3">{tr("onboarding.step0Title", "Parlez-nous de votre entreprise")}</h2>
                 <div className="grid md:grid-cols-2 gap-4">
-                  <TextField {...fp} field="company" label="Nom de l'entreprise" placeholder="Acme Corp" req />
-                  <TextField {...fp} field="website" label="Site web" placeholder="https://acme.com" type="url" />
+                  <TextField {...fp} field="company" label={tr("onboarding.companyLabel", "Nom de l'entreprise")} placeholder={tr("onboarding.companyPlaceholder", "Acme Corp")} req />
+                  <TextField {...fp} field="website" label={tr("onboarding.websiteLabel", "Site web")} placeholder="https://acme.com" type="url" />
                 </div>
-                <SingleField {...fp} field="industry" label="Secteur d'activité" options={industryOptions} req />
+                <SingleField {...fp} field="industry" label={tr("onboarding.industryLabel", "Secteur d'activité")} options={industryOptions} req />
                 <div className="grid md:grid-cols-2 gap-4">
-                  <TextField {...fp} field="founded" label="Année de création" placeholder="2019" />
-                  <TextField {...fp} field="hq" label="Siège / localisation" placeholder="Paris, France" />
+                  <TextField {...fp} field="founded" label={tr("onboarding.foundedLabel", "Année de création")} placeholder="2019" />
+                  <TextField {...fp} field="hq" label={tr("onboarding.hqLabel", "Siège / localisation")} placeholder={tr("onboarding.hqPlaceholder", "Paris, France")} />
                 </div>
-                <SingleField {...fp} field="employees" label="Nombre d'employés" options={["1-10", "11-50", "51-200", "200+"]} cols="grid-cols-2 md:grid-cols-4" req />
-                <SingleField {...fp} field="businessModel" label="Modèle économique" options={businessModelOptions} />
+                <SingleField {...fp} field="employees" label={tr("onboarding.employeesLabel", "Nombre d'employés")} options={["1-10", "11-50", "51-200", "200+"]} cols="grid-cols-2 md:grid-cols-4" req />
+                <SingleField {...fp} field="businessModel" label={tr("onboarding.businessModelLabel", "Modèle économique")} options={businessModelOptions} />
                 <div className="grid md:grid-cols-2 gap-4">
-                  <SingleField {...fp} field="revenue" label="Chiffre d'affaires annuel" options={revenueOptions} cols="grid-cols-2" />
-                  <TextField {...fp} field="languages" label="Langues de travail" placeholder="Français, Anglais" />
+                  <SingleField {...fp} field="revenue" label={tr("onboarding.revenueLabel", "Chiffre d'affaires annuel")} options={revenueOptions} cols="grid-cols-2" />
+                  <TextField {...fp} field="languages" label={tr("onboarding.languagesLabel", "Langues de travail")} placeholder={tr("onboarding.languagesPlaceholder", "Français, Anglais")} />
                 </div>
               </div>
             )}
@@ -251,50 +253,50 @@ export default function OnboardingPage() {
             {/* 1 — Contact & équipe */}
             {step === 1 && (
               <div className="space-y-6">
-                <h2 className="font-display text-[11px] leading-relaxed mb-3">Contact & équipe</h2>
+                <h2 className="font-display text-[11px] leading-relaxed mb-3">{tr("onboarding.step1Title", "Contact & équipe")}</h2>
                 <div className="grid md:grid-cols-2 gap-4">
-                  <TextField {...fp} field="contactName" label="Votre nom" placeholder="Marie Dupont" req />
-                  <TextField {...fp} field="role" label="Votre rôle" placeholder="Head of Operations" req />
+                  <TextField {...fp} field="contactName" label={tr("onboarding.contactNameLabel", "Votre nom")} placeholder={tr("onboarding.contactNamePlaceholder", "Marie Dupont")} req />
+                  <TextField {...fp} field="role" label={tr("onboarding.roleLabel", "Votre rôle")} placeholder="Head of Operations" req />
                 </div>
                 <div className="grid md:grid-cols-2 gap-4">
-                  <TextField {...fp} field="email" label="Email professionnel" placeholder="vous@entreprise.com" type="email" req />
-                  <TextField {...fp} field="phone" label="Téléphone (optionnel)" placeholder="+33 6 12 34 56 78" type="tel" />
+                  <TextField {...fp} field="email" label={tr("onboarding.emailLabel", "Email professionnel")} placeholder={tr("onboarding.emailPlaceholder", "vous@entreprise.com")} type="email" req />
+                  <TextField {...fp} field="phone" label={tr("onboarding.phoneLabel", "Téléphone (optionnel)")} placeholder="+33 6 12 34 56 78" type="tel" />
                 </div>
-                <SingleField {...fp} field="teamSize" label="Combien de personnes utiliseront le système ?" options={["1-5", "6-15", "16-50", "50+"]} cols="grid-cols-2 md:grid-cols-4" req />
-                <MultiField {...mp} field="departments" label="Départements concernés" options={departmentOptions} hint="Quels pôles seront servis par l'AI OS ?" />
-                <AreaField {...fp} field="orgNotes" label="Organisation de l'équipe (optionnel)" rows={3} placeholder="Qui décide de quoi, comment l'équipe est structurée, points de friction internes…" />
+                <SingleField {...fp} field="teamSize" label={tr("onboarding.teamSizeLabel", "Combien de personnes utiliseront le système ?")} options={["1-5", "6-15", "16-50", "50+"]} cols="grid-cols-2 md:grid-cols-4" req />
+                <MultiField {...mp} field="departments" label={tr("onboarding.departmentsLabel", "Départements concernés")} options={departmentOptions} hint={tr("onboarding.departmentsHint", "Quels pôles seront servis par l'AI OS ?")} />
+                <AreaField {...fp} field="orgNotes" label={tr("onboarding.orgNotesLabel", "Organisation de l'équipe (optionnel)")} rows={3} placeholder={tr("onboarding.orgNotesPlaceholder", "Qui décide de quoi, comment l'équipe est structurée, points de friction internes…")} />
               </div>
             )}
 
             {/* 2 — Identité & positionnement */}
             {step === 2 && (
               <div className="space-y-6">
-                <h2 className="font-display text-[11px] leading-relaxed mb-3">Identité & positionnement</h2>
-                <AreaField {...fp} field="pitch" label="En une phrase, que faites-vous ?" rows={2} placeholder="Acme aide les PME SaaS à automatiser leur reporting…" req />
+                <h2 className="font-display text-[11px] leading-relaxed mb-3">{tr("onboarding.step2Title", "Identité & positionnement")}</h2>
+                <AreaField {...fp} field="pitch" label={tr("onboarding.pitchLabel", "En une phrase, que faites-vous ?")} rows={2} placeholder={tr("onboarding.pitchPlaceholder", "Acme aide les PME SaaS à automatiser leur reporting…")} req />
                 <div className="grid md:grid-cols-2 gap-4">
-                  <AreaField {...fp} field="mission" label="Mission" rows={3} placeholder="Pourquoi l'entreprise existe." />
-                  <AreaField {...fp} field="vision" label="Vision" rows={3} placeholder="Où vous voulez aller." />
+                  <AreaField {...fp} field="mission" label={tr("onboarding.missionLabel", "Mission")} rows={3} placeholder={tr("onboarding.missionPlaceholder", "Pourquoi l'entreprise existe.")} />
+                  <AreaField {...fp} field="vision" label={tr("onboarding.visionLabel", "Vision")} rows={3} placeholder={tr("onboarding.visionPlaceholder", "Où vous voulez aller.")} />
                 </div>
-                <TextField {...fp} field="values" label="Valeurs clés" placeholder="Rigueur, transparence, vitesse…" />
-                <AreaField {...fp} field="icp" label="Client idéal (ICP)" rows={2} placeholder="Profil type de votre meilleur client." />
+                <TextField {...fp} field="values" label={tr("onboarding.valuesLabel", "Valeurs clés")} placeholder={tr("onboarding.valuesPlaceholder", "Rigueur, transparence, vitesse…")} />
+                <AreaField {...fp} field="icp" label={tr("onboarding.icpLabel", "Client idéal (ICP)")} rows={2} placeholder={tr("onboarding.icpPlaceholder", "Profil type de votre meilleur client.")} />
                 <div className="grid md:grid-cols-2 gap-4">
-                  <AreaField {...fp} field="competitors" label="Principaux concurrents" rows={2} placeholder="Qui d'autre vos clients considèrent." />
-                  <AreaField {...fp} field="differentiators" label="Vos différenciateurs" rows={2} placeholder="Ce qui vous rend uniques." />
+                  <AreaField {...fp} field="competitors" label={tr("onboarding.competitorsLabel", "Principaux concurrents")} rows={2} placeholder={tr("onboarding.competitorsPlaceholder", "Qui d'autre vos clients considèrent.")} />
+                  <AreaField {...fp} field="differentiators" label={tr("onboarding.differentiatorsLabel", "Vos différenciateurs")} rows={2} placeholder={tr("onboarding.differentiatorsPlaceholder", "Ce qui vous rend uniques.")} />
                 </div>
-                <TextField {...fp} field="brandVoice" label="Ton / voix de marque" placeholder="Direct, sans jargon, orienté résultat…" />
+                <TextField {...fp} field="brandVoice" label={tr("onboarding.brandVoiceLabel", "Ton / voix de marque")} placeholder={tr("onboarding.brandVoicePlaceholder", "Direct, sans jargon, orienté résultat…")} />
               </div>
             )}
 
             {/* 3 — Offres & clients */}
             {step === 3 && (
               <div className="space-y-6">
-                <h2 className="font-display text-[11px] leading-relaxed mb-3">Offres & clients</h2>
-                <AreaField {...fp} field="offers" label="Vos offres / produits" rows={4} placeholder="Décrivez vos principaux produits ou services, et leur positionnement prix." req />
-                <SingleField {...fp} field="pricingModel" label="Modèle de prix" options={pricingOptions} />
-                <MultiField {...mp} field="segments" label="Segments clients" options={segmentOptions} />
+                <h2 className="font-display text-[11px] leading-relaxed mb-3">{tr("onboarding.step3Title", "Offres & clients")}</h2>
+                <AreaField {...fp} field="offers" label={tr("onboarding.offersLabel", "Vos offres / produits")} rows={4} placeholder={tr("onboarding.offersPlaceholder", "Décrivez vos principaux produits ou services, et leur positionnement prix.")} req />
+                <SingleField {...fp} field="pricingModel" label={tr("onboarding.pricingModelLabel", "Modèle de prix")} options={pricingOptions} />
+                <MultiField {...mp} field="segments" label={tr("onboarding.segmentsLabel", "Segments clients")} options={segmentOptions} />
                 <div className="grid md:grid-cols-2 gap-4">
-                  <AreaField {...fp} field="keyAccounts" label="Comptes clés (optionnel)" rows={2} placeholder="Vos clients les plus importants." />
-                  <TextField {...fp} field="dealSize" label="Panier moyen / taille de deal" placeholder="Ex : 12 000 € / an" />
+                  <AreaField {...fp} field="keyAccounts" label={tr("onboarding.keyAccountsLabel", "Comptes clés (optionnel)")} rows={2} placeholder={tr("onboarding.keyAccountsPlaceholder", "Vos clients les plus importants.")} />
+                  <TextField {...fp} field="dealSize" label={tr("onboarding.dealSizeLabel", "Panier moyen / taille de deal")} placeholder={tr("onboarding.dealSizePlaceholder", "Ex : 12 000 € / an")} />
                 </div>
               </div>
             )}
@@ -302,17 +304,17 @@ export default function OnboardingPage() {
             {/* 4 — Processus */}
             {step === 4 && (
               <div className="space-y-6">
-                <h2 className="font-display text-[11px] leading-relaxed mb-3">Vos processus actuels</h2>
-                <AreaField {...fp} field="processes" label="Décrivez vos processus métier principaux" rows={4} placeholder="Ex : les leads arrivent via le site, un commercial les qualifie manuellement, puis les entre dans le CRM…" req />
-                <AreaField {...fp} field="painPoints" label="Vos principaux points de douleur" rows={4} placeholder="Ex : trop de saisie manuelle, données éparpillées, décisions lentes…" req />
-                <MultiField {...mp} field="automationAreas" label="Quels domaines automatiser en priorité ?" options={automationAreas} cols="grid-cols-2" req />
+                <h2 className="font-display text-[11px] leading-relaxed mb-3">{tr("onboarding.step4Title", "Vos processus actuels")}</h2>
+                <AreaField {...fp} field="processes" label={tr("onboarding.processesLabel", "Décrivez vos processus métier principaux")} rows={4} placeholder={tr("onboarding.processesPlaceholder", "Ex : les leads arrivent via le site, un commercial les qualifie manuellement, puis les entre dans le CRM…")} req />
+                <AreaField {...fp} field="painPoints" label={tr("onboarding.painPointsLabel", "Vos principaux points de douleur")} rows={4} placeholder={tr("onboarding.painPointsPlaceholder", "Ex : trop de saisie manuelle, données éparpillées, décisions lentes…")} req />
+                <MultiField {...mp} field="automationAreas" label={tr("onboarding.automationAreasLabel", "Quels domaines automatiser en priorité ?")} options={automationAreas} cols="grid-cols-2" req />
               </div>
             )}
 
             {/* 5 — Données & Brain */}
             {step === 5 && (
               <div className="space-y-6">
-                <h2 className="font-display text-[11px] leading-relaxed mb-3">Données & Brain</h2>
+                <h2 className="font-display text-[11px] leading-relaxed mb-3">{tr("onboarding.step5Title", "Données & Brain")}</h2>
 
                 <div className="border-2 border-[var(--accent)] bg-[var(--bg-card-hover)] p-5">
                   <div className="flex items-start gap-3">
@@ -320,53 +322,53 @@ export default function OnboardingPage() {
                       <BrainCircuit className="w-5 h-5 text-[#1b1b1b]" />
                     </div>
                     <div>
-                      <p className="font-semibold mb-1">Votre Brain — un vault vivant</p>
+                      <p className="font-semibold mb-1">{tr("onboarding.brainCalloutTitle", "Votre Brain — un vault vivant")}</p>
                       <p className="text-sm text-[var(--text-muted)] leading-relaxed">
-                        Nous construisons un <span className="text-[var(--text)]">Brain</span> (vault Obsidian) qui centralise toute votre connaissance — relié, interrogeable, et maintenu à jour en continu par vos agents. Dites-nous où vit aujourd&apos;hui votre savoir.
+                        {tr("onboarding.brainCalloutPre", "Nous construisons un")} <span className="text-[var(--text)]">{tr("onboarding.brain", "Brain")}</span> {tr("onboarding.brainCalloutPost", "(vault Obsidian) qui centralise toute votre connaissance — relié, interrogeable, et maintenu à jour en continu par vos agents. Dites-nous où vit aujourd'hui votre savoir.")}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <SingleField {...fp} field="brainTool" label="Où vit votre connaissance aujourd'hui ?" options={brainOptions} cols="grid-cols-2 md:grid-cols-3" />
-                <MultiField {...mp} field="tools" label="Quels outils utilisez-vous ?" options={toolOptions} hint="Nous les connecterons via MCP à votre AI OS." />
-                <MultiField {...mp} field="dataLocations" label="Où sont stockées vos données ?" options={dataLocationOptions} />
-                <AreaField {...fp} field="mcpClis" label="MCP / CLI / scripts existants (optionnel)" rows={2} placeholder="Serveurs MCP, outils en ligne de commande, automatisations déjà en place." />
-                <TextField {...fp} field="brainAccess" label="Pouvons-nous connecter votre vault / Drive ? (optionnel)" placeholder="Oui, lien à venir / À discuter / Non" />
+                <SingleField {...fp} field="brainTool" label={tr("onboarding.brainToolLabel", "Où vit votre connaissance aujourd'hui ?")} options={brainOptions} cols="grid-cols-2 md:grid-cols-3" />
+                <MultiField {...mp} field="tools" label={tr("onboarding.toolsLabel", "Quels outils utilisez-vous ?")} options={toolOptions} hint={tr("onboarding.toolsHint", "Nous les connecterons via MCP à votre AI OS.")} />
+                <MultiField {...mp} field="dataLocations" label={tr("onboarding.dataLocationsLabel", "Où sont stockées vos données ?")} options={dataLocationOptions} />
+                <AreaField {...fp} field="mcpClis" label={tr("onboarding.mcpClisLabel", "MCP / CLI / scripts existants (optionnel)")} rows={2} placeholder={tr("onboarding.mcpClisPlaceholder", "Serveurs MCP, outils en ligne de commande, automatisations déjà en place.")} />
+                <TextField {...fp} field="brainAccess" label={tr("onboarding.brainAccessLabel", "Pouvons-nous connecter votre vault / Drive ? (optionnel)")} placeholder={tr("onboarding.brainAccessPlaceholder", "Oui, lien à venir / À discuter / Non")} />
               </div>
             )}
 
             {/* 6 — Objectifs */}
             {step === 6 && (
               <div className="space-y-6">
-                <h2 className="font-display text-[11px] leading-relaxed mb-3">Vos objectifs</h2>
-                <AreaField {...fp} field="goals" label="Que voulez-vous accomplir avec votre AI OS ?" rows={4} placeholder="Ex : réduire de 50% le temps de qualification des leads, centraliser la connaissance, accélérer le reporting…" req />
-                <AreaField {...fp} field="kpis" label="Comment mesurerez-vous le succès ?" rows={2} placeholder="KPIs, indicateurs, résultats attendus." />
-                <SingleField {...fp} field="timeline" label="Quel est votre délai idéal ?" options={["< 1 mois", "1-3 mois", "3-6 mois", "Pas pressé"]} cols="grid-cols-2 md:grid-cols-4" req />
-                <SingleField {...fp} field="budget" label="Budget mensuel envisagé" options={["< 2 000 €", "2-5 000 €", "5-10 000 €", "> 10 000 €"]} cols="grid-cols-2 md:grid-cols-4" />
-                <AreaField {...fp} field="notes" label="Autre chose à nous dire ? (optionnel)" rows={3} placeholder="Contraintes, contexte, attentes spécifiques…" />
+                <h2 className="font-display text-[11px] leading-relaxed mb-3">{tr("onboarding.step6Title", "Vos objectifs")}</h2>
+                <AreaField {...fp} field="goals" label={tr("onboarding.goalsLabel", "Que voulez-vous accomplir avec votre AI OS ?")} rows={4} placeholder={tr("onboarding.goalsPlaceholder", "Ex : réduire de 50% le temps de qualification des leads, centraliser la connaissance, accélérer le reporting…")} req />
+                <AreaField {...fp} field="kpis" label={tr("onboarding.kpisLabel", "Comment mesurerez-vous le succès ?")} rows={2} placeholder={tr("onboarding.kpisPlaceholder", "KPIs, indicateurs, résultats attendus.")} />
+                <SingleField {...fp} field="timeline" label={tr("onboarding.timelineLabel", "Quel est votre délai idéal ?")} options={["< 1 mois", "1-3 mois", "3-6 mois", "Pas pressé"]} cols="grid-cols-2 md:grid-cols-4" req />
+                <SingleField {...fp} field="budget" label={tr("onboarding.budgetLabel", "Budget mensuel envisagé")} options={["< 2 000 €", "2-5 000 €", "5-10 000 €", "> 10 000 €"]} cols="grid-cols-2 md:grid-cols-4" />
+                <AreaField {...fp} field="notes" label={tr("onboarding.notesLabel", "Autre chose à nous dire ? (optionnel)")} rows={3} placeholder={tr("onboarding.notesPlaceholder", "Contraintes, contexte, attentes spécifiques…")} />
               </div>
             )}
 
             {/* Navigation */}
             <div className="flex items-center justify-between mt-10 pt-6 border-t-2 border-[var(--border)]">
               <button onClick={prev} disabled={step === 0} className="pbtn pbtn-sm">
-                <ArrowLeft className="w-4 h-4" /> Précédent
+                <ArrowLeft className="w-4 h-4" /> {tr("onboarding.previous", "Précédent")}
               </button>
 
               {step < stepsMeta.length - 1 ? (
                 <div className="flex flex-col items-end gap-1.5">
                   <button onClick={next} disabled={!stepValid(step)} className="pbtn pbtn-sm pbtn-primary">
-                    Suivant <ArrowRight className="w-4 h-4" />
+                    {tr("onboarding.next", "Suivant")} <ArrowRight className="w-4 h-4" />
                   </button>
-                  {!stepValid(step) && <span className="text-sm text-[var(--text-muted)]">Complétez les champs obligatoires (*)</span>}
+                  {!stepValid(step) && <span className="text-sm text-[var(--text-muted)]">{tr("onboarding.fillRequired", "Complétez les champs obligatoires (*)")}</span>}
                 </div>
               ) : (
                 <div className="flex flex-col items-end gap-1.5">
                   <button onClick={handleSubmit} disabled={!allValid} className="pbtn pbtn-sm pbtn-primary">
-                    <Send className="w-4 h-4" /> Envoyer ma demande
+                    <Send className="w-4 h-4" /> {tr("onboarding.submit", "Envoyer ma demande")}
                   </button>
-                  {!allValid && <span className="text-sm text-[var(--text-muted)]">Toutes les étapes obligatoires doivent être complétées.</span>}
+                  {!allValid && <span className="text-sm text-[var(--text-muted)]">{tr("onboarding.allStepsRequired", "Toutes les étapes obligatoires doivent être complétées.")}</span>}
                 </div>
               )}
             </div>

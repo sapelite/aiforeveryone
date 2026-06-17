@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { BrandLogo } from "./BrandLogo";
 import { Loader2, Plus, Check, Boxes } from "lucide-react";
 import { play } from "@/lib/sound";
+import { useT } from "@/lib/i18n";
 
 type Item = {
   key: string; name: string; category: string; icon: string; domain?: string; brain?: boolean;
@@ -16,6 +17,7 @@ type Item = {
 };
 
 export default function Integrations({ instanceId, onConnectBrain }: { instanceId: string; onConnectBrain?: () => void }) {
+  const tr = useT();
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
@@ -42,8 +44,8 @@ export default function Integrations({ instanceId, onConnectBrain }: { instanceI
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: instanceId, key: it.key }),
       });
-      toast[connect ? "success" : "message"](connect ? `${it.name} connecté` : `${it.name} déconnecté`,
-        connect ? { description: it.brain ? "Vault Obsidian relié, données vivantes." : "Accès lecture activé, écriture validée." } : undefined);
+      toast[connect ? "success" : "message"](connect ? `${it.name} ${tr("integrations.toastConnected", "connecté")}` : `${it.name} ${tr("integrations.toastDisconnected", "déconnecté")}`,
+        connect ? { description: it.brain ? tr("integrations.toastBrainDesc", "Vault Obsidian relié, données vivantes.") : tr("integrations.toastConnectDesc", "Accès lecture activé, écriture validée.") } : undefined);
       play(connect ? "success" : "close");
       load();
     } finally { setBusy(null); }
@@ -57,7 +59,7 @@ export default function Integrations({ instanceId, onConnectBrain }: { instanceI
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: instanceId, custom: true, ...form }),
       });
-      toast.success(`${form.name} connecté`, { description: "Serveur MCP personnalisé." });
+      toast.success(`${form.name} ${tr("integrations.toastConnected", "connecté")}`, { description: tr("integrations.toastCustomDesc", "Serveur MCP personnalisé.") });
       play("success");
       setAddOpen(false);
       setForm({ name: "", url: "", category: "MCP" });
@@ -85,31 +87,31 @@ export default function Integrations({ instanceId, onConnectBrain }: { instanceI
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="font-display text-lg font-semibold">Le Brain</h3>
-                  <Badge variant="default">Obsidian · vault vivant</Badge>
-                  {brain.connected && <Badge variant="success"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> relié</Badge>}
+                  <h3 className="font-display text-lg font-semibold">{tr("integrations.brainTitle", "Le Brain")}</h3>
+                  <Badge variant="default">{tr("integrations.brainBadge", "Obsidian · vault vivant")}</Badge>
+                  {brain.connected && <Badge variant="success"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> {tr("integrations.brainLinked", "relié")}</Badge>}
                 </div>
                 <p className="text-sm text-[var(--text-muted)] mt-1.5 max-w-2xl leading-relaxed">
-                  Le cerveau de l&apos;entreprise : un vault Obsidian où chaque fiche, décision et mémoire est liée. Vos agents le <span className="text-[var(--text)]">lisent et l&apos;enrichissent en continu</span> — c&apos;est lui qui garde toutes vos données vivantes et à jour.
+                  {tr("integrations.brainDescA", "Le cerveau de l'entreprise : un vault Obsidian où chaque fiche, décision et mémoire est liée. Vos agents le")} <span className="text-[var(--text)]">{tr("integrations.brainDescHl", "lisent et l'enrichissent en continu")}</span> {tr("integrations.brainDescB", "— c'est lui qui garde toutes vos données vivantes et à jour.")}
                 </p>
               </div>
             </div>
-            <Button onClick={() => onConnectBrain?.()} className="shrink-0">Ouvrir le Brain →</Button>
+            <Button onClick={() => onConnectBrain?.()} className="shrink-0">{tr("integrations.openBrain", "Ouvrir le Brain →")}</Button>
           </div>
         </div>
       )}
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <p className="text-sm text-[var(--text-muted)] max-w-xl leading-relaxed">
-          Connecte les outils via <span className="acc-text font-medium">MCP</span>. Tes agents y gagnent un accès en <span className="text-[var(--text)]">lecture</span> (et <span className="text-[var(--text)]">écriture validée</span>). Les outils détectés à l&apos;ingestion sont signalés.
+          {tr("integrations.introA", "Connecte les outils via")} <span className="acc-text font-medium">MCP</span>. {tr("integrations.introB", "Tes agents y gagnent un accès en")} <span className="text-[var(--text)]">{tr("integrations.introRead", "lecture")}</span> ({tr("integrations.introAnd", "et")} <span className="text-[var(--text)]">{tr("integrations.introWrite", "écriture validée")}</span>). {tr("integrations.introC", "Les outils détectés à l'ingestion sont signalés.")}
         </p>
-        <Button variant="outline" size="sm" onClick={() => setAddOpen(true)} className="shrink-0"><Plus /> MCP personnalisé</Button>
+        <Button variant="outline" size="sm" onClick={() => setAddOpen(true)} className="shrink-0"><Plus /> {tr("integrations.customMcp", "MCP personnalisé")}</Button>
       </div>
 
       {connected.length > 0 && (
         <section>
           <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)] font-mono mb-3 flex items-center gap-1.5">
-            <Check className="w-3.5 h-3.5 text-emerald-400" /> Connectés · {connected.length}
+            <Check className="w-3.5 h-3.5 text-emerald-400" /> {tr("integrations.sectionConnected", "Connectés")} · {connected.length}
           </h3>
           <Grid items={connected} busy={busy} onToggle={toggle} />
         </section>
@@ -117,7 +119,7 @@ export default function Integrations({ instanceId, onConnectBrain }: { instanceI
 
       <section>
         <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)] font-mono mb-3 flex items-center gap-1.5">
-          <Boxes className="w-3.5 h-3.5" /> Disponibles · {available.length}
+          <Boxes className="w-3.5 h-3.5" /> {tr("integrations.sectionAvailable", "Disponibles")} · {available.length}
         </h3>
         <Grid items={available} busy={busy} onToggle={toggle} />
       </section>
@@ -125,21 +127,21 @@ export default function Integrations({ instanceId, onConnectBrain }: { instanceI
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Serveur MCP personnalisé</DialogTitle>
-            <DialogDescription>Connecte n&apos;importe quel serveur MCP par son URL.</DialogDescription>
+            <DialogTitle>{tr("integrations.dialogTitle", "Serveur MCP personnalisé")}</DialogTitle>
+            <DialogDescription>{tr("integrations.dialogDesc", "Connecte n'importe quel serveur MCP par son URL.")}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <label className="block"><span className="text-xs text-[var(--text-muted)] mb-1.5 block">Nom</span>
-              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Mon outil interne" /></label>
-            <label className="block"><span className="text-xs text-[var(--text-muted)] mb-1.5 block">URL du serveur MCP</span>
+            <label className="block"><span className="text-xs text-[var(--text-muted)] mb-1.5 block">{tr("integrations.fieldName", "Nom")}</span>
+              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder={tr("integrations.fieldNamePlaceholder", "Mon outil interne")} /></label>
+            <label className="block"><span className="text-xs text-[var(--text-muted)] mb-1.5 block">{tr("integrations.fieldUrl", "URL du serveur MCP")}</span>
               <Input value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="https://mcp.exemple.com/sse" className="font-mono" /></label>
-            <label className="block"><span className="text-xs text-[var(--text-muted)] mb-1.5 block">Catégorie</span>
-              <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="CRM, Données…" /></label>
+            <label className="block"><span className="text-xs text-[var(--text-muted)] mb-1.5 block">{tr("integrations.fieldCategory", "Catégorie")}</span>
+              <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder={tr("integrations.fieldCategoryPlaceholder", "CRM, Données…")} /></label>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setAddOpen(false)}>Annuler</Button>
+            <Button variant="ghost" onClick={() => setAddOpen(false)}>{tr("integrations.cancel", "Annuler")}</Button>
             <Button onClick={addCustom} disabled={busy === "__custom" || !form.name.trim() || !form.url.trim()}>
-              {busy === "__custom" ? "Connexion…" : "Connecter"}
+              {busy === "__custom" ? tr("integrations.connecting", "Connexion…") : tr("integrations.connect", "Connecter")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -149,7 +151,8 @@ export default function Integrations({ instanceId, onConnectBrain }: { instanceI
 }
 
 function Grid({ items, busy, onToggle }: { items: Item[]; busy: string | null; onToggle: (i: Item) => void }) {
-  if (items.length === 0) return <p className="text-sm text-[var(--text-muted)]">Aucun connecteur.</p>;
+  const tr = useT();
+  if (items.length === 0) return <p className="text-sm text-[var(--text-muted)]">{tr("integrations.emptyGrid", "Aucun connecteur.")}</p>;
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {items.map((it) => (
@@ -159,9 +162,9 @@ function Grid({ items, busy, onToggle }: { items: Item[]; busy: string | null; o
               <BrandLogo domain={it.domain} name={it.name} size={22} />
             </div>
             {it.connected
-              ? <Badge variant="success"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> connecté</Badge>
+              ? <Badge variant="success"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> {tr("integrations.badgeConnected", "connecté")}</Badge>
               : it.detected
-                ? <Badge variant="warning">détecté</Badge>
+                ? <Badge variant="warning">{tr("integrations.badgeDetected", "détecté")}</Badge>
                 : <Badge variant="secondary">{it.category}</Badge>}
           </div>
           <p className="font-display font-semibold">{it.name}</p>
@@ -173,7 +176,7 @@ function Grid({ items, busy, onToggle }: { items: Item[]; busy: string | null; o
             onClick={() => onToggle(it)}
             className={it.connected ? "w-full border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text)]" : "w-full"}
           >
-            {busy === it.key ? <Loader2 className="animate-spin" /> : it.connected ? "Déconnecter" : "Connecter"}
+            {busy === it.key ? <Loader2 className="animate-spin" /> : it.connected ? tr("integrations.disconnect", "Déconnecter") : tr("integrations.connect", "Connecter")}
           </Button>
         </div>
       ))}
