@@ -1,6 +1,30 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { spawnSync } from "child_process";
+import { existsSync } from "fs";
+import { join, dirname } from "path";
 
 export type ClaudeTurn = { role: "user" | "assistant"; content: string };
+
+/**
+ * On Windows, the Agent SDK has to find the `claude` executable; the npm shim
+ * (claude.cmd / bare sh script) is not directly spawnable, which makes the SDK
+ * fail and the chat fall back to demo mode. Resolve the real claude.exe so we can
+ * hand the SDK an explicit path. Returns undefined on POSIX (the SDK finds it fine).
+ */
+let cachedClaudeExe: string | null | undefined;
+function resolveClaudeExe(): string | undefined {
+  if (process.platform !== "win32") return undefined;
+  if (cachedClaudeExe !== undefined) return cachedClaudeExe ?? undefined;
+  try {
+    const out = spawnSync("where", ["claude"], { encoding: "utf8", windowsHide: true }).stdout || "";
+    for (const shim of out.split(/\r?\n/).map((l) => l.trim()).filter(Boolean)) {
+      const exe = join(dirname(shim), "node_modules", "@anthropic-ai", "claude-code", "bin", "claude.exe");
+      if (existsSync(exe)) { cachedClaudeExe = exe; return exe; }
+    }
+  } catch { /* ignore */ }
+  cachedClaudeExe = null;
+  return undefined;
+}
 
 /** Map model alias / full id to a valid Anthropic API model id. */
 function toApiModel(m: string): string {
@@ -60,9 +84,10 @@ export async function askClaude(opts: {
       ? history.map((m) => `${m.role === "user" ? "Utilisateur" : "Assistant"} : ${m.content}`).join("\n") + "\n\n"
       : "";
     const prompt = `${prior}Utilisateur : ${last}`;
+    const exe = resolveClaudeExe();
     const response = query({
       prompt,
-      options: { systemPrompt: system, model, tools: [], settingSources: [], maxTurns: 1 },
+      options: { systemPrompt: system, model, tools: [], settingSources: [], maxTurns: 1, ...(exe ? { pathToClaudeCodeExecutable: exe } : {}) },
     });
     let text = "";
     for await (const m of response) {
