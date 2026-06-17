@@ -80,7 +80,7 @@ export default function Runs() {
       try {
         if (type === "offline") { setOnline(false); return; }
         if (type === "connected") { setOnline(true); return; }
-        const ev = JSON.parse(e.data) as { task?: TaskLite; questionText?: string; logEntry?: { message?: string } };
+        const ev = JSON.parse(e.data) as { task?: TaskLite; questionText?: string; logEntry?: { content?: string } };
         const t = ev.task;
         if (!t) return;
         setRuns((r) => ({ ...r, [t.id]: { ...r[t.id], ...t } }));
@@ -94,7 +94,7 @@ export default function Runs() {
         if (type === "task:created") pushFeed(type, `${star}nouvelle tâche : ${t.title}`, "info");
         else if (type === "task:status") pushFeed(type, `${star}${t.title} → ${t.status}`, t.status === "completed" || t.status === "done" ? "ok" : t.status === "failed" || t.status === "error" ? "err" : "info");
         else if (type === "task:question") { if (ev.questionText) setQuestions((q) => ({ ...q, [t.id]: ev.questionText as string })); pushFeed(type, `${star}réponse requise : ${ev.questionText ?? "action en attente"}`, "warn"); }
-        else if (type === "task:log") pushFeed(type, `${star}${ev.logEntry?.message ?? t.activityLabel ?? "log"}`, "info");
+        else if (type === "task:log") pushFeed(type, `${star}${ev.logEntry?.content ?? t.activityLabel ?? "log"}`, "info");
         else if (type === "task:progress") { if (t.activityLabel) pushFeed(type, `${star}${t.activityLabel}`, "info"); }
         else if (type === "task:output") pushFeed(type, `${star}sortie reçue`, "info");
         if (type === "task:status" && t.id === mine.current) {
@@ -148,8 +148,12 @@ export default function Runs() {
 
   async function decide(taskId: string, requestId: string, decision: "allow_once" | "allow_for_task" | "deny") {
     play(decision === "deny" ? "error" : "success");
+    // Confirm the engine recorded it BEFORE clearing the card. The route returns 200
+    // with { ok: false } when the engine is offline, so we must read the body, not just status.
+    const ok = await fetch("/api/engine/approvals", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ taskId, requestId, decision }) })
+      .then((r) => r.json()).then((j) => !!j.ok).catch(() => false);
+    if (!ok) { toast.error("Validation non enregistrée", { description: "Moteur injoignable. Réessayez." }); return; }
     setApprovals((a) => { const list = (a[taskId] ?? []).filter((r) => r.id !== requestId); if (list.length === 0) { const { [taskId]: _d, ...rest } = a; return rest; } return { ...a, [taskId]: list }; });
-    await fetch("/api/engine/approvals", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ taskId, requestId, decision }) }).catch(() => {});
     pushFeed("approval", `${decision === "deny" ? "refusé" : decision === "allow_for_task" ? "autorisé pour la tâche" : "autorisé une fois"} (${requestId.slice(0, 8)})`, decision === "deny" ? "err" : "ok");
   }
 
@@ -164,14 +168,17 @@ export default function Runs() {
     if (!msg) return;
     play("send");
     setReplyText((r) => ({ ...r, [taskId]: "" }));
-    await fetch("/api/engine/reply", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ taskId, message: msg }) }).catch(() => {});
-    pushFeed("reply", `réponse envoyée → ${taskId.slice(0, 8)}`, "ok");
+    const ok = await fetch("/api/engine/reply", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ taskId, message: msg }) })
+      .then((r) => r.json()).then((j) => !!j.ok).catch(() => false);
+    if (ok) pushFeed("reply", `réponse envoyée → ${taskId.slice(0, 8)}`, "ok");
+    else { setReplyText((r) => ({ ...r, [taskId]: msg })); pushFeed("reply", `échec de l'envoi → ${taskId.slice(0, 8)}`, "err"); }
   }
 
   async function cancel(taskId: string) {
     play("error");
-    await fetch("/api/engine/cancel", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ taskId }) }).catch(() => {});
-    pushFeed("cancel", `arrêt demandé → ${taskId.slice(0, 8)}`, "warn");
+    const ok = await fetch("/api/engine/cancel", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ taskId }) })
+      .then((r) => r.json()).then((j) => !!j.ok).catch(() => false);
+    pushFeed("cancel", ok ? `arrêt demandé → ${taskId.slice(0, 8)}` : `échec de l'arrêt → ${taskId.slice(0, 8)}`, ok ? "warn" : "err");
   }
 
   function openDetail(taskId: string) {
