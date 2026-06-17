@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import SoundFx from "@/components/SoundFx";
 import PixelCursor from "@/components/PixelCursor";
+import { LanguageProvider } from "@/lib/i18n";
 import { SITE } from "@/lib/site";
 
 const press = Press_Start_2P({ subsets: ["latin"], weight: "400", variable: "--font-press", display: "swap" });
@@ -50,7 +51,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="antialiased font-sans">
-        {children}
+        <LanguageProvider>
+          {children}
+        </LanguageProvider>
         <SoundFx />
         <PixelCursor />
         <Toaster />

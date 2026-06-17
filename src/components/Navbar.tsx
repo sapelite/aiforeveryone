@@ -4,17 +4,20 @@ import { useState } from "react";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
 import SoundToggle from "@/components/SoundToggle";
+import LangToggle from "@/components/LangToggle";
 import { PixelIcon } from "@/components/PixelIcon";
-
-const links = [
-  { href: "/#features", label: "Fonctionnalités" },
-  { href: "/#how", label: "Étapes" },
-  { href: "/#pricing", label: "Tarifs" },
-  { href: "/dashboard", label: "Démo" },
-];
+import { useLang } from "@/lib/i18n";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const { t } = useLang();
+
+  const links = [
+    { href: "/#features", label: t.nav.features },
+    { href: "/#how", label: t.nav.how },
+    { href: "/#pricing", label: t.nav.pricing },
+    { href: "/dashboard", label: t.nav.demo },
+  ];
 
   return (
     <div className="fixed inset-x-0 top-0 z-50">
@@ -32,12 +35,14 @@ export default function Navbar() {
           </div>
 
           <div className="hidden md:flex items-center gap-2 shrink-0">
+            <LangToggle />
             <SoundToggle />
             <ThemeToggle />
-            <Link href="/onboarding" className="pbtn pbtn-primary pbtn-sm">Commencer</Link>
+            <Link href="/onboarding" className="pbtn pbtn-primary pbtn-sm">{t.nav.start}</Link>
           </div>
 
           <div className="md:hidden flex items-center gap-1.5">
+            <LangToggle />
             <SoundToggle />
             <ThemeToggle />
             <button onClick={() => setOpen(!open)} className="win-btn" style={{ width: 28, height: 28 }} aria-label="Menu">
@@ -51,7 +56,7 @@ export default function Navbar() {
             {links.map((l) => (
               <Link key={l.href} href={l.href} onClick={() => setOpen(false)} className="block px-2 py-2 text-lg hover:bg-[var(--bg-card-hover)]">{l.label}</Link>
             ))}
-            <Link href="/onboarding" onClick={() => setOpen(false)} className="pbtn pbtn-primary w-full mt-1">Commencer</Link>
+            <Link href="/onboarding" onClick={() => setOpen(false)} className="pbtn pbtn-primary w-full mt-1">{t.nav.start}</Link>
           </div>
         )}
       </nav>
