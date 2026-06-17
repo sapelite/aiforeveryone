@@ -20,6 +20,7 @@ import Brand from "./Brand";
 import Deliverables from "./Deliverables";
 import History from "./History";
 import AttentionBell from "./AttentionBell";
+import PanicButton from "./PanicButton";
 import RecentActivity from "./RecentActivity";
 import Tutorial from "./Tutorial";
 import Skills from "./Skills";
@@ -547,6 +548,7 @@ export default function Console({ data }: { data: InstanceData }) {
         <div className="flex items-center h-full pr-1 gap-1">
           <button onClick={() => setTutorialOpen(true)} title="Tutoriel" aria-label="Tutoriel" className="hidden sm:flex items-center justify-center w-6 h-6 border-2 border-[var(--border)] hover:bg-[var(--accent)] hover:text-[#1b1b1b] transition-colors"><span className="font-display text-[9px]">?</span></button>
           <AttentionBell onOpen={() => openWindow("runs")} />
+          <PanicButton />
           <EngineStatus />
           <SoundToggle />
           <ThemeToggle />
