@@ -66,6 +66,8 @@ export default function HiveGraph() {
   const [query, setQuery] = useState("");
   const [hover, setHover] = useState<{ x: number; y: number; label: string; sub: string } | null>(null);
   const [view, setView] = useState({ s: 1, tx: 0, ty: 0 });
+  const [selected, setSelected] = useState<GNode | null>(null);
+  const [smooth, setSmooth] = useState(false);
   const drag = useRef<{ x: number; y: number; tx: number; ty: number } | null>(null);
 
   useEffect(() => {
@@ -90,7 +92,14 @@ export default function HiveGraph() {
   const visible = (n: GNode) => n.kind === "core" || active.has(n.cluster);
   const matches = (n: GNode) => query.length > 0 && n.kind === "leaf" && n.label.toLowerCase().includes(query.toLowerCase());
   const dim = (n: GNode) => query.length > 0 && !matches(n) && n.kind === "leaf";
-  const zoom = (f: number) => setView((v) => ({ ...v, s: Math.min(2.6, Math.max(0.5, v.s * f)) }));
+  const zoom = (f: number) => { setSmooth(false); setView((v) => ({ ...v, s: Math.min(2.6, Math.max(0.5, v.s * f)) })); };
+  const focusNode = (n: GNode) => {
+    setSelected(n);
+    const s = n.kind === "leaf" ? 2 : n.kind === "cluster" ? 1.4 : 1;
+    setSmooth(true);
+    setView({ s, tx: CX - n.x * s, ty: CY - n.y * s });
+  };
+  const resetView = () => { setSmooth(true); setSelected(null); setView({ s: 1, tx: 0, ty: 0 }); };
 
   const counts = data ? { skills: data.skills.length, projects: data.projects.length, tasks: data.tasks.length, memory: data.ctx.length } : null;
 
@@ -104,7 +113,7 @@ export default function HiveGraph() {
         <div className="flex-1" />
         <button onClick={() => zoom(1 / 1.2)} className="win-btn" aria-label="Dézoomer"><PixelIcon name="minus" size={14} /></button>
         <button onClick={() => zoom(1.2)} className="win-btn" aria-label="Zoomer"><PixelIcon name="plus" size={14} /></button>
-        <button onClick={() => setView({ s: 1, tx: 0, ty: 0 })} className="win-btn" aria-label="Recentrer"><PixelIcon name="reload" size={14} /></button>
+        <button onClick={resetView} className="win-btn" aria-label="Recentrer"><PixelIcon name="reload" size={14} /></button>
       </div>
 
       <div className="flex flex-wrap gap-1.5">
@@ -126,12 +135,12 @@ export default function HiveGraph() {
           className="w-full h-[460px] cursor-grab active:cursor-grabbing touch-none"
           shapeRendering="crispEdges"
           onWheel={(e) => zoom(e.deltaY < 0 ? 1.08 : 1 / 1.08)}
-          onPointerDown={(e) => { drag.current = { x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty }; (e.target as Element).setPointerCapture?.(e.pointerId); }}
+          onPointerDown={(e) => { setSmooth(false); drag.current = { x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty }; (e.target as Element).setPointerCapture?.(e.pointerId); }}
           onPointerMove={(e) => { if (!drag.current) return; setView((v) => ({ ...v, tx: drag.current!.tx + (e.clientX - drag.current!.x), ty: drag.current!.ty + (e.clientY - drag.current!.y) })); }}
           onPointerUp={() => (drag.current = null)}
           onPointerLeave={() => { drag.current = null; setHover(null); }}
         >
-          <g transform={`translate(${view.tx},${view.ty}) scale(${view.s})`}>
+          <g transform={`translate(${view.tx},${view.ty}) scale(${view.s})`} style={{ transition: smooth ? "transform 0.45s ease" : "none" }}>
             {edges.map((e, i) => {
               const a = nodeById[e.a], b = nodeById[e.b];
               if (!a || !b || !visible(a) || !visible(b)) return null;
@@ -140,13 +149,13 @@ export default function HiveGraph() {
             {nodes.filter(visible).map((n) => {
               const half = n.size / 2;
               return (
-                <g key={n.id} onPointerEnter={() => setHover({ x: n.x, y: n.y, label: n.label, sub: n.sub })} onPointerLeave={() => setHover(null)} style={{ cursor: "pointer" }}>
+                <g key={n.id} onClick={(e) => { e.stopPropagation(); focusNode(n); }} onPointerEnter={() => setHover({ x: n.x, y: n.y, label: n.label, sub: n.sub })} onPointerLeave={() => setHover(null)} style={{ cursor: "pointer" }}>
                   {n.kind === "core" && (
                     <rect x={n.x - half - 6} y={n.y - half - 6} width={n.size + 12} height={n.size + 12} fill="none" stroke={n.color} strokeWidth={1}>
                       <animate attributeName="stroke-opacity" values="0.7;0.1;0.7" dur="2.2s" repeatCount="indefinite" />
                     </rect>
                   )}
-                  <rect x={n.x - half} y={n.y - half} width={n.size} height={n.size} fill={n.color} fillOpacity={dim(n) ? 0.15 : n.kind === "leaf" ? 0.85 : 1} stroke={matches(n) ? "var(--text)" : n.kind === "leaf" ? "none" : "var(--border)"} strokeWidth={matches(n) ? 2 : n.kind === "leaf" ? 0 : 1} />
+                  <rect x={n.x - half} y={n.y - half} width={n.size} height={n.size} fill={n.color} fillOpacity={dim(n) ? 0.15 : n.kind === "leaf" ? 0.85 : 1} stroke={selected?.id === n.id || matches(n) ? "var(--text)" : n.kind === "leaf" ? "none" : "var(--border)"} strokeWidth={selected?.id === n.id || matches(n) ? 2 : n.kind === "leaf" ? 0 : 1} />
                   {(n.kind === "core" || n.kind === "cluster") && (
                     <text x={n.x} y={n.y + half + 12} textAnchor="middle" fontSize={n.kind === "core" ? 11 : 9} fill="var(--text)" fontFamily="var(--font-press), monospace">{n.label}</text>
                   )}
@@ -160,6 +169,29 @@ export default function HiveGraph() {
           <div className="absolute pointer-events-none px-2.5 py-1.5 win-flat bg-[var(--bg-card)] text-xs max-w-[220px]" style={{ left: `${(hover.x * view.s + view.tx) / 800 * 100}%`, top: `${(hover.y * view.s + view.ty) / 600 * 100}%`, transform: "translate(-50%, -130%)" }}>
             <p className="text-[var(--text)] leading-tight truncate">{hover.label}</p>
             {hover.sub && <p className="text-[var(--text-muted)] mt-0.5">{hover.sub}</p>}
+          </div>
+        )}
+
+        {selected && (
+          <div className="absolute top-2 right-2 win-flat bg-[var(--bg-card)] p-3 w-[230px] text-sm">
+            <div className="flex items-center justify-between gap-2 mb-1.5">
+              <span className="font-display text-[9px] uppercase text-[var(--text-muted)]">{selected.kind === "core" ? "Cerveau" : selected.kind === "cluster" ? "Cluster" : "Nœud"}</span>
+              <button onClick={() => setSelected(null)} className="win-btn" aria-label="Fermer"><PixelIcon name="close" size={10} /></button>
+            </div>
+            <p className="text-base text-[var(--text)] leading-snug break-words">{selected.label}</p>
+            {selected.sub && <p className="text-sm text-[var(--text-muted)] mt-0.5">{selected.sub}</p>}
+            {selected.kind === "core" && counts && (
+              <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-0.5 text-sm text-[var(--text-muted)] font-mono">
+                <span>{counts.skills} skills</span><span>{counts.projects} projets</span>
+                <span>{counts.tasks} tâches</span><span>{counts.memory} mémoire</span>
+              </div>
+            )}
+            {selected.kind === "cluster" && counts && (
+              <p className="mt-2 text-sm text-[var(--text-muted)] font-mono">{counts[selected.cluster as keyof typeof counts]} éléments dans ce cluster</p>
+            )}
+            {selected.kind === "leaf" && (
+              <p className="mt-2 text-sm text-[var(--text-muted)] font-mono">cluster : {CLUSTERS.find((c) => c.id === selected.cluster)?.label.toLowerCase()}</p>
+            )}
           </div>
         )}
       </div>
