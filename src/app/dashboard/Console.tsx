@@ -479,7 +479,7 @@ export default function Console({ data }: { data: InstanceData }) {
       case "memory": return <Memory />;
       case "context": return <Context />;
       case "brand": return <Brand />;
-      case "hive": return <HiveGraph agents={data.agents.map((a) => a.display)} tasks={data.tasks.map((t) => ({ title: t.title, agent: t.agent, status: t.status }))} entities={data.entities} />;
+      case "hive": return <HiveGraph />;
       case "warroom": return <WarRoom instanceId={data.id} agents={data.agents.filter((a) => a.status === "online").map((a) => ({ slug: a.slug, display: a.display, role: a.role }))} />;
       case "chat": return <Chat instanceId={data.id} name={data.name} />;
       case "inbox": return <Inbox />;
