@@ -33,6 +33,7 @@ import EngineSettings from "./EngineSettings";
 import { useSettings, ACCENT_PRESETS, MODELS } from "./useSettings";
 import ThemeToggle from "@/components/ThemeToggle";
 import SoundToggle from "@/components/SoundToggle";
+import LangToggle from "@/components/LangToggle";
 import EngineStatus from "@/components/EngineStatus";
 import { play } from "@/lib/sound";
 import { useT } from "@/lib/i18n";
@@ -554,6 +555,7 @@ export default function Console({ data }: { data: InstanceData }) {
           <PanicButton />
           <EngineStatus />
           <SoundToggle />
+          <LangToggle />
           <ThemeToggle />
           <Clock />
         </div>
