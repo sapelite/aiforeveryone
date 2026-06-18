@@ -405,7 +405,7 @@ export default function Console({ data }: { data: InstanceData }) {
                           <p className="text-sm text-[var(--text-muted)]">{t.agent || tr("console.unassigned", "Non assigné")} · {t.when}</p>
                         </div>
                         <span className={`flex items-center gap-1.5 text-sm ${sm.text} shrink-0`}>
-                          <span className={`w-2 h-2 ${sm.dot} ${t.status === "running" ? "pulse-dot" : ""}`} />{sm.label}
+                          <span className={`w-2 h-2 ${sm.dot} ${t.status === "running" ? "pulse-dot" : ""}`} />{tr(`status.${t.status}`, sm.label)}
                         </span>
                       </button>
                     );

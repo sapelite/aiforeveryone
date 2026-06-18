@@ -26,7 +26,7 @@ export default function Memory() {
   if (docs === null) return <p className="text-base text-[var(--text-muted)]">{tr("memory.loading", "lecture de la mémoire du moteur")}<span className="blink">_</span></p>;
   if (docs.length === 0) return <div className="win-flat p-4 text-base text-[var(--text-muted)]">{tr("memory.emptyPrefix", "Mémoire vide ou moteur hors ligne. Elle vit dans ")}<span className="font-mono">context/</span>{tr("memory.emptySuffix", " du workspace (MEMORY.md, memory/, learnings.md).")}</div>;
 
-  const label = (d: Doc) => LABEL[d.name] ?? (d.path.startsWith("context/memory/") ? `${tr("memory.journalPrefix", "Journal · ")}${d.name.replace(/\.md$/, "")}` : d.name);
+  const label = (d: Doc) => (LABEL[d.name] ? tr(`memory.doc.${d.name}`, LABEL[d.name]) : (d.path.startsWith("context/memory/") ? `${tr("memory.journalPrefix", "Journal · ")}${d.name.replace(/\.md$/, "")}` : d.name));
 
   return (
     <div className="space-y-3">

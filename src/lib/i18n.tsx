@@ -176,6 +176,21 @@ const APP_EN: Record<string, string> = {
   "win.warroom": "War Room",
   "win.integrations": "Integrations",
   "win.settings": "Settings",
+  // task status badges (Mission)
+  "status.running": "Running",
+  "status.queued": "Queued",
+  "status.blocked": "Blocked",
+  "status.done": "Done",
+  // context file groups
+  "context.type.soul": "Soul · SOUL",
+  "context.type.user": "User · USER",
+  "context.type.learnings": "Learnings",
+  "context.type.memory": "Memory",
+  "context.type.other": "Other",
+  // memory document labels
+  "memory.doc.MEMORY.md": "Working memory (cap 2500)",
+  "memory.doc.learnings.md": "Learnings (self-improvement)",
+  "memory.doc.SOUL.md": "Identity (SOUL)",
   "agents.emptyAfter": " in the ClaudeClaw workspace.",
   "agents.emptyBefore": "No ClaudeClaw agent detected. Start ClaudeClaw, or add an agent with ",
   "agents.loading": "loading agents",

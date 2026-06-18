@@ -40,7 +40,7 @@ export default function Context() {
     <div className="space-y-4">
       {groups.map((t) => (
         <section key={t}>
-          <p className="font-display text-[8px] uppercase text-[var(--text-muted)] mb-2">{TYPE_LABEL[t] ?? t} · {files.filter((f) => f.type === t).length}</p>
+          <p className="font-display text-[8px] uppercase text-[var(--text-muted)] mb-2">{tr(`context.type.${t}`, TYPE_LABEL[t] ?? t)} · {files.filter((f) => f.type === t).length}</p>
           <div className="win-flat divide-y-2 divide-[var(--border)]">
             {files.filter((f) => f.type === t).map((f) => (
               <button key={f.path} onClick={() => openFile(f)} className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-[var(--bg-card-hover)] transition-colors">
