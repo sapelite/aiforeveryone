@@ -15,7 +15,11 @@ export default function PixelCursor() {
   const [on, setOn] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia || !window.matchMedia("(pointer: fine)").matches) return;
+    if (
+      typeof window === "undefined" || !window.matchMedia ||
+      !window.matchMedia("(pointer: fine)").matches ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) return; // leave the native cursor in place for touch / reduce-motion users
     setOn(true);
     document.documentElement.classList.add("pixcur");
 

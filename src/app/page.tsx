@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { motion, type Variants } from "framer-motion";
+import { motion, MotionConfig, type Variants } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SiteChat from "@/components/SiteChat";
@@ -59,6 +59,7 @@ const SECTION = "px-5 md:px-6 py-20 md:py-28";
 export default function Home() {
   const { t } = useLang();
   return (
+    <MotionConfig reducedMotion="user">
     <div className="os-desktop min-h-screen text-[var(--text)] overflow-x-hidden">
       <Navbar />
 
@@ -75,7 +76,7 @@ export default function Home() {
               <motion.p variants={fadeUp} className="inline-flex items-center gap-2 px-2.5 py-1 mb-7 border-2 border-[var(--border)] text-[11px] uppercase tracking-wider">
                 <span className="w-2 h-2 bg-[var(--accent)] pulse-dot" /> {t.hero.badge}
               </motion.p>
-              <motion.h1 variants={fadeUp} className="font-display leading-[1.5] text-[clamp(1.05rem,4.4vw,2.4rem)]">
+              <motion.h1 variants={fadeUp} className="font-display leading-[1.5] text-[clamp(0.95rem,4.4vw,2.4rem)] [overflow-wrap:anywhere]">
                 {t.hero.titleA}<br />
                 <span className="text-[var(--accent)]">{t.hero.titleB}</span>
               </motion.h1>
@@ -92,7 +93,7 @@ export default function Home() {
               </motion.div>
             </div>
           </Win>
-          <motion.p variants={fadeUp} className="mt-5 text-base text-[var(--text-muted)] blink-cursor">
+          <motion.p variants={fadeUp} className="mt-5 text-base text-[var(--text-muted)]">
             <span className="text-[var(--accent)]">{">"}</span> {t.hero.ready}<span className="blink">_</span>
           </motion.p>
         </motion.div>
@@ -222,5 +223,6 @@ export default function Home() {
       <Footer />
       <SiteChat />
     </div>
+    </MotionConfig>
   );
 }

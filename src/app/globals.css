@@ -281,3 +281,17 @@ img, svg, .pixelated { image-rendering: pixelated; }
   border: 2px solid var(--accent);
   animation: pixcur-burst .42s steps(6, end) forwards;
 }
+
+/* Honor the OS reduce-motion preference: stop the looping blink/pulse/burst
+   animations and snap transitions, while keeping carets and status dots fully
+   visible (so nothing freezes at opacity 0). */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .blink, .pulse-dot { animation: none !important; opacity: 1 !important; }
+  .pixcur-burst { display: none !important; }
+}
