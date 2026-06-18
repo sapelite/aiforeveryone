@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -60,8 +60,8 @@ type ViewId =
   | "mission" | "scheduled" | "agents" | "chat" | "inbox" | "runs" | "board" | "deliverables"
   | "memories" | "skills" | "memory" | "context" | "brand" | "hive" | "usage" | "audit" | "history" | "warroom" | "integrations" | "settings";
 
-const nav: { section: string; items: { id: ViewId; label: string; pic: string }[] }[] = [
-  { section: "Espace", items: [
+const nav: { section: string; key: string; items: { id: ViewId; label: string; pic: string }[] }[] = [
+  { section: "Espace", key: "space", items: [
     { id: "mission", label: "Mission", pic: "dashboard" },
     { id: "scheduled", label: "Planifié", pic: "calendar" },
     { id: "agents", label: "Agents", pic: "users" },
@@ -71,7 +71,7 @@ const nav: { section: string; items: { id: ViewId; label: string; pic: string }[
     { id: "board", label: "Tableau", pic: "list" },
     { id: "deliverables", label: "Livrables", pic: "folder" },
   ]},
-  { section: "Intelligence", items: [
+  { section: "Intelligence", key: "intelligence", items: [
     { id: "memories", label: "Brain", pic: "notebook" },
     { id: "skills", label: "Skills", pic: "command" },
     { id: "memory", label: "Mémoire", pic: "memory-stick" },
@@ -82,13 +82,21 @@ const nav: { section: string; items: { id: ViewId; label: string; pic: string }[
     { id: "audit", label: "Audit", pic: "shield" },
     { id: "history", label: "Historique", pic: "clock" },
   ]},
-  { section: "Collaborer", items: [{ id: "warroom", label: "War Room", pic: "sword" }] },
-  { section: "Configurer", items: [
+  { section: "Collaborer", key: "collaborate", items: [{ id: "warroom", label: "War Room", pic: "sword" }] },
+  { section: "Configurer", key: "configure", items: [
     { id: "integrations", label: "Intégrations", pic: "blocks" },
     { id: "settings", label: "Réglages", pic: "settings-2" },
   ]},
 ];
 const ALL_ITEMS = nav.flatMap((g) => g.items);
+
+/** Translator type from useT(). */
+type Tr = (key: string, fr: string) => string;
+/** Localized window label (falls back to the French label from nav). */
+const winLabel = (tr: Tr, it: { id: ViewId; label: string }) => tr(`win.${it.id}`, it.label);
+/** nav sections with items sorted alphabetically by their localized label. */
+const sortedSections = (tr: Tr) =>
+  nav.map((g) => ({ ...g, items: [...g.items].sort((a, b) => winLabel(tr, a).localeCompare(winLabel(tr, b))) }));
 
 const VIEW_META: Record<ViewId, { title: string; pic: string; w: number; h: number }> = {
   mission: { title: "MISSION", pic: "dashboard", w: 960, h: 640 },
@@ -220,7 +228,7 @@ function PixWindow({
   return (
     <div className="absolute win flex flex-col" style={style} onMouseDown={onFocus}>
       <div className={`win-title ${active ? "" : "opacity-70"}`} onDoubleClick={onMax}>
-        <span className="flex items-center gap-1.5 truncate"><PixelIcon name={m.pic} size={11} /> {m.title}</span>
+        <span className="flex items-center gap-1.5 truncate"><PixelIcon name={m.pic} size={11} /> {winLabel(tr, { id: win.id, label: m.title }).toUpperCase()}</span>
         <span className="flex items-center gap-1 shrink-0">
           <button className="win-btn" data-sfx="min" onClick={(e) => { e.stopPropagation(); onMin(); }} aria-label={tr("console.minimize", "Réduire")}>_</button>
           <button className="win-btn" data-sfx="max" onClick={(e) => { e.stopPropagation(); onMax(); }} aria-label={tr("console.maximize", "Agrandir")}>o</button>
@@ -546,7 +554,7 @@ export default function Console({ data }: { data: InstanceData }) {
                 <button onClick={dismissHint} className="pbtn pbtn-sm pbtn-primary w-full mt-2">{tr("console.gotIt", "Compris")}</button>
               </div>
             )}
-            <MenuDropdown label={tr("console.view", "Affichage")} onOpen={dismissHint} items={ALL_ITEMS.map((i) => ({ label: i.label, pic: i.pic, onSelect: () => openWindow(i.id) }))} />
+            <ViewMenu tr={tr} onPick={openWindow} onOpen={dismissHint} />
           </div>
         </div>
         <div className="flex items-center h-full pr-1 gap-1">
@@ -565,8 +573,8 @@ export default function Console({ data }: { data: InstanceData }) {
       <div ref={deskRef} className="relative flex-1 overflow-hidden">
         {/* icons */}
         <div className="absolute top-3 left-2 flex flex-col flex-wrap gap-1 max-h-[calc(100%-1.5rem)] content-start">
-          {ALL_ITEMS.map((i) => <DesktopIcon key={i.id} pic={i.pic} label={i.label} onOpen={() => openWindow(i.id)} />)}
-          <DesktopIcon pic="zap" label="Nouvel agent" onOpen={() => openAdd()} />
+          {ALL_ITEMS.map((i) => <DesktopIcon key={i.id} pic={i.pic} label={winLabel(tr, i)} onOpen={() => openWindow(i.id)} />)}
+          <DesktopIcon pic="zap" label={tr("console.newAgent", "Nouvel agent")} onOpen={() => openAdd()} />
         </div>
 
         {/* windows — auto-tiled grid */}
@@ -589,11 +597,10 @@ export default function Console({ data }: { data: InstanceData }) {
             <DropdownMenuTrigger asChild>
               <button className="pbtn pbtn-sm pbtn-primary"><PixelIcon name="menu" size={12} /> {tr("console.menu", "Menu")}</button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" side="top" className="w-56">
+            <DropdownMenuContent align="start" side="top" className="w-56 max-h-[70vh] overflow-auto">
               <DropdownMenuLabel>{data.name}</DropdownMenuLabel>
-              {ALL_ITEMS.map((i) => (
-                <DropdownMenuItem key={i.id} onClick={() => openWindow(i.id)}><PixelIcon name={i.pic} size={16} /> {i.label}</DropdownMenuItem>
-              ))}
+              <DropdownMenuSeparator />
+              <ViewSections tr={tr} onPick={openWindow} />
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => openAdd()}><PixelIcon name="user-plus" size={16} /> {tr("console.newAgent", "Nouvel agent")}</DropdownMenuItem>
               <DropdownMenuItem asChild><Link href="/"><PixelIcon name="external-link" size={16} /> {tr("console.website", "Site web")}</Link></DropdownMenuItem>
@@ -605,7 +612,7 @@ export default function Console({ data }: { data: InstanceData }) {
           {windows.map((w) => (
             <button key={w.id} onClick={() => (w.min ? focusWindow(w.id) : w.z === topZ ? toggleMin(w.id) : focusWindow(w.id))}
               className={`flex items-center gap-1.5 px-2 h-7 border-2 border-[var(--border)] text-sm shrink-0 max-w-[160px] ${w.z === topZ && !w.min ? "bg-[var(--accent)] text-[#1b1b1b]" : "bg-[var(--bg)]"}`}>
-              <PixelIcon name={VIEW_META[w.id].pic} size={13} /> <span className="truncate">{VIEW_META[w.id].title}</span>
+              <PixelIcon name={VIEW_META[w.id].pic} size={13} /> <span className="truncate">{winLabel(tr, { id: w.id, label: VIEW_META[w.id].title }).toUpperCase()}</span>
             </button>
           ))}
         </div>
@@ -617,11 +624,11 @@ export default function Console({ data }: { data: InstanceData }) {
         <CommandInput placeholder={tr("console.palettePlaceholder", "Aller à… ou exécuter une action")} />
         <CommandList>
           <CommandEmpty>{tr("console.noResult", "Aucun résultat.")}</CommandEmpty>
-          {nav.map((group) => (
-            <CommandGroup key={group.section} heading={group.section}>
+          {sortedSections(tr).map((group) => (
+            <CommandGroup key={group.key} heading={tr(`view.section.${group.key}`, group.section)}>
               {group.items.map((item) => (
                 <CommandItem key={item.id} onSelect={() => { openWindow(item.id); setPaletteOpen(false); }}>
-                  <PixelIcon name={item.pic} size={16} /> {item.label}
+                  <PixelIcon name={item.pic} size={16} /> {winLabel(tr, item)}
                   {windows.some((w) => w.id === item.id && !w.min) && <CommandShortcut>{tr("console.open", "ouvert")}</CommandShortcut>}
                 </CommandItem>
               ))}
@@ -670,6 +677,38 @@ function MenuDropdown({ label, items, onOpen }: { label: string; items: { label:
         {items.map((it) => (
           <DropdownMenuItem key={it.label} onClick={it.onSelect}><PixelIcon name={it.pic} size={16} /> {it.label}</DropdownMenuItem>
         ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+/** Windows grouped by section, each section sorted alphabetically. Shared by the
+ *  "Affichage" menu and the taskbar "Menu" so both stay scannable. */
+function ViewSections({ tr, onPick }: { tr: Tr; onPick: (id: ViewId) => void }) {
+  return (
+    <>
+      {sortedSections(tr).map((g, gi) => (
+        <Fragment key={g.key}>
+          {gi > 0 && <DropdownMenuSeparator />}
+          <DropdownMenuLabel className="text-[9px] uppercase tracking-wide text-[var(--text-muted)]">{tr(`view.section.${g.key}`, g.section)}</DropdownMenuLabel>
+          {g.items.map((it) => (
+            <DropdownMenuItem key={it.id} onClick={() => onPick(it.id)}><PixelIcon name={it.pic} size={16} /> {winLabel(tr, it)}</DropdownMenuItem>
+          ))}
+        </Fragment>
+      ))}
+    </>
+  );
+}
+
+/** The "Affichage" menu: every window, grouped and sorted. */
+function ViewMenu({ tr, onPick, onOpen }: { tr: Tr; onPick: (id: ViewId) => void; onOpen?: () => void }) {
+  return (
+    <DropdownMenu onOpenChange={(o) => o && onOpen?.()}>
+      <DropdownMenuTrigger asChild>
+        <button className="h-8 px-3 text-base hover:bg-[var(--accent)] hover:text-[#1b1b1b] transition-colors outline-none">{tr("console.view", "Affichage")}</button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-56 max-h-[70vh] overflow-auto">
+        <ViewSections tr={tr} onPick={onPick} />
       </DropdownMenuContent>
     </DropdownMenu>
   );
