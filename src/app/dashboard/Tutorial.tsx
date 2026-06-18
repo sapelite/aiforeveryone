@@ -3,10 +3,12 @@
 import { useEffect, useState } from "react";
 import { PixelIcon } from "@/components/PixelIcon";
 import { useT } from "@/lib/i18n";
+import { useDialogFocus } from "@/lib/useDialogFocus";
 
 export default function Tutorial({ open, onClose }: { open: boolean; onClose: () => void }) {
   const tr = useT();
   const [i, setI] = useState(0);
+  const panelRef = useDialogFocus<HTMLDivElement>(open);
 
   const STEPS: { icon: string; title: string; body: React.ReactNode }[] = [
     {
@@ -55,7 +57,7 @@ export default function Tutorial({ open, onClose }: { open: boolean; onClose: ()
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
-      <div className="win-flat w-full max-w-lg bg-[var(--bg)]" onClick={(e) => e.stopPropagation()}>
+      <div ref={panelRef} role="dialog" aria-modal="true" aria-labelledby="tutorial-title" tabIndex={-1} className="win-flat w-full max-w-lg bg-[var(--bg)] outline-none" onClick={(e) => e.stopPropagation()}>
         <div className="px-3 py-2 border-b-2 border-[var(--border)] font-display text-[9px] uppercase flex items-center justify-between">
           <span className="flex items-center gap-2"><PixelIcon name="article" size={12} /> {tr("tutorial.headerTitle", "Tutoriel")} · {i + 1}/{STEPS.length}</span>
           <button onClick={onClose} className="win-btn" aria-label={tr("tutorial.closeAria", "Fermer")}><PixelIcon name="close" size={11} /></button>
@@ -64,7 +66,7 @@ export default function Tutorial({ open, onClose }: { open: boolean; onClose: ()
           <div className="w-14 h-14 grid place-items-center border-2 border-[var(--border)] bg-[var(--accent)] mx-auto mb-4" style={{ boxShadow: "3px 3px 0 0 var(--border)" }}>
             <PixelIcon name={step.icon} size={26} className="text-[#1b1b1b]" />
           </div>
-          <h3 className="font-display text-[11px] uppercase mb-3 leading-relaxed">{step.title}</h3>
+          <h3 id="tutorial-title" className="font-display text-[11px] uppercase mb-3 leading-relaxed">{step.title}</h3>
           <p className="text-base text-[var(--text-muted)] leading-snug">{step.body}</p>
         </div>
         <div className="px-3 py-2 border-t-2 border-[var(--border)] flex items-center justify-between gap-2">

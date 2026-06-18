@@ -68,7 +68,7 @@ export default function Chat({ instanceId, name }: { instanceId: string; name: s
 
   return (
     <div className="flex flex-col win-flat h-full min-h-[420px]">
-      <div ref={scroller} className="flex-1 overflow-y-auto p-4 space-y-3 bg-[var(--bg)]">
+      <div ref={scroller} role="log" aria-live="polite" aria-relevant="additions" className="flex-1 overflow-y-auto p-4 space-y-3 bg-[var(--bg)]">
         {messages.length === 0 && (
           <div className="h-full grid place-items-center text-center">
             <div>
@@ -98,7 +98,7 @@ export default function Chat({ instanceId, name }: { instanceId: string; name: s
       {notice && <p className="px-4 py-2 text-sm text-[var(--warning)] border-t-2 border-[var(--border)] leading-snug">{notice}</p>}
 
       <div className="border-t-2 border-[var(--border)] p-3 flex items-center gap-2">
-        <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} placeholder={tr("chat.inputPlaceholder", "Écris ton message…")} className="pinput flex-1" />
+        <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) send(); }} aria-label={tr("chat.inputLabel", "Message")} placeholder={tr("chat.inputPlaceholder", "Écris ton message…")} className="pinput flex-1" />
         <button onClick={launchTask} disabled={busy || !input.trim()} title={tr("chat.launchTaskTitle", "Lancer comme tâche autonome")} className="pbtn pbtn-sm shrink-0"><PixelIcon name="zap" size={14} /></button>
         <button onClick={send} disabled={busy || !input.trim()} data-sfx="send" title={tr("chat.askTitle", "Demander (réponse rapide)")} className="pbtn pbtn-sm pbtn-primary shrink-0"><PixelIcon name="send" size={14} /></button>
       </div>

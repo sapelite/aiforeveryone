@@ -195,6 +195,8 @@ const APP_EN: Record<string, string> = {
   "inbox.imageAlt": "Image sent by the assistant",
   "inbox.inputLabel": "Message to ClaudeClaw",
   "warroom.inputLabel": "Question to the agents",
+  "chat.inputLabel": "Message",
+  "sitechat.inputLabel": "Message",
   "brand.toastOffline": "Engine offline — start the command centre.",
   "brand.toastFailed": "Launch failed.",
   "scheduled.errActionFailed": "Action failed (engine offline or job not found).",

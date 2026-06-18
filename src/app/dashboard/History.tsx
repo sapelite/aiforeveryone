@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { PixelIcon } from "@/components/PixelIcon";
 import { PixSelect } from "@/components/PixSelect";
 import { useT } from "@/lib/i18n";
+import { useDialogFocus } from "@/lib/useDialogFocus";
 
 type HTask = {
   id: string; title: string; status: string;
@@ -33,6 +34,7 @@ export default function History() {
   const [data, setData] = useState<{ tasks: HTask[]; total: number } | null>(null);
   const [detail, setDetail] = useState<HTask | null>(null);
   const [detailData, setDetailData] = useState<{ logs: Log[]; outputs: Out[] } | null>(null);
+  const detailRef = useDialogFocus<HTMLDivElement>(detail !== null);
 
   useEffect(() => {
     let alive = true;
@@ -90,7 +92,7 @@ export default function History() {
 
       {detail && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setDetail(null)}>
-          <div className="win-flat w-full max-w-2xl max-h-[80vh] flex flex-col bg-[var(--bg)]" onClick={(e) => e.stopPropagation()}>
+          <div ref={detailRef} role="dialog" aria-modal="true" aria-label={detail.title} tabIndex={-1} className="win-flat w-full max-w-2xl max-h-[80vh] flex flex-col bg-[var(--bg)] outline-none" onClick={(e) => e.stopPropagation()}>
             <div className="px-3 py-2 border-b-2 border-[var(--border)] font-display text-[9px] uppercase flex items-center justify-between gap-2">
               <span className="truncate">{detail.title}</span>
               <button onClick={() => setDetail(null)} className="win-btn shrink-0" aria-label={tr("history.closeAria", "Fermer")}><PixelIcon name="close" size={11} /></button>

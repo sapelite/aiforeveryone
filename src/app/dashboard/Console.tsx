@@ -388,7 +388,7 @@ export default function Console({ data }: { data: InstanceData }) {
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1.5 px-2 h-7 border-2 border-[var(--border)]">
                       <Search className="w-3 h-3 text-[var(--text-muted)]" />
-                      <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={tr("console.filter", "Filtrer")}
+                      <input value={query} onChange={(e) => setQuery(e.target.value)} aria-label={tr("console.filter", "Filtrer")} placeholder={tr("console.filter", "Filtrer")}
                         className="bg-transparent text-sm placeholder:text-[var(--text-muted)] outline-none w-16 sm:w-24" />
                     </div>
                     <button className="pbtn pbtn-sm pbtn-primary" onClick={() => setTaskModal("new")}><Plus className="w-3 h-3" /> {tr("console.task", "Tâche")}</button>

@@ -91,7 +91,7 @@ export default function Inbox() {
           {status === null ? "…" : status.online ? (status.telegramConnected ? tr("inbox.statusTelegramConnected", "Telegram connecté") : tr("inbox.statusOnline", "en ligne")) : tr("inbox.statusOffline", "hors ligne")}
         </span>
       </div>
-      <div ref={scroller} className="flex-1 overflow-y-auto p-3 space-y-2 bg-[var(--bg)]">
+      <div ref={scroller} role="log" aria-live="polite" aria-relevant="additions" className="flex-1 overflow-y-auto p-3 space-y-2 bg-[var(--bg)]">
         {msgs.length === 0 && <p className="text-sm text-[var(--text-muted)]">{tr("inbox.empty", "Aucun message. Écris depuis Telegram ou ici — tout arrive aux deux endroits.")}</p>}
         {msgs.map((m) => m.role === "user" ? (
           <div key={m.id} className="flex justify-end">

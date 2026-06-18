@@ -119,7 +119,7 @@ export default function SiteChat() {
             <span className="text-sm text-[var(--text-muted)]">{tr("sitechat.statusOnline", "Clio · assistante · en ligne")}</span>
           </div>
 
-          <div ref={scroller} className="flex-1 overflow-y-auto p-3 space-y-2.5 relative bg-[var(--bg)]">
+          <div ref={scroller} role="log" aria-live="polite" aria-relevant="additions" className="flex-1 overflow-y-auto p-3 space-y-2.5 relative bg-[var(--bg)]">
             {messages.length === 0 && (
               <div>
                 <div className="win-flat p-3 mb-3">
@@ -152,7 +152,7 @@ export default function SiteChat() {
           </div>
 
           <div className="p-2.5 border-t-2 border-[var(--border)] flex items-center gap-2 bg-[var(--bg-card)]">
-            <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} placeholder={tr("sitechat.inputPlaceholder", "Écris ton message…")}
+            <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) send(); }} aria-label={tr("sitechat.inputLabel", "Message")} placeholder={tr("sitechat.inputPlaceholder", "Écris ton message…")}
               className="pinput flex-1" />
             <button onClick={() => send()} disabled={busy || !input.trim()} data-sfx="send" className="pbtn pbtn-primary pbtn-sm shrink-0" aria-label={tr("sitechat.sendAria", "Envoyer")}>
               <PixelIcon name="send" size={14} />

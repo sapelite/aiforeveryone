@@ -112,7 +112,7 @@ export default function HiveGraph() {
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex items-center gap-2 px-2.5 h-8 win-flat">
           <PixelIcon name="search" size={14} className="text-[var(--text-muted)]" />
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={tr("hive.searchPlaceholder", "Chercher un nœud…")} className="bg-transparent text-sm placeholder:text-[var(--text-muted)] outline-none w-44" />
+          <input value={query} onChange={(e) => setQuery(e.target.value)} aria-label={tr("hive.searchPlaceholder", "Chercher un nœud…")} placeholder={tr("hive.searchPlaceholder", "Chercher un nœud…")} className="bg-transparent text-sm placeholder:text-[var(--text-muted)] outline-none w-44" />
         </div>
         <div className="flex-1" />
         <button onClick={() => zoom(1 / 1.2)} className="win-btn" aria-label={tr("hive.zoomOut", "Dézoomer")}><PixelIcon name="minus" size={14} /></button>
@@ -124,7 +124,7 @@ export default function HiveGraph() {
         {CLUSTERS.map((cl) => {
           const on = active.has(cl.id);
           return (
-            <button key={cl.id} onClick={() => toggle(cl.id)} className={`flex items-center gap-1.5 px-2 py-1 text-sm border-2 border-[var(--border)] transition-colors ${on ? "" : "opacity-50"}`}>
+            <button key={cl.id} onClick={() => toggle(cl.id)} aria-pressed={on} className={`flex items-center gap-1.5 px-2 py-1 text-sm border-2 border-[var(--border)] transition-colors ${on ? "" : "opacity-50"}`}>
               <span className="w-2.5 h-2.5" style={{ background: on ? cl.color : "var(--text-muted)" }} />
               {cl.label.toLowerCase()}{counts ? ` · ${counts[cl.id as keyof typeof counts]}` : ""}
             </button>
@@ -153,7 +153,7 @@ export default function HiveGraph() {
             {nodes.filter(visible).map((n) => {
               const half = n.size / 2;
               return (
-                <g key={n.id} onClick={(e) => { e.stopPropagation(); focusNode(n); }} onPointerEnter={() => setHover({ x: n.x, y: n.y, label: n.label, sub: n.sub })} onPointerLeave={() => setHover(null)} style={{ cursor: "pointer" }}>
+                <g key={n.id} role="button" tabIndex={0} aria-label={`${n.label}${n.sub ? ` — ${n.sub}` : ""}`} onClick={(e) => { e.stopPropagation(); focusNode(n); }} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); focusNode(n); } }} onFocus={() => setHover({ x: n.x, y: n.y, label: n.label, sub: n.sub })} onBlur={() => setHover(null)} onPointerEnter={() => setHover({ x: n.x, y: n.y, label: n.label, sub: n.sub })} onPointerLeave={() => setHover(null)} style={{ cursor: "pointer" }}>
                   {n.kind === "core" && (
                     <rect x={n.x - half - 6} y={n.y - half - 6} width={n.size + 12} height={n.size + 12} fill="none" stroke={n.color} strokeWidth={1}>
                       <animate attributeName="stroke-opacity" values="0.7;0.1;0.7" dur="2.2s" repeatCount="indefinite" />

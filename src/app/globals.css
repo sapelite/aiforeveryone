@@ -21,7 +21,7 @@
   --secondary: #d0ccb4;
   --secondary-foreground: #1b3a2f;
   --muted: #d0ccb4;
-  --muted-foreground: #5a6b5f;
+  --muted-foreground: #46554b;
   --accent-ui: #d0ccb4;
   --accent-ui-foreground: #1b3a2f;
   --destructive: #c0392b;
@@ -80,7 +80,7 @@
   --border: #1b3a2f;
   --border-light: #1b3a2f;
   --text: #1b3a2f;
-  --text-muted: #5a6b5f;
+  --text-muted: #46554b;
   --accent: #e25fa0;
   --accent-light: #ef79b3;
   --accent-glow: rgba(226, 95, 160, 0.22);

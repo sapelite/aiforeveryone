@@ -6,6 +6,7 @@ import { PixelIcon } from "@/components/PixelIcon";
 import { PixSelect } from "@/components/PixSelect";
 import { play } from "@/lib/sound";
 import { useT } from "@/lib/i18n";
+import { useDialogFocus } from "@/lib/useDialogFocus";
 
 type TaskLite = {
   id: string; title: string; status: string;
@@ -49,6 +50,7 @@ export default function Runs() {
   const [mineId, setMineId] = useState<string | null>(null);
   const [detail, setDetail] = useState<string | null>(null);
   const [detailData, setDetailData] = useState<{ logs: TaskLog[]; outputs: TaskOut[] } | null>(null);
+  const detailRef = useDialogFocus<HTMLDivElement>(detail !== null);
   const mine = useRef<string | null>(null);
   const scroller = useRef<HTMLDivElement>(null);
   const goalRef = useRef<HTMLTextAreaElement>(null);
@@ -261,7 +263,7 @@ export default function Runs() {
               <div key={q.taskId} className="p-3 space-y-2">
                 <p className="text-base whitespace-pre-wrap">{q.question || tr("runs.agentAwaitingReply", "L'agent attend votre réponse.")}</p>
                 <div className="flex gap-2">
-                  <input value={replyText[q.taskId] ?? ""} onChange={(e) => setReplyText((r) => ({ ...r, [q.taskId]: e.target.value }))} onKeyDown={(e) => e.key === "Enter" && reply(q.taskId)} placeholder={tr("runs.yourReplyPlaceholder", "Votre réponse…")} className="pinput flex-1" />
+                  <input value={replyText[q.taskId] ?? ""} onChange={(e) => setReplyText((r) => ({ ...r, [q.taskId]: e.target.value }))} onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) reply(q.taskId); }} aria-label={tr("runs.yourReplyPlaceholder", "Votre réponse…")} placeholder={tr("runs.yourReplyPlaceholder", "Votre réponse…")} className="pinput flex-1" />
                   <button onClick={() => reply(q.taskId)} data-sfx="send" className="pbtn pbtn-sm pbtn-primary shrink-0"><PixelIcon name="send" size={12} /></button>
                 </div>
               </div>
@@ -308,7 +310,7 @@ export default function Runs() {
 
       {detail && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setDetail(null)}>
-          <div className="win-flat w-full max-w-2xl max-h-[80vh] flex flex-col bg-[var(--bg)]" onClick={(e) => e.stopPropagation()}>
+          <div ref={detailRef} role="dialog" aria-modal="true" aria-label={runs[detail]?.title ?? tr("runs.task", "Tâche")} tabIndex={-1} className="win-flat w-full max-w-2xl max-h-[80vh] flex flex-col bg-[var(--bg)] outline-none" onClick={(e) => e.stopPropagation()}>
             <div className="px-3 py-2 border-b-2 border-[var(--border)] font-display text-[9px] uppercase flex items-center justify-between gap-2">
               <span className="truncate">{runs[detail]?.title ?? tr("runs.task", "Tâche")}</span>
               <button onClick={() => setDetail(null)} className="win-btn shrink-0" aria-label={tr("runs.close", "Fermer")}><PixelIcon name="close" size={11} /></button>
