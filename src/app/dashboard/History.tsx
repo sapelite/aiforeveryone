@@ -5,6 +5,7 @@ import { PixelIcon } from "@/components/PixelIcon";
 import { PixSelect } from "@/components/PixSelect";
 import { useT } from "@/lib/i18n";
 import { useDialogFocus } from "@/lib/useDialogFocus";
+import { statusDot } from "@/lib/taskStatus";
 
 type HTask = {
   id: string; title: string; status: string;
@@ -60,7 +61,6 @@ export default function History() {
 
   const fmtDur = (ms?: number | null) => ms ? (ms >= 60000 ? `${Math.round(ms / 60000)}min` : `${Math.round(ms / 1000)}s`) : null;
   const fmtDate = (s?: string | null) => s ? new Date(s).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "";
-  const dot = (t: HTask) => t.errorMessage ? "bg-[var(--destructive)]" : (t.status === "done" || t.status === "completed") ? "bg-[var(--accent)]" : "bg-[var(--text-muted)]";
 
   return (
     <div className="space-y-3">
@@ -78,7 +78,7 @@ export default function History() {
           <div className="divide-y-2 divide-[var(--border)] max-h-[58vh] overflow-auto">
             {data.tasks.map((t) => (
               <button key={t.id} onClick={() => open(t)} className="w-full flex items-center gap-2 px-3 py-2 text-left text-base hover:bg-[var(--bg-card-hover)] transition-colors">
-                <span className={`w-2 h-2 shrink-0 ${dot(t)}`} />
+                <span className={`w-2 h-2 shrink-0 ${statusDot(t)}`} />
                 <span className="flex-1 truncate">{t.title}</span>
                 {t.model && <span className="hidden sm:inline text-sm text-[var(--text-muted)] font-mono">{t.model}</span>}
                 {fmtDur(t.durationMs) && <span className="hidden md:inline text-sm text-[var(--text-muted)] font-mono">{fmtDur(t.durationMs)}</span>}

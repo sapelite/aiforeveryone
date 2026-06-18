@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { PixelIcon } from "@/components/PixelIcon";
 import { useT } from "@/lib/i18n";
 import { useDialogFocus } from "@/lib/useDialogFocus";
+import { statusDot } from "@/lib/taskStatus";
 
 type BTask = {
   id: string; title: string; status: string; needsInput?: boolean | number;
@@ -55,10 +56,6 @@ export default function Board() {
     fetch(`/api/engine/task?taskId=${encodeURIComponent(t.id)}`).then((r) => r.json()).then(setDetailData).catch(() => setDetailData({ logs: [], outputs: [] }));
   }
 
-  const dot = (t: BTask) => t.errorMessage ? "bg-[var(--destructive)]"
-    : t.needsInput || t.status === "running" ? "bg-[var(--warning)] pulse-dot"
-      : t.status === "done" || t.status === "completed" ? "bg-[var(--accent)]" : "bg-[var(--text-muted)]";
-
   // Bucket every task once and sort each column, instead of filtering+sorting
   // the whole list four times (once per column) on every render.
   const grouped = useMemo(() => {
@@ -85,7 +82,7 @@ export default function Board() {
               {items.map((t) => (
                 <button key={t.id} onClick={() => open(t)} className="w-full text-left win-flat p-2 hover:bg-[var(--bg-card-hover)] transition-colors">
                   <div className="flex items-center gap-1.5">
-                    <span className={`w-2 h-2 shrink-0 ${dot(t)}`} />
+                    <span className={`w-2 h-2 shrink-0 ${statusDot(t)}`} />
                     <span className="text-sm truncate flex-1">{t.title}</span>
                   </div>
                   {(t.model || (t.costUsd != null && t.costUsd > 0)) && (

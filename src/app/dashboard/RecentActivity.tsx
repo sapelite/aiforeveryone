@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { PixelIcon } from "@/components/PixelIcon";
 import { useT } from "@/lib/i18n";
+import { statusDot } from "@/lib/taskStatus";
 
 type T = { id: string; title: string; status: string; costUsd?: number | null; updatedAt?: string; needsInput?: boolean | number };
 
@@ -26,11 +27,6 @@ export default function RecentActivity({ onOpen }: { onOpen?: () => void }) {
     return () => { alive = false; clearInterval(id); };
   }, []);
 
-  const dot = (t: T) =>
-    t.needsInput || t.status === "running" ? "bg-[var(--warning)] pulse-dot"
-      : t.status === "done" || t.status === "completed" ? "bg-[var(--accent)]"
-      : t.status === "failed" || t.status === "error" ? "bg-[var(--destructive)]" : "bg-[var(--text-muted)]";
-
   return (
     <div className="win-flat">
       <button onClick={onOpen} className="w-full px-3 py-2 border-b-2 border-[var(--border)] font-display text-[9px] uppercase flex items-center justify-between hover:bg-[var(--bg-card-hover)] transition-colors">
@@ -42,7 +38,7 @@ export default function RecentActivity({ onOpen }: { onOpen?: () => void }) {
         {tasks?.length === 0 && <p className="px-3 py-2 text-sm text-[var(--text-muted)]">{tr("recent.empty", "aucune tâche pour l'instant. Lance un but dans Runs.")}</p>}
         {tasks?.map((t) => (
           <div key={t.id} className="flex items-center gap-2 px-3 py-2 text-base">
-            <span className={`w-2 h-2 shrink-0 ${dot(t)}`} />
+            <span className={`w-2 h-2 shrink-0 ${statusDot(t)}`} />
             <span className="flex-1 truncate">{t.title}</span>
             {t.costUsd != null && t.costUsd > 0 && <span className="text-sm text-[var(--text-muted)] font-mono">${t.costUsd.toFixed(3)}</span>}
             <span className="text-sm font-mono text-[var(--text-muted)]">{t.needsInput ? tr("recent.validation", "validation") : t.status}</span>

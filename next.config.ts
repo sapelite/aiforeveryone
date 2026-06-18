@@ -6,6 +6,10 @@ const nextConfig: NextConfig = {
   // the Agent SDK is only dynamically imported during local development.
   serverExternalPackages: ["@anthropic-ai/claude-agent-sdk"],
 
+  // framer-motion isn't in Next's default optimizePackageImports list; it only
+  // serves the marketing landing, so hint the bundler to slim its import.
+  experimental: { optimizePackageImports: ["framer-motion"] },
+
   // Ship the seeded client data so the dashboard can read it on the server.
   outputFileTracingIncludes: {
     "/api/**": ["./clients/**"],

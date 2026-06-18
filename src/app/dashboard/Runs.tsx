@@ -7,6 +7,7 @@ import { PixSelect } from "@/components/PixSelect";
 import { play } from "@/lib/sound";
 import { useT } from "@/lib/i18n";
 import { useDialogFocus } from "@/lib/useDialogFocus";
+import { statusDot, statusTextClass } from "@/lib/taskStatus";
 
 type TaskLite = {
   id: string; title: string; status: string;
@@ -162,10 +163,6 @@ export default function Runs() {
   }
 
   const tone: Record<Tone, string> = { info: "text-[var(--text-muted)]", ok: "text-[var(--accent)]", warn: "text-[var(--warning)]", err: "text-[var(--destructive)]" };
-  const dotFor = (t: TaskLite) =>
-    t.needsInput || t.status === "running" ? "bg-[var(--warning)] pulse-dot"
-      : t.status === "completed" || t.status === "done" ? "bg-[var(--accent)]"
-      : t.status === "failed" || t.status === "error" ? "bg-[var(--destructive)]" : "bg-[var(--text-muted)]";
 
   async function reply(taskId: string) {
     const msg = (replyText[taskId] ?? "").trim();
@@ -286,11 +283,11 @@ export default function Runs() {
           <div className="divide-y-2 divide-[var(--border)] max-h-52 overflow-auto">
             {order.map((id) => { const t = runs[id]; if (!t) return null; return (
               <div key={id} className="flex items-center gap-2 px-3 py-2 text-base">
-                <span className={`w-2 h-2 shrink-0 ${dotFor(t)}`} />
+                <span className={`w-2 h-2 shrink-0 ${statusDot(t)}`} />
                 <button onClick={() => openDetail(id)} className="flex-1 truncate text-left hover:text-[var(--accent)] transition-colors" title={tr("runs.viewDetail", "Voir le détail")}>{id === mineId && <span className="text-[var(--accent)]">★ </span>}{t.title}</button>
                 {t.model && <span className="text-sm text-[var(--text-muted)] font-mono hidden sm:inline" title={tr("runs.model", "Modèle")}>{t.model}</span>}
                 {t.costUsd != null && <span className="text-sm text-[var(--text-muted)] font-mono">${t.costUsd.toFixed(3)}</span>}
-                <span className={`text-sm font-mono ${t.status === "completed" || t.status === "done" ? "text-[var(--accent)]" : t.status === "failed" || t.status === "error" ? "text-[var(--destructive)]" : "text-[var(--text-muted)]"}`}>{t.needsInput ? tr("runs.validation", "validation") : t.status}</span>
+                <span className={`text-sm font-mono ${statusTextClass(t)}`}>{t.needsInput ? tr("runs.validation", "validation") : t.status}</span>
                 {t.status === "running" && <button onClick={() => cancel(id)} className="win-btn shrink-0" title={tr("runs.stopTask", "Arrêter la tâche")} aria-label={tr("runs.stop", "Arrêter")}><PixelIcon name="close" size={11} /></button>}
               </div>
             ); })}

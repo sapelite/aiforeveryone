@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PixelIcon } from "@/components/PixelIcon";
 import { useT } from "@/lib/i18n";
+import { statusVar } from "@/lib/taskStatus";
 
 type RawSkill = { name?: string; title?: string; category?: string };
 type RawProject = { slug: string; name: string; status: string };
@@ -14,7 +15,7 @@ type GNode = { id: string; label: string; sub: string; x: number; y: number; siz
 type GEdge = { a: string; b: string; color: string };
 
 const CX = 400, CY = 300;
-const ACCENT = "var(--accent)", WARN = "var(--warning)", DEST = "var(--destructive)", MUT = "var(--text-muted)";
+const ACCENT = "var(--accent)", WARN = "var(--warning)", MUT = "var(--text-muted)";
 
 const CLUSTERS = [
   { id: "skills", label: "SKILLS", color: ACCENT, pos: { x: CX, y: CY - 160 } },
@@ -22,9 +23,6 @@ const CLUSTERS = [
   { id: "tasks", label: "TÂCHES", color: ACCENT, pos: { x: CX, y: CY + 160 } },
   { id: "memory", label: "MÉMOIRE", color: MUT, pos: { x: CX - 185, y: CY + 10 } },
 ];
-
-const taskColor = (s: string) =>
-  s === "done" || s === "completed" ? ACCENT : s === "running" ? WARN : s === "failed" || s === "error" ? DEST : MUT;
 
 function buildGraph(d: Brain | null): { nodes: GNode[]; edges: GEdge[] } {
   const nodes: GNode[] = [];
@@ -39,7 +37,7 @@ function buildGraph(d: Brain | null): { nodes: GNode[]; edges: GEdge[] } {
       return Object.entries(cats).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([c, n]) => ({ label: c, sub: `${n} skills`, color: ACCENT }));
     }
     if (id === "projects") return d.projects.slice(0, 10).map((p) => ({ label: p.name, sub: p.status, color: WARN }));
-    if (id === "tasks") return d.tasks.slice(0, 12).map((t) => ({ label: t.title, sub: t.status, color: taskColor(t.status) }));
+    if (id === "tasks") return d.tasks.slice(0, 12).map((t) => ({ label: t.title, sub: t.status, color: statusVar({ status: t.status }) }));
     if (id === "memory") return d.ctx.slice(0, 10).map((c) => ({ label: c.name, sub: c.type, color: MUT }));
     return [];
   };
