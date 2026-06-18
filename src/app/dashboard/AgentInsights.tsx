@@ -24,7 +24,9 @@ type Insight = {
   create?: string; // nom d'agent à créer
 };
 
-function buildInsights(data: InstanceData): Insight[] {
+type Tr = (key: string, fr: string) => string;
+
+function buildInsights(data: InstanceData, tr: Tr): Insight[] {
   const out: Insight[] = [];
   const p = data.personality;
   const agentsText = data.agents.map((a) => `${a.display} ${a.role} ${a.slug}`.toLowerCase());
@@ -39,8 +41,8 @@ function buildInsights(data: InstanceData): Insight[] {
         out.push({
           kind: "gap",
           icon: UserPlus,
-          title: `Aucun agent dédié à ${fn}`,
-          body: `${fn} pèse ${Math.round(share * 100)}% de l'activité détectée mais aucun agent ne le couvre. Un agent spécialisé éviterait de diluer cette charge ailleurs.`,
+          title: tr("insights.gapTitle", "Aucun agent dédié à {fn}").replace("{fn}", fn),
+          body: tr("insights.gapBody", "{fn} pèse {pct}% de l'activité détectée mais aucun agent ne le couvre. Un agent spécialisé éviterait de diluer cette charge ailleurs.").replace("{fn}", fn).replace("{pct}", String(Math.round(share * 100))),
           create: fn,
         });
       }
@@ -54,8 +56,8 @@ function buildInsights(data: InstanceData): Insight[] {
       out.push({
         kind: "overload",
         icon: AlertTriangle,
-        title: `${a.display} est surchargé`,
-        body: `${load} tâches actives sur le même agent — risque de goulot. Distribue la charge ou crée un sous-agent.`,
+        title: tr("insights.overloadTitle", "{name} est surchargé").replace("{name}", a.display),
+        body: tr("insights.overloadBody", "{n} tâches actives sur le même agent — risque de goulot. Distribue la charge ou crée un sous-agent.").replace("{n}", String(load)),
       });
     }
   }
@@ -67,8 +69,8 @@ function buildInsights(data: InstanceData): Insight[] {
       out.push({
         kind: "idle",
         icon: TrendingDown,
-        title: `${a.display} est sous-utilisé`,
-        body: `Aucune tâche active. Réassigne-lui du travail ou mets-le en veille pour économiser des tokens.`,
+        title: tr("insights.idleTitle", "{name} est sous-utilisé").replace("{name}", a.display),
+        body: tr("insights.idleBody", "Aucune tâche active. Réassigne-lui du travail ou mets-le en veille pour économiser des tokens."),
       });
     }
   }
@@ -78,7 +80,7 @@ function buildInsights(data: InstanceData): Insight[] {
 
 export default function AgentInsights({ data, onCreate }: { data: InstanceData; onCreate: (name: string) => void }) {
   const tr = useT();
-  const insights = buildInsights(data);
+  const insights = buildInsights(data, tr);
   if (insights.length === 0) return null;
 
   return (

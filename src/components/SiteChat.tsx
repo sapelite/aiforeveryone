@@ -6,52 +6,59 @@ import { PixelIcon } from "@/components/PixelIcon";
 import { play } from "@/lib/sound";
 import { useT } from "@/lib/i18n";
 
-type Cta = { label: string; href: string };
+type Cta = { key: string; label: string; href: string };
 type Msg = { role: "user" | "assistant"; content: string; cta?: Cta };
 
-const SUGGESTIONS = ["Comment ça marche ?", "Vos tarifs", "C'est quoi le Brain ?", "Quelles intégrations ?"];
-
-const NAV: { label: string; href: string; icon: string }[] = [
-  { label: "Accueil", href: "/", icon: "home" },
-  { label: "Fonctionnalités", href: "/#features", icon: "sparkle" },
-  { label: "Comment ça marche", href: "/#how", icon: "list-box" },
-  { label: "Tarifs", href: "/#pricing", icon: "coin" },
-  { label: "Voir la démo", href: "/dashboard", icon: "dashboard" },
-  { label: "Audit gratuit", href: "/onboarding", icon: "zap" },
+const SUGGESTIONS: { key: string; label: string }[] = [
+  { key: "how", label: "Comment ça marche ?" },
+  { key: "pricing", label: "Vos tarifs" },
+  { key: "brain", label: "C'est quoi le Brain ?" },
+  { key: "integrations", label: "Quelles intégrations ?" },
 ];
 
-/* Selon le sujet, propose un bouton qui mène droit au bon endroit. */
+const NAV: { key: string; label: string; href: string; icon: string }[] = [
+  { key: "home", label: "Accueil", href: "/", icon: "home" },
+  { key: "features", label: "Fonctionnalités", href: "/#features", icon: "sparkle" },
+  { key: "how", label: "Comment ça marche", href: "/#how", icon: "list-box" },
+  { key: "pricing", label: "Tarifs", href: "/#pricing", icon: "coin" },
+  { key: "demo", label: "Voir la démo", href: "/dashboard", icon: "dashboard" },
+  { key: "audit", label: "Audit gratuit", href: "/onboarding", icon: "zap" },
+];
+
+/* Selon le sujet, propose un bouton qui mène droit au bon endroit. Le label FR
+   sert de fallback; la traduction se fait au rendu via sitechat.cta.<key>. */
 function ctaFor(text: string): Cta | null {
   const m = text.toLowerCase();
-  if (/(brain|obsidian|vault|m[ée]moire|connaissance|cerveau|notes?)/.test(m)) return { label: "Ouvrir le Brain", href: "/dashboard?view=brain" };
-  if (/(int[ée]grat|mcp|connect|brancher|slack|drive|sheets|notion|hubspot|stripe|github|outil)/.test(m)) return { label: "Voir les intégrations", href: "/dashboard?view=integrations" };
-  if (/(tarif|prix|co[uû]t|abonnement|formule|combien|budget|forfait)/.test(m)) return { label: "Voir les tarifs", href: "/#pricing" };
-  if (/(agent|war ?room|standup|console|planifi|workflow|t[âa]che)/.test(m)) return { label: "Ouvrir la démo", href: "/dashboard" };
-  if (/(audit|gratuit|commencer|d[ée]marrer|essai|contact|rendez|devis|inscri)/.test(m)) return { label: "Lancer l'audit gratuit", href: "/onboarding" };
-  if (/(comment|marche|fonctionne|[ée]tape|process|d[ée]roul|semaine|d[ée]lai)/.test(m)) return { label: "Comment ça marche", href: "/#how" };
-  if (/(fonctionnalit|capacit|que fait|sait faire|feature)/.test(m)) return { label: "Voir les fonctionnalités", href: "/#features" };
+  if (/(brain|obsidian|vault|m[ée]moire|connaissance|cerveau|notes?)/.test(m)) return { key: "brain", label: "Ouvrir le Brain", href: "/dashboard?view=brain" };
+  if (/(int[ée]grat|mcp|connect|brancher|slack|drive|sheets|notion|hubspot|stripe|github|outil)/.test(m)) return { key: "integrations", label: "Voir les intégrations", href: "/dashboard?view=integrations" };
+  if (/(tarif|prix|co[uû]t|abonnement|formule|combien|budget|forfait)/.test(m)) return { key: "pricing", label: "Voir les tarifs", href: "/#pricing" };
+  if (/(agent|war ?room|standup|console|planifi|workflow|t[âa]che)/.test(m)) return { key: "demo", label: "Ouvrir la démo", href: "/dashboard" };
+  if (/(audit|gratuit|commencer|d[ée]marrer|essai|contact|rendez|devis|inscri)/.test(m)) return { key: "audit", label: "Lancer l'audit gratuit", href: "/onboarding" };
+  if (/(comment|marche|fonctionne|[ée]tape|process|d[ée]roul|semaine|d[ée]lai)/.test(m)) return { key: "how", label: "Comment ça marche", href: "/#how" };
+  if (/(fonctionnalit|capacit|que fait|sait faire|feature)/.test(m)) return { key: "features", label: "Voir les fonctionnalités", href: "/#features" };
   return null;
 }
 
 function MenuPanel({ onGo, onAsk }: { onGo: (href: string) => void; onAsk: (q: string) => void }) {
+  const tr = useT();
   return (
     <>
-      <p className="font-display text-[8px] uppercase text-[var(--text-muted)] mb-2">Naviguer</p>
+      <p className="font-display text-[8px] uppercase text-[var(--text-muted)] mb-2">{tr("sitechat.sectionNavigate", "Naviguer")}</p>
       <div className="space-y-1.5">
         {NAV.map((n) => (
           <button key={n.href} onClick={() => onGo(n.href)}
             className="w-full flex items-center gap-2.5 px-2.5 py-2 border-2 border-[var(--border)] bg-[var(--bg)] hover:bg-[var(--accent)] hover:text-[#1b1b1b] transition-colors text-left">
             <PixelIcon name={n.icon} size={18} />
-            <span className="flex-1 text-base">{n.label}</span>
+            <span className="flex-1 text-base">{tr(`sitechat.nav.${n.key}`, n.label)}</span>
             <PixelIcon name="chevron-right" size={14} />
           </button>
         ))}
       </div>
-      <p className="font-display text-[8px] uppercase text-[var(--text-muted)] mt-4 mb-2">Questions fréquentes</p>
+      <p className="font-display text-[8px] uppercase text-[var(--text-muted)] mt-4 mb-2">{tr("sitechat.sectionFaq", "Questions fréquentes")}</p>
       <div className="grid grid-cols-2 gap-1.5">
         {SUGGESTIONS.map((s) => (
-          <button key={s} onClick={() => onAsk(s)}
-            className="text-left text-sm px-2 py-1.5 border-2 border-[var(--border)] hover:bg-[var(--bg-card-hover)] transition-colors">{s}</button>
+          <button key={s.key} onClick={() => onAsk(s.label)}
+            className="text-left text-sm px-2 py-1.5 border-2 border-[var(--border)] hover:bg-[var(--bg-card-hover)] transition-colors">{tr(`sitechat.faq.${s.key}`, s.label)}</button>
         ))}
       </div>
     </>
@@ -137,7 +144,7 @@ export default function SiteChat() {
                 <p className="max-w-[88%] text-base px-3 py-1.5 win-flat whitespace-pre-wrap leading-snug">{m.content}</p>
                 {m.cta && (
                   <button onClick={() => go(m.cta!.href)} className="pbtn pbtn-primary pbtn-sm">
-                    {m.cta.label} <PixelIcon name="arrow-right" size={12} />
+                    {tr(`sitechat.cta.${m.cta.key}`, m.cta.label)} <PixelIcon name="arrow-right" size={12} />
                   </button>
                 )}
               </div>

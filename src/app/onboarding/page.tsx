@@ -65,18 +65,22 @@ function AreaField({ form, update, field, label, placeholder, rows = 4, req }: {
   );
 }
 function SingleField({ form, update, field, label, options, cols = "grid-cols-2 md:grid-cols-3", req }: { form: FormState; update: Update; field: string; label: string; options: string[]; cols?: string; req?: boolean }) {
+  // Value stays the French string (the agent prompt + validation rely on it);
+  // only the display localizes, keyed by the French option text.
+  const tr = useT();
   return (
     <div>
       <FieldLabel req={req}>{label}</FieldLabel>
       <div className={`grid ${cols} gap-2`}>
         {options.map((o) => (
-          <button key={o} type="button" aria-label={`${label} : ${o}`} onClick={() => update(field, o)} className={pillCls(form[field] === o)}>{o}</button>
+          <button key={o} type="button" aria-label={`${label} : ${tr(o, o)}`} onClick={() => update(field, o)} className={pillCls(form[field] === o)}>{tr(o, o)}</button>
         ))}
       </div>
     </div>
   );
 }
 function MultiField({ form, toggle, field, label, options, cols = "grid-cols-2 md:grid-cols-3", hint, req }: { form: FormState; toggle: Toggle; field: string; label: string; options: string[]; cols?: string; hint?: string; req?: boolean }) {
+  const tr = useT();
   const sel = (form[field] as string[]) || [];
   return (
     <div>
@@ -84,7 +88,7 @@ function MultiField({ form, toggle, field, label, options, cols = "grid-cols-2 m
       {hint && <p className="text-xs text-[var(--text-muted)] mb-3">{hint}</p>}
       <div className={`grid ${cols} gap-2`}>
         {options.map((o) => (
-          <button key={o} type="button" aria-label={`${label} : ${o}`} onClick={() => toggle(field, o)} className={pillCls(sel.includes(o))}>{o}</button>
+          <button key={o} type="button" aria-label={`${label} : ${tr(o, o)}`} onClick={() => toggle(field, o)} className={pillCls(sel.includes(o))}>{tr(o, o)}</button>
         ))}
       </div>
     </div>
@@ -213,7 +217,7 @@ export default function OnboardingPage() {
                       : "border-[var(--border)] text-[var(--text-muted)]/40 cursor-not-allowed"
                   }`}>
                   {done && !isCurrent ? <CheckCircle2 className="w-4 h-4" /> : <s.icon className="w-4 h-4" />}
-                  <span className="hidden sm:inline">{s.label}</span>
+                  <span className="hidden sm:inline">{tr(`onboarding.stepNav${i}`, s.label)}</span>
                 </button>
               );
             })}
@@ -256,11 +260,11 @@ export default function OnboardingPage() {
                 <h2 className="font-display text-[11px] leading-relaxed mb-3">{tr("onboarding.step1Title", "Contact & équipe")}</h2>
                 <div className="grid md:grid-cols-2 gap-4">
                   <TextField {...fp} field="contactName" label={tr("onboarding.contactNameLabel", "Votre nom")} placeholder={tr("onboarding.contactNamePlaceholder", "Marie Dupont")} req />
-                  <TextField {...fp} field="role" label={tr("onboarding.roleLabel", "Votre rôle")} placeholder="Head of Operations" req />
+                  <TextField {...fp} field="role" label={tr("onboarding.roleLabel", "Votre rôle")} placeholder={tr("onboarding.rolePlaceholder", "Head of Operations")} req />
                 </div>
                 <div className="grid md:grid-cols-2 gap-4">
                   <TextField {...fp} field="email" label={tr("onboarding.emailLabel", "Email professionnel")} placeholder={tr("onboarding.emailPlaceholder", "vous@entreprise.com")} type="email" req />
-                  <TextField {...fp} field="phone" label={tr("onboarding.phoneLabel", "Téléphone (optionnel)")} placeholder="+33 6 12 34 56 78" type="tel" />
+                  <TextField {...fp} field="phone" label={tr("onboarding.phoneLabel", "Téléphone (optionnel)")} placeholder={tr("onboarding.phonePlaceholder", "+33 6 12 34 56 78")} type="tel" />
                 </div>
                 <SingleField {...fp} field="teamSize" label={tr("onboarding.teamSizeLabel", "Combien de personnes utiliseront le système ?")} options={["1-5", "6-15", "16-50", "50+"]} cols="grid-cols-2 md:grid-cols-4" req />
                 <MultiField {...mp} field="departments" label={tr("onboarding.departmentsLabel", "Départements concernés")} options={departmentOptions} hint={tr("onboarding.departmentsHint", "Quels pôles seront servis par l'AI OS ?")} />

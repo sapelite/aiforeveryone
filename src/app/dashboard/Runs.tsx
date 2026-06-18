@@ -203,12 +203,12 @@ export default function Runs() {
         <p className="font-display text-[9px] uppercase mb-2 flex items-center gap-2"><PixelIcon name="terminal" size={12} /> {tr("runs.launchGoal", "Lancer un but")}</p>
         <p className="text-sm text-[var(--text-muted)] mb-1.5">{tr("runs.examplesClickToFill", "Exemples — cliquez pour remplir :")}</p>
         <div className="flex flex-wrap gap-1.5 mb-2">
-          {PRESETS.map(([g, label]) => {
+          {PRESETS.map(([g, label], i) => {
             const active = goal.trim() === g;
             return (
               <button key={label} onClick={() => { setGoal(g); goalRef.current?.focus(); }} title={g}
                 className={`text-sm px-2 py-1 border-2 border-[var(--border)] transition-colors ${active ? "bg-[var(--accent)] text-[#1b1b1b]" : "hover:bg-[var(--bg-card-hover)]"}`}>
-                {label}
+                {tr(`runs.preset.${i}`, label)}
               </button>
             );
           })}
@@ -218,7 +218,7 @@ export default function Runs() {
           rows={2} placeholder={tr("runs.goalPlaceholder", "Décrivez ce que l'agent doit faire… (ex : rédige 3 posts LinkedIn sur notre offre)")}
           className="modal-input w-full resize-none leading-snug" />
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-2">
-          <PixSelect value={model} onChange={setModel} options={MODELS} className="sm:w-44" title={tr("runs.model", "Modèle")} />
+          <PixSelect value={model} onChange={setModel} options={MODELS.map(([v, l]) => [v, tr(`runs.model.${v}`, l)] as [string, string])} className="sm:w-44" title={tr("runs.model", "Modèle")} />
           <span className="text-sm text-[var(--text-muted)] hidden sm:inline flex-1">{tr("runs.enterToLaunch", "Entrée pour lancer · Maj+Entrée = nouvelle ligne")}</span>
           <button onClick={launch} disabled={busy || !goal.trim()} data-sfx="send" className="pbtn pbtn-primary pbtn-sm shrink-0"><PixelIcon name="zap" size={12} /> {busy ? "…" : tr("runs.execute", "Exécuter")}</button>
         </div>
