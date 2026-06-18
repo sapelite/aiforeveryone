@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PixelIcon } from "@/components/PixelIcon";
 import { useT } from "@/lib/i18n";
 import { useDialogFocus } from "@/lib/useDialogFocus";
@@ -59,15 +59,22 @@ export default function Board() {
     : t.needsInput || t.status === "running" ? "bg-[var(--warning)] pulse-dot"
       : t.status === "done" || t.status === "completed" ? "bg-[var(--accent)]" : "bg-[var(--text-muted)]";
 
+  // Bucket every task once and sort each column, instead of filtering+sorting
+  // the whole list four times (once per column) on every render.
+  const grouped = useMemo(() => {
+    const g: Record<string, BTask[]> = { queue: [], running: [], review: [], done: [] };
+    for (const t of tasks ?? []) (g[colOf(t)] ??= []).push(t);
+    for (const k of Object.keys(g)) g[k].sort((a, b) => String(b.updatedAt ?? "").localeCompare(String(a.updatedAt ?? "")));
+    return g;
+  }, [tasks]);
+
   if (tasks === null) return <p role="status" className="text-base text-[var(--text-muted)]">{tr("board.loadingBoard", "chargement du tableau")}<span className="blink">_</span></p>;
   if (tasks.length === 0) return <div role="status" className="win-flat p-4 text-base text-[var(--text-muted)]">{tr("board.emptyPrefix", "Aucune tâche. Lance un but depuis")} <span className="text-[var(--text)]">{tr("board.runsLink", "Runs")}</span> {tr("board.emptySuffix", "et il apparaîtra ici, rangé par colonne.")}</div>;
-
-  const byCol = (key: string) => tasks.filter((t) => colOf(t) === key).sort((a, b) => String(b.updatedAt ?? "").localeCompare(String(a.updatedAt ?? "")));
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
       {COLUMNS.map((c) => {
-        const items = byCol(c.key);
+        const items = grouped[c.key] ?? [];
         return (
           <div key={c.key} className="win-flat flex flex-col min-h-[12rem]">
             <div className="px-3 py-2 border-b-2 border-[var(--border)] font-display text-[9px] uppercase flex items-center gap-2">

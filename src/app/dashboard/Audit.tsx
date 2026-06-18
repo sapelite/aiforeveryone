@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PixelIcon } from "@/components/PixelIcon";
 import { useT } from "@/lib/i18n";
 
@@ -17,10 +17,14 @@ export default function Audit() {
     return () => clearInterval(id);
   }, []);
 
+  const sorted = useMemo(
+    () => [...(tasks ?? [])].sort((a, b) => (b.completedAt || b.createdAt || "").localeCompare(a.completedAt || a.createdAt || "")),
+    [tasks],
+  );
+
   if (tasks === null) return <p className="text-base text-[var(--text-muted)]">{tr("audit.loading", "lecture du journal du moteur")}<span className="blink">_</span></p>;
   if (tasks.length === 0) return <div className="win-flat p-4 text-base text-[var(--text-muted)]">{tr("audit.empty", "Aucune activité. Lance un but depuis la fenêtre Runs pour peupler le journal du moteur.")}</div>;
 
-  const sorted = [...tasks].sort((a, b) => (b.completedAt || b.createdAt || "").localeCompare(a.completedAt || a.createdAt || ""));
   const tone = (s: string) => s === "completed" || s === "done" ? "text-[var(--accent)]" : s === "failed" || s === "error" ? "text-[var(--destructive)]" : "text-[var(--text-muted)]";
   const icon = (s: string) => s === "completed" || s === "done" ? "check" : s === "failed" || s === "error" ? "close" : "clock";
 

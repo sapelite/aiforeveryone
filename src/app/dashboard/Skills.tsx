@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PixelIcon } from "@/components/PixelIcon";
 import { useT } from "@/lib/i18n";
 
@@ -38,11 +38,15 @@ export default function Skills() {
     }
   }
 
+  // Re-filter/group only when the list or query changes, not on every render.
+  const { filtered, groups } = useMemo(() => {
+    const f = (skills ?? []).filter((s) => (s.name + s.category + s.desc).toLowerCase().includes(q.toLowerCase()));
+    const g = f.reduce<Record<string, Skill[]>>((m, s) => { (m[s.category] = m[s.category] || []).push(s); return m; }, {});
+    return { filtered: f, groups: g };
+  }, [skills, q]);
+
   if (skills === null) return <p role="status" className="text-base text-[var(--text-muted)]">{tr("skills.loading", "chargement des skills")}<span className="blink">_</span></p>;
   if (skills.length === 0) return <div role="status" className="win-flat p-4 text-base text-[var(--text-muted)]">{tr("skills.emptyBefore", "Aucun skill détecté. Le moteur est-il en ligne ? Les skills vivent dans")} <span className="font-mono">.claude/skills</span> {tr("skills.emptyAfter", "du workspace.")}</div>;
-
-  const filtered = skills.filter((s) => (s.name + s.category + s.desc).toLowerCase().includes(q.toLowerCase()));
-  const groups = filtered.reduce<Record<string, Skill[]>>((m, s) => { (m[s.category] = m[s.category] || []).push(s); return m; }, {});
 
   return (
     <div className="space-y-4">
