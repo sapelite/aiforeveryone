@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { PixelIcon } from "@/components/PixelIcon";
 import { useT } from "@/lib/i18n";
+import { useTasks } from "@/lib/useTasks";
+import { PanelState } from "@/components/PanelState";
 
 type CFile = { name: string; path: string; size: number; modifiedAt: string; type: string };
 type Preview = { content: string | null; truncated: boolean; binary: boolean };
@@ -12,6 +14,7 @@ const ORDER = ["soul", "user", "learnings", "memory", "other"];
 
 export default function Context() {
   const tr = useT();
+  const { online } = useTasks();
   const [files, setFiles] = useState<CFile[] | null>(null);
   const [open, setOpen] = useState<CFile | null>(null);
   const [preview, setPreview] = useState<Preview | null>(null);
@@ -32,7 +35,9 @@ export default function Context() {
   }
 
   if (files === null) return <p role="status" className="text-base text-[var(--text-muted)]">{tr("context.loadingContext", "chargement du contexte")}<span className="blink">_</span></p>;
-  if (files.length === 0) return <div role="status" className="win-flat p-4 text-base text-[var(--text-muted)]">{tr("context.empty", "Aucun fichier de contexte. Le moteur écrit ici son âme (SOUL.md), ses apprentissages et sa mémoire au fil du travail.")}</div>;
+  if (files.length === 0) return online === false
+    ? <PanelState icon="cpu">{tr("panel.engineOffline", "Moteur hors ligne — démarre le command-centre Agentic OS")}</PanelState>
+    : <PanelState icon="article">{tr("context.empty", "Aucun fichier de contexte. Le moteur écrit ici son âme (SOUL.md), ses apprentissages et sa mémoire au fil du travail.")}</PanelState>;
 
   const groups = ORDER.filter((t) => files.some((f) => f.type === t));
 

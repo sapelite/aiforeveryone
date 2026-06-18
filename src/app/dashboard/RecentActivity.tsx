@@ -8,7 +8,7 @@ import { useTasks } from "@/lib/useTasks";
 
 export default function RecentActivity({ onOpen }: { onOpen?: () => void }) {
   const tr = useT();
-  const { tasks: all, loaded } = useTasks();
+  const { tasks: all, loaded, online } = useTasks();
   const tasks = useMemo(
     () => [...all].sort((a, b) => String(b.updatedAt ?? "").localeCompare(String(a.updatedAt ?? ""))).slice(0, 6),
     [all],
@@ -22,7 +22,7 @@ export default function RecentActivity({ onOpen }: { onOpen?: () => void }) {
       </button>
       <div className="divide-y-2 divide-[var(--border)]">
         {!loaded && <p className="px-3 py-2 text-sm text-[var(--text-muted)]">{tr("recent.loading", "chargement")}<span className="blink">_</span></p>}
-        {loaded && tasks.length === 0 && <p className="px-3 py-2 text-sm text-[var(--text-muted)]">{tr("recent.empty", "aucune tâche pour l'instant. Lance un but dans Runs.")}</p>}
+        {loaded && tasks.length === 0 && <p className="px-3 py-2 text-sm text-[var(--text-muted)]">{online === false ? tr("panel.engineOffline", "Moteur hors ligne — démarre le command-centre Agentic OS") : tr("recent.empty", "aucune tâche pour l'instant. Lance un but dans Runs.")}</p>}
         {tasks.map((t) => (
           <div key={t.id} className="flex items-center gap-2 px-3 py-2 text-base">
             <span className={`w-2 h-2 shrink-0 ${statusDot(t)}`} />

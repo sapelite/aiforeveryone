@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { PixelIcon } from "@/components/PixelIcon";
 import { useT } from "@/lib/i18n";
+import { useTasks } from "@/lib/useTasks";
+import { PanelState } from "@/components/PanelState";
 
 type Project = { slug: string; name: string; status: string; goal: string | null; taskCount: number; doneCount: number; createdAt: string };
 type RFile = { id: string; fileName: string; relativePath: string; extension: string; sizeBytes: number | null; createdAt: string; taskTitle?: string };
@@ -10,6 +12,7 @@ type Preview = { content: string | null; truncated: boolean; extension: string; 
 
 export default function Deliverables() {
   const tr = useT();
+  const { online } = useTasks();
   const [data, setData] = useState<{ projects: Project[]; files: RFile[] } | null>(null);
   const [open, setOpen] = useState<RFile | null>(null);
   const [preview, setPreview] = useState<Preview | null>(null);
@@ -33,7 +36,9 @@ export default function Deliverables() {
   if (data === null) return <p role="status" className="text-base text-[var(--text-muted)]">{tr("deliverables.loadingDeliverables", "chargement des livrables")}<span className="blink">_</span></p>;
 
   if (data.projects.length === 0 && data.files.length === 0)
-    return <div role="status" className="win-flat p-4 text-base text-[var(--text-muted)]">{tr("deliverables.emptyA", "Aucun livrable pour l'instant. Lance un but dans")} <span className="text-[var(--text)]">{tr("deliverables.executions", "Exécutions")}</span> {tr("deliverables.emptyB", "— les fichiers produits par les agents apparaîtront ici.")}</div>;
+    return online === false
+      ? <PanelState icon="cpu">{tr("panel.engineOffline", "Moteur hors ligne — démarre le command-centre Agentic OS")}</PanelState>
+      : <PanelState icon="folder">{tr("deliverables.emptyA", "Aucun livrable pour l'instant. Lance un but dans")} <span className="text-[var(--text)]">{tr("deliverables.executions", "Exécutions")}</span> {tr("deliverables.emptyB", "— les fichiers produits par les agents apparaîtront ici.")}</PanelState>;
 
   return (
     <div className="space-y-4">

@@ -288,6 +288,7 @@ const APP_EN: Record<string, string> = {
   // pass 2: resilience
   "console.windowCrashed": "This window crashed",
   "console.reload": "Reload",
+  "panel.engineOffline": "Engine offline — start the Agentic OS command centre",
   "brand.toastOffline": "Engine offline — start the command centre.",
   "brand.toastFailed": "Launch failed.",
   "scheduled.errActionFailed": "Action failed (engine offline or job not found).",

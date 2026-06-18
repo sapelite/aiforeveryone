@@ -5,10 +5,11 @@ import { PixelIcon } from "@/components/PixelIcon";
 import { useT } from "@/lib/i18n";
 import { statusTextClass, statusIcon } from "@/lib/taskStatus";
 import { useTasks } from "@/lib/useTasks";
+import { PanelState } from "@/components/PanelState";
 
 export default function Audit() {
   const tr = useT();
-  const { tasks, loaded } = useTasks();
+  const { tasks, loaded, online } = useTasks();
 
   const sorted = useMemo(
     () => [...tasks].sort((a, b) => (b.completedAt || b.createdAt || "").localeCompare(a.completedAt || a.createdAt || "")),
@@ -16,7 +17,9 @@ export default function Audit() {
   );
 
   if (!loaded) return <p className="text-base text-[var(--text-muted)]">{tr("audit.loading", "lecture du journal du moteur")}<span className="blink">_</span></p>;
-  if (tasks.length === 0) return <div className="win-flat p-4 text-base text-[var(--text-muted)]">{tr("audit.empty", "Aucune activité. Lance un but depuis la fenêtre Runs pour peupler le journal du moteur.")}</div>;
+  if (tasks.length === 0) return online === false
+    ? <PanelState icon="cpu">{tr("panel.engineOffline", "Moteur hors ligne — démarre le command-centre Agentic OS")}</PanelState>
+    : <PanelState>{tr("audit.empty", "Aucune activité. Lance un but depuis la fenêtre Runs pour peupler le journal du moteur.")}</PanelState>;
 
   return (
     <div className="win-flat">

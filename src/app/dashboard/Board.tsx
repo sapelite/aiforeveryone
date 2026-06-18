@@ -6,6 +6,7 @@ import { useT } from "@/lib/i18n";
 import { useDialogFocus } from "@/lib/useDialogFocus";
 import { statusDot } from "@/lib/taskStatus";
 import { useTasks, type EngineTask } from "@/lib/useTasks";
+import { PanelState } from "@/components/PanelState";
 
 type Log = { id: string; type: string; content: string; toolName?: string };
 type Out = { id: string; fileName: string; relativePath: string; extension: string; sizeBytes: number | null };
@@ -26,7 +27,7 @@ function colOf(t: EngineTask): string {
 
 export default function Board() {
   const tr = useT();
-  const { tasks, loaded } = useTasks();
+  const { tasks, loaded, online } = useTasks();
   const [detail, setDetail] = useState<EngineTask | null>(null);
   const [detailData, setDetailData] = useState<{ logs: Log[]; outputs: Out[] } | null>(null);
   const detailRef = useDialogFocus<HTMLDivElement>(detail !== null);
@@ -53,7 +54,9 @@ export default function Board() {
   }, [tasks]);
 
   if (!loaded) return <p role="status" className="text-base text-[var(--text-muted)]">{tr("board.loadingBoard", "chargement du tableau")}<span className="blink">_</span></p>;
-  if (tasks.length === 0) return <div role="status" className="win-flat p-4 text-base text-[var(--text-muted)]">{tr("board.emptyPrefix", "Aucune tâche. Lance un but depuis")} <span className="text-[var(--text)]">{tr("board.runsLink", "Runs")}</span> {tr("board.emptySuffix", "et il apparaîtra ici, rangé par colonne.")}</div>;
+  if (tasks.length === 0) return online === false
+    ? <PanelState icon="cpu">{tr("panel.engineOffline", "Moteur hors ligne — démarre le command-centre Agentic OS")}</PanelState>
+    : <PanelState>{tr("board.emptyPrefix", "Aucune tâche. Lance un but depuis")} <span className="text-[var(--text)]">{tr("board.runsLink", "Runs")}</span> {tr("board.emptySuffix", "et il apparaîtra ici, rangé par colonne.")}</PanelState>;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
