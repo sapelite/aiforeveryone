@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { PixelIcon } from "@/components/PixelIcon";
 import { useT } from "@/lib/i18n";
 import { statusVar } from "@/lib/taskStatus";
+import { useTasks } from "@/lib/useTasks";
 
 type RawSkill = { name?: string; title?: string; category?: string };
 type RawProject = { slug: string; name: string; status: string };
@@ -61,7 +62,8 @@ function buildGraph(d: Brain | null): { nodes: GNode[]; edges: GEdge[] } {
 
 export default function HiveGraph() {
   const tr = useT();
-  const [data, setData] = useState<Brain | null>(null);
+  const { tasks: engineTasks } = useTasks();
+  const [meta, setMeta] = useState<{ skills: RawSkill[]; projects: RawProject[]; ctx: RawCtx[] } | null>(null);
   const [active, setActive] = useState<Set<string>>(new Set(["skills", "projects", "tasks", "memory"]));
   const [query, setQuery] = useState("");
   const [hover, setHover] = useState<{ x: number; y: number; label: string; sub: string } | null>(null);
@@ -70,15 +72,16 @@ export default function HiveGraph() {
   const [smooth, setSmooth] = useState(false);
   const drag = useRef<{ x: number; y: number; tx: number; ty: number } | null>(null);
 
+  // Skills/projects/context still poll (cheap, 20s); tasks come from the shared
+  // live source instead of a fourth fetch here.
   useEffect(() => {
     let alive = true;
     const j = (u: string) => fetch(u).then((r) => r.json()).catch(() => null);
-    const load = () => Promise.all([j("/api/engine/skills"), j("/api/engine/projects"), j("/api/engine/tasks"), j("/api/engine/context")]).then(([sk, pr, ta, cx]) => {
+    const load = () => Promise.all([j("/api/engine/skills"), j("/api/engine/projects"), j("/api/engine/context")]).then(([sk, pr, cx]) => {
       if (!alive) return;
-      setData({
+      setMeta({
         skills: (sk?.skills ?? []) as RawSkill[],
         projects: (pr?.projects ?? []) as RawProject[],
-        tasks: ((ta?.tasks ?? []) as RawTask[]).slice().sort((a, b) => String(b.updatedAt ?? "").localeCompare(String(a.updatedAt ?? ""))),
         ctx: (cx?.files ?? []) as RawCtx[],
       });
     });
@@ -86,6 +89,14 @@ export default function HiveGraph() {
     const id = setInterval(load, 20000);
     return () => { alive = false; clearInterval(id); };
   }, []);
+
+  const data: Brain | null = useMemo(() => {
+    if (!meta) return null;
+    const tasks = engineTasks
+      .map((t) => ({ id: t.id, title: t.title ?? "", status: t.status ?? "", updatedAt: t.updatedAt }) as RawTask)
+      .sort((a, b) => String(b.updatedAt ?? "").localeCompare(String(a.updatedAt ?? "")));
+    return { ...meta, tasks };
+  }, [meta, engineTasks]);
 
   const { nodes, edges } = useMemo(() => buildGraph(data), [data]);
   const nodeById = useMemo(() => Object.fromEntries(nodes.map((n) => [n.id, n])), [nodes]);

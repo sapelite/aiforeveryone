@@ -5,12 +5,12 @@ import { toast } from "sonner";
 import { PixelIcon } from "@/components/PixelIcon";
 import { play } from "@/lib/sound";
 import { useT } from "@/lib/i18n";
-
-type T = { id: string; status?: string; needsInput?: boolean | number };
+import { useTasks } from "@/lib/useTasks";
 
 /** Global kill-switch: cancels every running engine task and aborts ClaudeClaw. */
 export default function PanicButton() {
   const tr = useT();
+  const { tasks } = useTasks();
   const [busy, setBusy] = useState(false);
 
   async function panic() {
@@ -19,8 +19,7 @@ export default function PanicButton() {
     play("error");
     let n = 0;
     try {
-      const j = await fetch("/api/engine/tasks").then((r) => r.json()).catch(() => ({ tasks: [] }));
-      const running = ((Array.isArray(j) ? j : j.tasks ?? []) as T[]).filter((t) => t.status === "running" || t.status === "queued" || t.needsInput);
+      const running = tasks.filter((t) => t.status === "running" || t.status === "queued" || t.needsInput);
       for (const t of running) {
         await fetch("/api/engine/cancel", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ taskId: t.id }) }).catch(() => {});
         n++;

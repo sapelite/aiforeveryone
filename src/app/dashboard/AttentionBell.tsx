@@ -1,28 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { PixelIcon } from "@/components/PixelIcon";
 import { useT } from "@/lib/i18n";
+import { useTasks } from "@/lib/useTasks";
 
-/** Menu-bar indicator: how many engine tasks are waiting on the user right now. */
+/** Menu-bar indicator: how many engine tasks are waiting on the user right now.
+ *  Reads the shared task source (live via SSE), so it reacts near-instantly. */
 export default function AttentionBell({ onOpen }: { onOpen: () => void }) {
   const tr = useT();
-  const [n, setN] = useState(0);
-
-  useEffect(() => {
-    let alive = true;
-    const load = () =>
-      fetch("/api/engine/tasks")
-        .then((r) => r.json())
-        .then((j) => {
-          const tasks = (Array.isArray(j) ? j : j.tasks ?? []) as Array<{ needsInput?: boolean | number }>;
-          if (alive) setN(tasks.filter((t) => t.needsInput).length);
-        })
-        .catch(() => {});
-    load();
-    const id = setInterval(load, 10000);
-    return () => { alive = false; clearInterval(id); };
-  }, []);
+  const { tasks } = useTasks();
+  const n = tasks.filter((t) => t.needsInput).length;
 
   if (n === 0) return null;
   return (

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { loadInstance } from "@/lib/instance";
+import { TasksProvider } from "@/lib/useTasks";
 import Console from "./Console";
 
 export const dynamic = "force-dynamic";
@@ -12,5 +13,9 @@ export const metadata: Metadata = {
 
 export default async function DashboardPage() {
   const data = await loadInstance("acme-corp");
-  return <Console data={data} />;
+  return (
+    <TasksProvider>
+      <Console data={data} />
+    </TasksProvider>
+  );
 }

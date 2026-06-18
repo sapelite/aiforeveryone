@@ -5,11 +5,8 @@ import { PixelIcon } from "@/components/PixelIcon";
 import { useT } from "@/lib/i18n";
 import { useDialogFocus } from "@/lib/useDialogFocus";
 import { statusDot } from "@/lib/taskStatus";
+import { useTasks, type EngineTask } from "@/lib/useTasks";
 
-type BTask = {
-  id: string; title: string; status: string; needsInput?: boolean | number;
-  costUsd?: number | null; model?: string | null; errorMessage?: string | null; updatedAt?: string;
-};
 type Log = { id: string; type: string; content: string; toolName?: string };
 type Out = { id: string; fileName: string; relativePath: string; extension: string; sizeBytes: number | null };
 
@@ -20,7 +17,7 @@ const COLUMNS: { key: string; tKey: string; label: string; icon: string }[] = [
   { key: "done", tKey: "colDone", label: "Terminé", icon: "check" },
 ];
 
-function colOf(t: BTask): string {
+function colOf(t: EngineTask): string {
   if (t.needsInput || t.status === "review") return "review";
   if (t.status === "running") return "running";
   if (t.status === "done" || t.status === "completed") return "done";
@@ -29,20 +26,10 @@ function colOf(t: BTask): string {
 
 export default function Board() {
   const tr = useT();
-  const [tasks, setTasks] = useState<BTask[] | null>(null);
-  const [detail, setDetail] = useState<BTask | null>(null);
+  const { tasks, loaded } = useTasks();
+  const [detail, setDetail] = useState<EngineTask | null>(null);
   const [detailData, setDetailData] = useState<{ logs: Log[]; outputs: Out[] } | null>(null);
   const detailRef = useDialogFocus<HTMLDivElement>(detail !== null);
-
-  useEffect(() => {
-    let alive = true;
-    const load = () => fetch("/api/engine/tasks").then((r) => r.json())
-      .then((j) => alive && setTasks((Array.isArray(j) ? j : j.tasks ?? []) as BTask[]))
-      .catch(() => alive && setTasks([]));
-    load();
-    const id = setInterval(load, 10000);
-    return () => { alive = false; clearInterval(id); };
-  }, []);
 
   useEffect(() => {
     if (!detail) return;
@@ -51,7 +38,7 @@ export default function Board() {
     return () => window.removeEventListener("keydown", onKey);
   }, [detail]);
 
-  function open(t: BTask) {
+  function open(t: EngineTask) {
     setDetail(t); setDetailData(null);
     fetch(`/api/engine/task?taskId=${encodeURIComponent(t.id)}`).then((r) => r.json()).then(setDetailData).catch(() => setDetailData({ logs: [], outputs: [] }));
   }
@@ -59,13 +46,13 @@ export default function Board() {
   // Bucket every task once and sort each column, instead of filtering+sorting
   // the whole list four times (once per column) on every render.
   const grouped = useMemo(() => {
-    const g: Record<string, BTask[]> = { queue: [], running: [], review: [], done: [] };
-    for (const t of tasks ?? []) (g[colOf(t)] ??= []).push(t);
+    const g: Record<string, EngineTask[]> = { queue: [], running: [], review: [], done: [] };
+    for (const t of tasks) (g[colOf(t)] ??= []).push(t);
     for (const k of Object.keys(g)) g[k].sort((a, b) => String(b.updatedAt ?? "").localeCompare(String(a.updatedAt ?? "")));
     return g;
   }, [tasks]);
 
-  if (tasks === null) return <p role="status" className="text-base text-[var(--text-muted)]">{tr("board.loadingBoard", "chargement du tableau")}<span className="blink">_</span></p>;
+  if (!loaded) return <p role="status" className="text-base text-[var(--text-muted)]">{tr("board.loadingBoard", "chargement du tableau")}<span className="blink">_</span></p>;
   if (tasks.length === 0) return <div role="status" className="win-flat p-4 text-base text-[var(--text-muted)]">{tr("board.emptyPrefix", "Aucune tâche. Lance un but depuis")} <span className="text-[var(--text)]">{tr("board.runsLink", "Runs")}</span> {tr("board.emptySuffix", "et il apparaîtra ici, rangé par colonne.")}</div>;
 
   return (
