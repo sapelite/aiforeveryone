@@ -285,6 +285,9 @@ const APP_EN: Record<string, string> = {
   "1-3 mois": "1-3 months",
   "3-6 mois": "3-6 months",
   "Pas pressé": "Not in a rush",
+  // pass 2: resilience
+  "console.windowCrashed": "This window crashed",
+  "console.reload": "Reload",
   "brand.toastOffline": "Engine offline — start the command centre.",
   "brand.toastFailed": "Launch failed.",
   "scheduled.errActionFailed": "Action failed (engine offline or job not found).",

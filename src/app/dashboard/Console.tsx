@@ -21,6 +21,7 @@ import Deliverables from "./Deliverables";
 import History from "./History";
 import AttentionBell from "./AttentionBell";
 import PanicButton from "./PanicButton";
+import WindowErrorBoundary from "./WindowErrorBoundary";
 import RecentActivity from "./RecentActivity";
 import Tutorial from "./Tutorial";
 import Skills from "./Skills";
@@ -584,7 +585,9 @@ export default function Console({ data }: { data: InstanceData }) {
             <PixWindow key={w.id} win={w} rect={tileRect(i, vis.length, deskSize.w, deskSize.h)} active={w.z === topZ}
               onFocus={() => focusWindow(w.id)} onClose={() => closeWindow(w.id)}
               onMin={() => toggleMin(w.id)} onMax={() => toggleMax(w.id)}>
-              {renderView(w.id)}
+              <WindowErrorBoundary label={tr("console.windowCrashed", "Cette fenêtre a planté")} reloadLabel={tr("console.reload", "Recharger")}>
+                {renderView(w.id)}
+              </WindowErrorBoundary>
             </PixWindow>
           ));
         })()}
