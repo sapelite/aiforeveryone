@@ -95,7 +95,7 @@ export default function Integrations({ instanceId, onConnectBrain }: { instanceI
                 <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="font-display text-lg font-semibold">{tr("integrations.brainTitle", "Le Brain")}</h3>
                   <Badge variant="default">{tr("integrations.brainBadge", "Obsidian · vault vivant")}</Badge>
-                  {brain.connected && <Badge variant="success"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> {tr("integrations.brainLinked", "relié")}</Badge>}
+                  {brain.connected && <Badge variant="success"><span className="w-1.5 h-1.5 rounded-full bg-current" /> {tr("integrations.brainLinked", "relié")}</Badge>}
                 </div>
                 <p className="text-sm text-[var(--text-muted)] mt-1.5 max-w-2xl leading-relaxed">
                   {tr("integrations.brainDescA", "Le cerveau de l'entreprise : un vault Obsidian où chaque fiche, décision et mémoire est liée. Vos agents le")} <span className="text-[var(--text)]">{tr("integrations.brainDescHl", "lisent et l'enrichissent en continu")}</span> {tr("integrations.brainDescB", "— c'est lui qui garde toutes vos données vivantes et à jour.")}
@@ -117,7 +117,7 @@ export default function Integrations({ instanceId, onConnectBrain }: { instanceI
       {connected.length > 0 && (
         <section>
           <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)] font-mono mb-3 flex items-center gap-1.5">
-            <Check className="w-3.5 h-3.5 text-emerald-400" /> {tr("integrations.sectionConnected", "Connectés")} · {connected.length}
+            <Check className="w-3.5 h-3.5 text-[var(--success)]" /> {tr("integrations.sectionConnected", "Connectés")} · {connected.length}
           </h3>
           <Grid items={connected} busy={busy} onToggle={toggle} />
         </section>
@@ -168,7 +168,7 @@ function Grid({ items, busy, onToggle }: { items: Item[]; busy: string | null; o
               <BrandLogo domain={it.domain} name={it.name} size={22} />
             </div>
             {it.connected
-              ? <Badge variant="success"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> {tr("integrations.badgeConnected", "connecté")}</Badge>
+              ? <Badge variant="success"><span className="w-1.5 h-1.5 rounded-full bg-current" /> {tr("integrations.badgeConnected", "connecté")}</Badge>
               : it.detected
                 ? <Badge variant="warning">{tr("integrations.badgeDetected", "détecté")}</Badge>
                 : <Badge variant="secondary">{it.category}</Badge>}

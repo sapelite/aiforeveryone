@@ -121,7 +121,7 @@ export default function Brain({ instanceId }: { instanceId: string }) {
               <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="text-lg font-semibold tracking-tight">{tr("brain.title", "Le Brain")}</h3>
                 {s?.connected
-                  ? <Badge variant="success"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> {s.isObsidian ? tr("brain.vaultObsidian", "Vault Obsidian") : tr("brain.vault", "Vault")} {tr("brain.connectedSuffix", "connecté")}</Badge>
+                  ? <Badge variant="success"><span className="w-1.5 h-1.5 rounded-full bg-current" /> {s.isObsidian ? tr("brain.vaultObsidian", "Vault Obsidian") : tr("brain.vault", "Vault")} {tr("brain.connectedSuffix", "connecté")}</Badge>
                   : <Badge variant="secondary">{tr("brain.defaultBrain", "Brain par défaut · company-brain")}</Badge>}
                 <Badge variant="outline">{s?.count ?? 0} {tr("brain.notes", "notes")}</Badge>
               </div>
@@ -193,7 +193,7 @@ export default function Brain({ instanceId }: { instanceId: string }) {
           </DialogHeader>
           <div className="space-y-3">
             <Input value={vaultInput} onChange={(e) => setVaultInput(e.target.value)} placeholder={tr("brain.vaultPathPlaceholder", "C:\\Users\\vous\\Documents\\MonVault")} className="font-mono" onKeyDown={(e) => e.key === "Enter" && connect()} />
-            {connectErr && <p className="text-xs text-red-400">{connectErr}</p>}
+            {connectErr && <p className="text-xs text-[var(--destructive)]">{connectErr}</p>}
             <p className="text-xs text-[var(--text-muted)]">{tr("brain.connectHint", "Astuce : dans Obsidian, clic droit sur le vault → « Reveal in Finder/Explorer » pour copier le chemin.")}</p>
           </div>
           <DialogFooter>

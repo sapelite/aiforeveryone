@@ -61,6 +61,8 @@
   --color-accent: var(--accent-ui);
   --color-accent-foreground: var(--accent-ui-foreground);
   --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
   --color-input: var(--input);
   --color-ring: var(--ring);
   --radius-sm: 0px;
@@ -78,7 +80,7 @@
   --bg-card: #dcd9c4;
   --bg-card-hover: #cfcbb2;
   --border: #1b3a2f;
-  --border-light: #1b3a2f;
+  --border-light: var(--accent);
   --text: #1b3a2f;
   --text-muted: #46554b;
   --accent: #e25fa0;
@@ -95,7 +97,7 @@
   --bg-card: #103626;
   --bg-card-hover: #16432f;
   --border: #56e08a;
-  --border-light: #56e08a;
+  --border-light: var(--accent);
   --text: #56e08a;
   --text-muted: #3fa869;
   --accent: #e25fa0;

@@ -121,7 +121,7 @@ export default function WarRoom() {
             <div key={m.id} className="group flex gap-2">
               <span className="w-7 h-7 grid place-items-center border-2 border-[var(--border)] shrink-0 text-[10px] font-bold" style={{ background: m.color, color: "#1b1b1b" }}>{m.name.slice(0, 2).toUpperCase()}</span>
               <div className="max-w-[80%]">
-                <p className="text-sm" style={{ color: m.color }}>{m.name}{!m.done && <span className="blink"> _</span>}</p>
+                <p className="text-sm text-[var(--text)]">{m.name}{!m.done && <span className="blink"> _</span>}</p>
                 <p className="text-base text-[var(--text)] leading-snug whitespace-pre-wrap">{m.text}</p>
                 {m.done && m.text.trim().length > 12 && (
                   <button onClick={() => promote(m.text)} className="mt-1 text-sm px-2 py-0.5 border-2 border-[var(--border)] hover:bg-[var(--bg-card-hover)] opacity-0 group-hover:opacity-100 transition-opacity"><PixelIcon name="zap" size={11} className="inline -mt-0.5" /> {tr("warroom.promoteButton", "promouvoir en tâche")}</button>

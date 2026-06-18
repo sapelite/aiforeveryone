@@ -94,7 +94,7 @@ export default function AgentInsights({ data, onCreate }: { data: InstanceData; 
         {insights.map((ins, i) => (
           <div key={i} className="bg-[var(--bg-card)] p-4 flex items-start gap-3">
             <div className="w-8 h-8 rounded-lg bg-[var(--bg-card-hover)] border-2 border-[var(--border)] grid place-items-center shrink-0">
-              <ins.icon className={`w-4 h-4 ${ins.kind === "overload" ? "text-amber-400" : ins.kind === "idle" ? "text-[var(--text-muted)]" : "acc-text"}`} />
+              <ins.icon className={`w-4 h-4 ${ins.kind === "overload" ? "text-[var(--warning)]" : ins.kind === "idle" ? "text-[var(--text-muted)]" : "acc-text"}`} />
             </div>
             <div className="min-w-0">
               <p className="text-sm font-medium">{ins.title}</p>
@@ -102,7 +102,7 @@ export default function AgentInsights({ data, onCreate }: { data: InstanceData; 
               {ins.create && (
                 <button
                   onClick={() => onCreate(ins.create!)}
-                  className="mt-2.5 inline-flex items-center gap-1.5 px-2.5 h-7 rounded-lg text-xs acc-bg text-white hover:opacity-90 transition-opacity"
+                  className="mt-2.5 inline-flex items-center gap-1.5 px-2.5 h-7 rounded-lg text-xs acc-bg hover:opacity-90 transition-opacity"
                 >
                   <UserPlus className="w-3.5 h-3.5" /> {tr("insights.createAgent", "Créer l'agent")} {ins.create}
                 </button>
