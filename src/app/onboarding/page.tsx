@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useT } from "@/lib/i18n";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -112,6 +112,12 @@ export default function OnboardingPage() {
   const [taskId, setTaskId] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(initialForm);
+  const stepRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  // Keep the active step chip in view on the horizontally-scrolling indicator
+  // (labels are hidden on phones, so otherwise later steps look absent).
+  useEffect(() => {
+    stepRefs.current[step]?.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+  }, [step]);
 
   const update: Update = (field, value) => setForm((f) => ({ ...f, [field]: value }));
   const toggle: Toggle = (field, val) => {
@@ -209,7 +215,7 @@ export default function OnboardingPage() {
               const isCurrent = i === step;
               const reachable = canGoTo(i);
               return (
-                <button key={s.label} type="button" disabled={!reachable} onClick={() => reachable && setStep(i)}
+                <button key={s.label} type="button" ref={(el) => { stepRefs.current[i] = el; }} disabled={!reachable} onClick={() => reachable && setStep(i)}
                   className={`flex items-center gap-2 px-3 py-2 text-sm transition-colors whitespace-nowrap border-2 ${
                     isCurrent ? "border-[var(--accent)]/40 bg-[var(--accent)]/10 text-[var(--accent-light)]"
                       : done ? "border-[var(--success)]/30 text-[var(--success)] hover:bg-[var(--success)]/5"

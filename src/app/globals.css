@@ -295,3 +295,10 @@ img, svg, .pixelated { image-rendering: pixelated; }
   .blink, .pulse-dot { animation: none !important; opacity: 1 !important; }
   .pixcur-burst { display: none !important; }
 }
+
+/* Lift primary buttons and window controls to the 44px touch minimum on touch
+   devices only (WCAG 2.5.5); the dense desktop pixel sizing is untouched. */
+@media (pointer: coarse) {
+  .pbtn, .pbtn-sm { min-height: 44px; }
+  .win-btn { width: 30px; height: 30px; font-size: 13px; }
+}

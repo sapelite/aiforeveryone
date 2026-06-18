@@ -535,7 +535,7 @@ export default function Console({ data }: { data: InstanceData }) {
   const topZ = Math.max(0, ...windows.filter((w) => !w.min).map((w) => w.z));
 
   return (
-    <div className="os-desktop h-screen w-screen overflow-hidden flex flex-col text-[var(--text)]">
+    <div className="os-desktop h-screen [height:100dvh] w-screen overflow-hidden flex flex-col text-[var(--text)]">
       {/* ─── MENU BAR ─── */}
       <div className="h-8 shrink-0 flex items-center justify-between bg-[var(--bg-card)] border-b-2 border-[var(--border)] text-base">
         <div className="flex items-center h-full">
@@ -573,7 +573,7 @@ export default function Console({ data }: { data: InstanceData }) {
       {/* ─── DESKTOP ─── */}
       <div ref={deskRef} className="relative flex-1 overflow-hidden">
         {/* icons */}
-        <div className="absolute top-3 left-2 flex flex-col flex-wrap gap-1 max-h-[calc(100%-1.5rem)] content-start">
+        <div className="absolute top-3 left-2 hidden sm:flex flex-col flex-wrap gap-1 max-h-[calc(100%-1.5rem)] content-start">
           {ALL_ITEMS.map((i) => <DesktopIcon key={i.id} pic={i.pic} label={winLabel(tr, i)} onOpen={() => openWindow(i.id)} />)}
           <DesktopIcon pic="zap" label={tr("console.newAgent", "Nouvel agent")} onOpen={() => openAdd()} />
         </div>
