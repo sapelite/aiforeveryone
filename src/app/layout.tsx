@@ -21,10 +21,11 @@ export const metadata: Metadata = {
     "AI OS", "système d'exploitation IA", "agents IA", "automatisation",
     "workflows", "B2B", "Claude", "MCP", "dashboard", "Brain", "Obsidian", "France",
   ],
-  alternates: { canonical: "/" },
+  alternates: { canonical: "/", languages: { "fr-FR": "/", "x-default": "/" } },
   openGraph: {
     type: "website",
     locale: SITE.locale,
+    alternateLocale: ["en_US"],
     url: SITE.url,
     siteName: SITE.name,
     title: SITE.title,
@@ -44,11 +45,19 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const themeScript = `(function(){try{var t=localStorage.getItem('site-theme');var d=document.documentElement;if(t==='light'){d.classList.remove('dark');d.classList.add('light');}else{d.classList.add('dark');}}catch(e){}})();`;
+  const themeScript = `(function(){try{var t=localStorage.getItem('site-theme');var d=document.documentElement;if(t==='light'){d.classList.remove('dark');d.classList.add('light');}else{d.classList.add('dark');}var l=localStorage.getItem('site-lang');if(l==='en'||l==='fr'){d.lang=l;}}catch(e){}})();`;
+  const orgLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      { "@type": "Organization", name: SITE.name, url: SITE.url, email: SITE.email, logo: `${SITE.url}/icon.svg`, description: SITE.description },
+      { "@type": "WebSite", name: SITE.name, url: SITE.url, inLanguage: "fr-FR" },
+    ],
+  };
   return (
     <html lang="fr" suppressHydrationWarning className={`dark ${press.variable} ${vt323.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgLd) }} />
       </head>
       <body className="antialiased font-sans">
         <LanguageProvider>

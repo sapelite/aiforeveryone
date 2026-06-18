@@ -6,9 +6,12 @@ export const SITE = {
   description:
     "On construit des systèmes d'exploitation IA sur mesure pour les entreprises B2B : agents autonomes, workflows intelligents, dashboards décisionnels et une mémoire d'entreprise vivante.",
   locale: "fr_FR",
+  email: "contact@aiforeveryone.fr",
   url:
     process.env.NEXT_PUBLIC_SITE_URL ||
     (process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : "http://localhost:3000"),
+      : process.env.NODE_ENV === "production"
+        ? "https://aiforeveryone.fr" // TODO: set the real production domain
+        : "http://localhost:3000"),
 };

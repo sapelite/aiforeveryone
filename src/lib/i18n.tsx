@@ -137,7 +137,7 @@ const Ctx = createContext<{ lang: Lang; setLang: (l: Lang) => void; t: Dict }>({
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLangState] = useState<Lang>("fr");
   useEffect(() => {
-    try { const s = localStorage.getItem("site-lang"); if (s === "en" || s === "fr") setLangState(s); } catch { /* no storage */ }
+    try { const s = localStorage.getItem("site-lang"); if (s === "en" || s === "fr") { setLangState(s); document.documentElement.lang = s; } } catch { /* no storage */ }
   }, []);
   const setLang = (l: Lang) => { setLangState(l); try { localStorage.setItem("site-lang", l); document.documentElement.lang = l; } catch { /* */ } };
   return <Ctx.Provider value={{ lang, setLang, t: DICTS[lang] }}>{children}</Ctx.Provider>;
