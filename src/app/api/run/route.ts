@@ -22,7 +22,12 @@ async function triageModel(goal: string): Promise<"haiku" | "sonnet" | "opus"> {
  * Triggered autonomy. POST { goal, clientId?, model?, permissionMode? }.
  * model can be "haiku"|"sonnet"|"opus" or "auto" (cheap-first routing).
  */
-const MODES = new Set(["default", "acceptEdits", "bypassPermissions", "plan"]);
+// Client may request these. "bypassPermissions" (disables ALL tool-permission
+// prompts: shell, MCP, file writes) is intentionally NOT client-grantable — a
+// caller could otherwise run an unguarded headless agent on the host. The
+// dashboard's "autonomous mode" is downgraded to acceptEdits unless the operator
+// opts in locally with AGENTIC_ALLOW_BYPASS=1.
+const CLIENT_MODES = new Set(["default", "acceptEdits", "plan"]);
 const MODELS = new Set(["haiku", "sonnet", "opus", "auto"]);
 
 export async function POST(req: Request) {
@@ -35,7 +40,11 @@ export async function POST(req: Request) {
   let routed = false;
   if (requested === "auto") { model = await triageModel(goal); routed = true; }
 
-  const permissionMode = (MODES.has(body.permissionMode) ? body.permissionMode : "default") as "default" | "acceptEdits" | "bypassPermissions" | "plan";
+  type PermMode = "default" | "acceptEdits" | "bypassPermissions" | "plan";
+  let permissionMode = (CLIENT_MODES.has(body.permissionMode) ? body.permissionMode : "default") as PermMode;
+  if (body.permissionMode === "bypassPermissions") {
+    permissionMode = process.env.AGENTIC_ALLOW_BYPASS === "1" ? "bypassPermissions" : "acceptEdits";
+  }
   const title = typeof body.title === "string" ? body.title.slice(0, 200) : null;
   const clientId = typeof body.clientId === "string" ? body.clientId : null;
 

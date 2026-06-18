@@ -28,6 +28,21 @@ export class EngineOfflineError extends Error {
   }
 }
 
+/**
+ * Reject any path that is not a safe relative path before forwarding it to the
+ * engine's file endpoints. A bare `.includes("..")` check misses absolute paths
+ * (`/etc/passwd`, `C:\…\.env`) and leading-slash paths, which most file servers
+ * resolve directly — a traversal/arbitrary-read vector. This blocks absolute
+ * paths, drive letters, leading separators, and any `..`/empty segment.
+ */
+export function isUnsafeRelPath(p: string): boolean {
+  if (!p) return true;
+  if (path.isAbsolute(p)) return true;
+  if (/^[A-Za-z]:/.test(p)) return true; // Windows drive letter
+  if (/^[\\/]/.test(p)) return true; // leading slash/backslash
+  return p.split(/[\\/]+/).some((seg) => seg === ".." || seg === "");
+}
+
 /** Resolve the engine base URL from env or the port file. Null if not discoverable. */
 export async function engineBaseUrl(): Promise<string | null> {
   const override = process.env.AGENTIC_OS_ENGINE_URL;
@@ -296,7 +311,7 @@ export async function getEngineTaskHistory(opts: Record<string, string | number 
 
 /** Preview a produced file. Text files return content; binaries are flagged. */
 export async function previewFile(relPath: string): Promise<FilePreview | null> {
-  if (relPath.includes("..")) return null;
+  if (isUnsafeRelPath(relPath)) return null;
   try {
     const res = await engineFetch(`/api/files/preview?path=${encodeURIComponent(relPath)}`);
     if (!res.ok) return { content: null, truncated: false, extension: "", binary: false };
