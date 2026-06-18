@@ -6,7 +6,11 @@ import { CheckIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 function DropdownMenu(props: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
-  return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
+  // Non-modal by default: a modal Radix menu locks the page (pointer-events:none
+  // on <body> + scroll lock), which makes the custom pixel cursor stutter while
+  // hovering the open menu. These are plain navigation/action menus, so they
+  // don't need modal semantics. Callers can still pass modal to override.
+  return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" modal={false} {...props} />;
 }
 function DropdownMenuTrigger(props: React.ComponentProps<typeof DropdownMenuPrimitive.Trigger>) {
   return <DropdownMenuPrimitive.Trigger data-slot="dropdown-menu-trigger" {...props} />;
