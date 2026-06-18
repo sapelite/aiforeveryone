@@ -71,10 +71,11 @@ export default function Brain({ instanceId }: { instanceId: string }) {
   async function disconnect() {
     setBusy(true);
     try {
-      await fetch("/api/brain", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: instanceId, disconnect: true }) });
-      toast.message(tr("brain.vaultDisconnected", "Vault déconnecté"), { description: tr("brain.vaultDisconnectedDesc", "Retour au Brain par défaut (company-brain).") });
-      load();
-    } finally { setBusy(false); }
+      const j = await (await fetch("/api/brain", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: instanceId, disconnect: true }) })).json();
+      if (j.ok) { toast.message(tr("brain.vaultDisconnected", "Vault déconnecté"), { description: tr("brain.vaultDisconnectedDesc", "Retour au Brain par défaut (company-brain).") }); load(); }
+      else toast.error(j.error ?? tr("brain.failed", "Échec"));
+    } catch { toast.error(tr("brain.failed", "Échec")); }
+    finally { setBusy(false); }
   }
 
   async function createNote() {
@@ -88,8 +89,9 @@ export default function Brain({ instanceId }: { instanceId: string }) {
         toast.success(tr("brain.noteCreated", "Note créée"), { description: file });
         setNewOpen(false); setNewName(""); load();
         openNote({ rel: file, title: name.replace(/\.md$/i, ""), dir: "" });
-      }
-    } finally { setBusy(false); }
+      } else toast.error(j.error ?? tr("brain.failed", "Échec"));
+    } catch { toast.error(tr("brain.failed", "Échec")); }
+    finally { setBusy(false); }
   }
 
   const notes = s?.notes ?? [];

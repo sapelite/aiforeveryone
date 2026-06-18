@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { PixelIcon } from "@/components/PixelIcon";
 import { useT } from "@/lib/i18n";
 
@@ -42,8 +43,11 @@ export default function Brand() {
       const goal = "Construis la fondation de marque : voix de marque, positionnement et client idéal. Utilise les skills mkt-brand-voice, mkt-positioning et mkt-icp, puis sauvegarde les livrables dans brand_context/ (voice-profile.md, positioning.md, icp.md).";
       const res = await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ goal, model: "auto", permissionMode: "acceptEdits" }) });
       const j = await res.json();
+      // /api/run returns a non-throwing body on failure, so check j, not res.ok.
       if (j.ok) setLaunched(j.taskId);
-    } catch { /* offline */ }
+      else if (j.offline) toast.error(tr("brand.toastOffline", "Moteur hors ligne — démarre le command-centre."));
+      else toast.error(tr("brand.toastFailed", "Échec du lancement.") + (j.error ? ` ${j.error}` : ""));
+    } catch { toast.error(tr("brand.toastFailed", "Échec du lancement.")); }
     finally { setLaunching(false); }
   }
 

@@ -39,32 +39,38 @@ export default function Integrations({ instanceId, onConnectBrain }: { instanceI
     setBusy(it.key);
     const connect = !it.connected;
     try {
-      await fetch("/api/integrations", {
+      const res = await fetch("/api/integrations", {
         method: connect ? "POST" : "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: instanceId, key: it.key }),
       });
+      const j = await res.json().catch(() => ({ ok: false }));
+      if (!res.ok || !j.ok) { toast.error(`${it.name} — ${tr("integrations.toastError", "échec")}`, { description: j.error }); play("close"); return; }
       toast[connect ? "success" : "message"](connect ? `${it.name} ${tr("integrations.toastConnected", "connecté")}` : `${it.name} ${tr("integrations.toastDisconnected", "déconnecté")}`,
         connect ? { description: it.brain ? tr("integrations.toastBrainDesc", "Vault Obsidian relié, données vivantes.") : tr("integrations.toastConnectDesc", "Accès lecture activé, écriture validée.") } : undefined);
       play(connect ? "success" : "close");
       load();
-    } finally { setBusy(null); }
+    } catch { toast.error(`${it.name} — ${tr("integrations.toastError", "échec")}`); }
+    finally { setBusy(null); }
   }
 
   async function addCustom() {
     if (!form.name.trim() || !form.url.trim()) return;
     setBusy("__custom");
     try {
-      await fetch("/api/integrations", {
+      const res = await fetch("/api/integrations", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: instanceId, custom: true, ...form }),
       });
+      const j = await res.json().catch(() => ({ ok: false }));
+      if (!res.ok || !j.ok) { toast.error(`${form.name} — ${tr("integrations.toastError", "échec")}`, { description: j.error }); return; }
       toast.success(`${form.name} ${tr("integrations.toastConnected", "connecté")}`, { description: tr("integrations.toastCustomDesc", "Serveur MCP personnalisé.") });
       play("success");
       setAddOpen(false);
       setForm({ name: "", url: "", category: "MCP" });
       load();
-    } finally { setBusy(null); }
+    } catch { toast.error(`${form.name} — ${tr("integrations.toastError", "échec")}`); }
+    finally { setBusy(null); }
   }
 
   const brain = items.find((i) => i.brain || i.key === "obsidian");

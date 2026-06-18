@@ -54,7 +54,7 @@ export default function Runs() {
   const goalRef = useRef<HTMLTextAreaElement>(null);
 
   const pushFeed = (type: string, text: string, tone: Tone = "info") => {
-    setFeed((f) => [...f.slice(-180), { id: uid(), ts: new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" }), type, text, tone }]);
+    setFeed((f) => [...f, { id: uid(), ts: new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" }), type, text, tone }].slice(-180));
     requestAnimationFrame(() => scroller.current?.scrollTo({ top: 9e9 }));
   };
 
@@ -320,11 +320,11 @@ export default function Runs() {
                   <p className="font-display text-[8px] uppercase text-[var(--text-muted)] mb-1.5">{tr("runs.producedFiles", "Fichiers produits")} · {detailData.outputs.length}</p>
                   <div className="space-y-1">
                     {detailData.outputs.map((o) => (
-                      <div key={o.id} className="flex items-center gap-2 text-sm font-mono">
+                      <a key={o.id} href={`/api/engine/download?path=${encodeURIComponent(o.relativePath)}`} className="flex items-center gap-2 text-sm font-mono hover:text-[var(--accent)]">
                         <PixelIcon name="file" size={12} className="text-[var(--accent)]" />
                         <span className="flex-1 truncate" title={o.relativePath}>{o.relativePath}</span>
                         {o.sizeBytes != null && <span className="text-[var(--text-muted)] shrink-0">{(o.sizeBytes / 1024).toFixed(1)} {tr("runs.kilobytes", "ko")}</span>}
-                      </div>
+                      </a>
                     ))}
                   </div>
                 </div>

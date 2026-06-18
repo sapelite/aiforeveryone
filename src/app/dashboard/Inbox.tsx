@@ -21,6 +21,7 @@ export default function Inbox() {
   const [progressLabel, setProgressLabel] = useState<string | null>(null);
   const [status, setStatus] = useState<{ online: boolean; telegramConnected?: boolean } | null>(null);
   const scroller = useRef<HTMLDivElement>(null);
+  const sending = useRef(false);
 
   const scroll = () => requestAnimationFrame(() => scroller.current?.scrollTo({ top: 9e9 }));
 
@@ -66,12 +67,19 @@ export default function Inbox() {
 
   async function send() {
     const t = input.trim();
-    if (!t || busy) return;
+    // Synchronous ref lock: blocks held-Enter / key-repeat / double-tap before
+    // any React commit or the SSE "processing" echo flips `busy`.
+    if (!t || busy || sending.current) return;
+    sending.current = true;
     setInput(""); play("send");
     setMsgs((m) => [...m, { id: uid(), role: "user", content: t, ts: Date.now() }]);
     scroll();
-    const r = await fetch("/api/claw/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: t }) }).then((res) => res.json()).catch(() => ({ ok: false, error: tr("inbox.errorNetwork", "réseau") }));
-    if (!r.ok) setMsgs((m) => [...m, { id: uid(), role: "system", content: "⚠ " + tr("inbox.sendFailed", "envoi échoué : ") + (r.error ?? ""), ts: Date.now() }]);
+    try {
+      const r = await fetch("/api/claw/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: t }) }).then((res) => res.json()).catch(() => ({ ok: false, error: tr("inbox.errorNetwork", "réseau") }));
+      if (!r.ok) setMsgs((m) => [...m, { id: uid(), role: "system", content: "⚠ " + tr("inbox.sendFailed", "envoi échoué : ") + (r.error ?? ""), ts: Date.now() }]);
+    } finally {
+      sending.current = false;
+    }
   }
 
   return (
@@ -97,15 +105,15 @@ export default function Inbox() {
             <div className="max-w-[80%]">
               {m.content && <p className="text-base text-[var(--text)] leading-snug whitespace-pre-wrap">{m.content}</p>}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              {m.url && <img src={m.url} alt="" className="mt-1 max-w-full border-2 border-[var(--border)]" />}
+              {m.url && <img src={m.url} alt={m.content.trim() || tr("inbox.imageAlt", "Image envoyée par l'assistant")} referrerPolicy="no-referrer" className="mt-1 max-w-full border-2 border-[var(--border)]" />}
             </div>
           </div>
         ))}
         {busy && <p className="text-sm text-[var(--text-muted)] pl-9">{progressLabel ?? tr("inbox.thinking", "ClaudeClaw réfléchit")}<span className="blink">_</span></p>}
       </div>
       <div className="border-t-2 border-[var(--border)] p-3 flex items-center gap-2">
-        <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} disabled={status !== null && !status.online} placeholder={status !== null && !status.online ? tr("inbox.placeholderOffline", "ClaudeClaw hors ligne…") : tr("inbox.placeholder", "Écris à ClaudeClaw (arrive aussi sur Telegram)…")} className="pinput flex-1" />
-        <button onClick={send} disabled={!input.trim() || busy || (status !== null && !status.online)} data-sfx="send" className="pbtn pbtn-sm pbtn-primary shrink-0"><PixelIcon name="send" size={14} /></button>
+        <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} disabled={!status?.online} aria-label={tr("inbox.inputLabel", "Message à ClaudeClaw")} placeholder={status !== null && !status.online ? tr("inbox.placeholderOffline", "ClaudeClaw hors ligne…") : tr("inbox.placeholder", "Écris à ClaudeClaw (arrive aussi sur Telegram)…")} className="pinput flex-1" />
+        <button onClick={send} disabled={!input.trim() || busy || !status?.online} data-sfx="send" className="pbtn pbtn-sm pbtn-primary shrink-0"><PixelIcon name="send" size={14} /></button>
       </div>
     </div>
   );

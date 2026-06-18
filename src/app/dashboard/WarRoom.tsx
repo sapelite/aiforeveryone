@@ -25,6 +25,7 @@ export default function WarRoom() {
   const scroller = useRef<HTMLDivElement>(null);
   const colorRef = useRef<Record<string, string>>({});
   const rosterRef = useRef<Agent[]>([]);
+  const sendingRef = useRef(false);
 
   const colorOf = (id: string) => {
     if (!colorRef.current[id]) colorRef.current[id] = PALETTE[Object.keys(colorRef.current).length % PALETTE.length];
@@ -51,6 +52,9 @@ export default function WarRoom() {
         try { handleEvent((JSON.parse(e.data) as { event: Record<string, unknown> }).event); } catch { /* ignore */ }
       });
       es.addEventListener("offline", () => setNotice(tr("warroom.noticeOffline", "WarRoom ClaudeClaw hors ligne.")));
+      // If the stream errors mid-meeting, don't leave the UI stuck "thinking":
+      // clear the in-flight/busy state so the input re-enables.
+      es.onerror = () => { setBusy(false); setStatusLabel(null); sendingRef.current = false; };
     })();
     return () => { alive = false; es?.close(); };
   }, []);
@@ -60,7 +64,7 @@ export default function WarRoom() {
     const agentId = ev.agentId as string;
     const turnId = ev.turnId as string;
     if (t === "meeting_state") { if (Array.isArray(ev.agents)) setRoster(ev.agents as Agent[]); return; }
-    if (t === "turn_start") { setBusy(true); return; }
+    if (t === "turn_start") { setBusy(true); sendingRef.current = false; return; }
     if (t === "agent_selected" || t === "agent_typing") { setStatusLabel(`${nameOf(agentId)} ${tr("warroom.thinking", "réfléchit…")}`); return; }
     if (t === "status_update" && ev.label) { setStatusLabel(String(ev.label)); return; }
     if (t === "agent_chunk" && ev.delta) {
@@ -75,17 +79,20 @@ export default function WarRoom() {
       return;
     }
     if (t === "agent_done") { const key = `${turnId}:${agentId}`; setMsgs((m) => m.map((x) => (x.id === key ? { ...x, done: true } : x))); play("receive"); return; }
-    if (t === "turn_complete" || t === "turn_aborted") { setBusy(false); setStatusLabel(null); return; }
+    if (t === "turn_complete" || t === "turn_aborted") { setBusy(false); setStatusLabel(null); sendingRef.current = false; return; }
   }
 
   async function send() {
     const text = input.trim();
-    if (!text || !meetingId || busy) return;
+    // Synchronous lock: busy only flips on the server turn_start (after a round
+    // trip), so a fast double-Enter would otherwise inject two turns.
+    if (!text || !meetingId || busy || sendingRef.current) return;
+    sendingRef.current = true;
     setInput(""); play("send");
     setMsgs((m) => [...m, { id: cid(), agentId: "user", name: tr("warroom.you", "Vous"), text, color: "var(--accent)", done: true }]);
     scroll();
     const r = await fetch("/api/claw/warroom/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ meetingId, text, clientMsgId: cid() }) }).then((res) => res.json()).catch(() => ({ error: tr("warroom.errorNetwork", "réseau") }));
-    if (r?.error) setNotice(tr("warroom.noticeSendFailed", "Envoi échoué : ") + r.error);
+    if (r?.error) { setNotice(tr("warroom.noticeSendFailed", "Envoi échoué : ") + r.error); sendingRef.current = false; }
   }
 
   async function promote(text: string) {
@@ -126,7 +133,7 @@ export default function WarRoom() {
         </div>
         {notice && <p className="px-4 py-2 text-sm text-[var(--warning)] border-t-2 border-[var(--border)] leading-snug">{notice}</p>}
         <div className="border-t-2 border-[var(--border)] p-3 flex items-center gap-2">
-          <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} placeholder={tr("warroom.inputPlaceholder", "Lance une question aux agents…")} disabled={!meetingId} className="pinput flex-1" />
+          <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) send(); }} aria-label={tr("warroom.inputLabel", "Question aux agents")} placeholder={tr("warroom.inputPlaceholder", "Lance une question aux agents…")} disabled={!meetingId} className="pinput flex-1" />
           <button onClick={send} disabled={!input.trim() || busy || !meetingId} data-sfx="send" className="pbtn pbtn-sm pbtn-primary shrink-0"><PixelIcon name="send" size={14} /></button>
         </div>
       </div>

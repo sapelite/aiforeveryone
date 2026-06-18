@@ -58,7 +58,7 @@ export default function History() {
 
   const fmtDur = (ms?: number | null) => ms ? (ms >= 60000 ? `${Math.round(ms / 60000)}min` : `${Math.round(ms / 1000)}s`) : null;
   const fmtDate = (s?: string | null) => s ? new Date(s).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "";
-  const dot = (t: HTask) => t.errorMessage ? "bg-[var(--destructive)]" : t.status === "done" ? "bg-[var(--accent)]" : "bg-[var(--text-muted)]";
+  const dot = (t: HTask) => t.errorMessage ? "bg-[var(--destructive)]" : (t.status === "done" || t.status === "completed") ? "bg-[var(--accent)]" : "bg-[var(--text-muted)]";
 
   return (
     <div className="space-y-3">

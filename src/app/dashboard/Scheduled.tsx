@@ -32,8 +32,14 @@ export default function Scheduled() {
   useEffect(() => load(), [load]);
 
   async function act(slug: string, action: "run" | "toggle") {
-    setBusy(slug + action); play(action === "run" ? "send" : "toggle");
-    try { await fetch("/api/engine/cron", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ slug, action }) }); }
+    setBusy(slug + action); play(action === "run" ? "send" : "toggle"); setErr(null);
+    try {
+      const res = await fetch("/api/engine/cron", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ slug, action }) });
+      const j = await res.json().catch(() => ({ ok: false }));
+      // The route returns 200 { ok:false } when the engine is offline or the
+      // slug is unknown, so surface it instead of silently reloading.
+      if (!j.ok) setErr(tr("scheduled.errActionFailed", "Action impossible (moteur hors ligne ou job introuvable)."));
+    } catch { setErr(tr("scheduled.errEngineOffline", "moteur hors ligne")); }
     finally { setBusy(null); setTimeout(load, 400); }
   }
 
