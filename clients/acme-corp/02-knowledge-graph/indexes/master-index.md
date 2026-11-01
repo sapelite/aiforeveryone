@@ -1,44 +1,35 @@
 ---
 type: index
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [knowledge-graph, index, master]
 ---
 
-# 📇 Master Index — Acme Corp
+# 📇 Master Index — Example Demo Company
 
 > **Point d'entrée de toute recherche.** L'AI OS commence ici pour localiser une entité.
 
 ## Personnes
 | ID | Libellé | Rôle | Fiche |
 |---|---|---|---|
-| `marie-dupont` | Marie Dupont | Head of Operations | [team](../../01-company-brain/team/) |
+| `alex-example` | Alex Example | Head of Operations | [team](../../01-company-brain/team/) |
 
 ## Clients
 | ID | Libellé | Statut | Fiche |
 |---|---|---|---|
-| `globex` | Globex | actif | [customers](../../01-company-brain/customers/) |
-| `initech` | Initech | actif | [customers](../../01-company-brain/customers/) |
-| `umbrella` | Umbrella | prospect | [customers](../../01-company-brain/customers/) |
-| `soylent` | Soylent | actif | [customers](../../01-company-brain/customers/) |
-| `hooli` | Hooli | prospect | [customers](../../01-company-brain/customers/) |
+| `—` | `{{À RENSEIGNER}}` | — | [customers](../../01-company-brain/customers/) |
 
 ## Outils
 | ID | Libellé | Catégorie | Fiche |
 |---|---|---|---|
-| `slack` | Slack | Communication | [tools](../../01-company-brain/tools/) |
-| `hubspot` | HubSpot | CRM | [tools](../../01-company-brain/tools/) |
-| `google-workspace` | Google Workspace | Bureautique / Drive | [tools](../../01-company-brain/tools/) |
-| `notion` | Notion | Base de connaissance | [tools](../../01-company-brain/tools/) |
+| `—` | (issu de Slack, HubSpot, Google Workspace, Notion) | — | [tools](../../01-company-brain/tools/) |
 
 ## Offres
 | ID | Libellé | Statut | Fiche |
 |---|---|---|---|
-| `plan-business` | Plan Business | active | [offers](../../01-company-brain/offers/) |
 
 ## Projets
 | ID | Libellé | Statut | Fiche |
 |---|---|---|---|
-| `q2-automation` | Automatisation reporting Q2 | en cours | [processes](../../01-company-brain/processes/) |
 
 ---
 

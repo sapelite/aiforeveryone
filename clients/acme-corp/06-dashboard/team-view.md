@@ -1,11 +1,11 @@
 ---
 type: dashboard
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [dashboard, team]
 view: team
 ---
 
-# 👥 Vue équipe — Acme Corp
+# 👥 Vue équipe — Example Demo Company
 
 > Charge, responsabilités et avancement de l'équipe (16-50 utilisateurs). Détail dans [`../01-company-brain/team/`](../01-company-brain/team/).
 
@@ -13,7 +13,7 @@ view: team
 
 | Membre | Rôle | Charge | Sujets en cours |
 |---|---|---|---|
-| Marie Dupont | Head of Operations | 🟢🟠🔴 | … |
+| Alex Example | Head of Operations | 🟢🟠🔴 | … |
 | … | … | … | … |
 
 ## Tâches par responsable

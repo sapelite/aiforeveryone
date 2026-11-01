@@ -1,13 +1,13 @@
 ---
 type: integration
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [integration, drive, storage]
 status: à configurer
 ---
 
 # Intégration — Google Drive
 
-> Accès aux documents de Acme Corp stockés sur Drive.
+> Accès aux documents de Example Demo Company stockés sur Drive.
 
 ## Objectif
 Ingérer des documents sources et déposer des livrables générés.

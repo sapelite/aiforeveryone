@@ -1,14 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Press_Start_2P, VT323 } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import SoundFx from "@/components/SoundFx";
 import PixelCursor from "@/components/PixelCursor";
 import { LanguageProvider } from "@/lib/i18n";
 import { SITE } from "@/lib/site";
-
-const press = Press_Start_2P({ subsets: ["latin"], weight: "400", variable: "--font-press", display: "swap" });
-const vt323 = VT323({ subsets: ["latin"], weight: "400", variable: "--font-term", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -54,7 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     ],
   };
   return (
-    <html lang="fr" suppressHydrationWarning className={`dark ${press.variable} ${vt323.variable}`}>
+    <html lang="fr" suppressHydrationWarning className="dark">
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgLd) }} />

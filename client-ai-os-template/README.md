@@ -48,30 +48,30 @@ Ces variables proviennent directement du **formulaire d'onboarding**. Remplacer 
 
 | Variable | Champ du formulaire | Exemple |
 |---|---|---|
-| `{{COMPANY_NAME}}` | Nom de l'entreprise | Acme Corp |
-| `{{WEBSITE}}` | Site web | https://acme.com |
+| `{{COMPANY_NAME}}` | Nom de l'entreprise | Example Demo Company |
+| `{{WEBSITE}}` | Site web | https://example.invalid |
 | `{{INDUSTRY}}` | Secteur d'activité | SaaS / Tech |
 | `{{EMPLOYEE_COUNT}}` | Nombre d'employés | 51-200 |
 | `{{TEAM_SIZE}}` | Utilisateurs du système | 16-50 |
-| `{{PRIMARY_CONTACT}}` | Contact principal | Marie Dupont |
+| `{{PRIMARY_CONTACT}}` | Contact principal | Alex Example |
 | `{{CONTACT_ROLE}}` | Rôle du contact | Head of Ops |
-| `{{CONTACT_EMAIL}}` | Email professionnel | marie@acme.com |
-| `{{CONTACT_PHONE}}` | Téléphone | +33 6 12 34 56 78 |
+| `{{CONTACT_EMAIL}}` | Email professionnel | alex@example.invalid |
+| `{{CONTACT_PHONE}}` | Téléphone | 000-000-0000 |
 | `{{PROCESSES}}` | Processus métier décrits | (texte libre) |
 | `{{PAIN_POINTS}}` | Points de douleur | (texte libre) |
 | `{{AUTOMATION_AREAS}}` | Domaines à automatiser | Qualification de leads, Reporting |
 | `{{TOOLS}}` | Outils utilisés | Slack, HubSpot, Notion |
 | `{{GOALS}}` | Objectifs | (texte libre) |
 | `{{TIMELINE}}` | Délai souhaité | 1-3 mois |
-| `{{BUDGET}}` | Budget mensuel | 5-10 000 EUR |
+| `{{BUDGET}}` | Budget mensuel | Example budget (not real data) |
 
 ### Tokens dérivés (générés à l'instanciation, pas dans le formulaire)
 
 | Variable | Comment la calculer | Exemple |
 |---|---|---|
 | `{{INSTANCIATION_DATE}}` | Date du jour à la création | 2026-06-05 |
-| `{{COMPANY_ID}}` | `kebab-case` de `{{COMPANY_NAME}}` | acme-corp |
-| `{{PRIMARY_CONTACT_ID}}` | `kebab-case` de `{{PRIMARY_CONTACT}}` | marie-dupont |
+| `{{COMPANY_ID}}` | `kebab-case` de `{{COMPANY_NAME}}` | example-demo-company |
+| `{{PRIMARY_CONTACT_ID}}` | `kebab-case` de `{{PRIMARY_CONTACT}}` | alex-example |
 
 > Astuce : un script d'instanciation peut faire un simple *find & replace* de ces tokens à partir du JSON du formulaire, puis dériver les `*_ID` et la date.
 

@@ -1,6 +1,6 @@
 ---
 type: workflow
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [workflow, communication]
 trigger: Début de journée / kick-off / à la demande
 agents: [reporting-agent, strategist-agent]
@@ -12,7 +12,7 @@ Un point d'équipe condensé : ce qui compte aujourd'hui.
 
 ## Déclencheur
 
-Début de journée/semaine, lancement de projet, ou demande de Marie Dupont.
+Début de journée/semaine, lancement de projet, ou demande de Alex Example.
 
 ## Étapes
 

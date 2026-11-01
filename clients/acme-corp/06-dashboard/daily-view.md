@@ -1,11 +1,11 @@
 ---
 type: dashboard
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [dashboard, daily]
 view: daily
 ---
 
-# 📅 Vue du jour — Acme Corp
+# 📅 Vue du jour — Example Demo Company
 
 > Ce qui compte aujourd'hui. Alimente le [brief interne](../05-workflows/internal-brief.md).
 

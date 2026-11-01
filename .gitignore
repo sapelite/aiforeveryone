@@ -34,6 +34,12 @@ yarn-error.log*
 .env
 .env.*
 !.env.example
+!.env.*.example
+
+# local credentials and private configuration
+.claude/
+.secrets/
+*.local
 
 # vercel
 .vercel

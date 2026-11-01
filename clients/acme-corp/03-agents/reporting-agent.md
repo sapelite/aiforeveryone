@@ -1,13 +1,13 @@
 ---
 type: agent
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [agent, reporting, analytics]
 role: Reporting
 ---
 
 # Agent Reporting
 
-> L'œil de Acme Corp. Il mesure, synthétise et alerte.
+> L'œil de Example Demo Company. Il mesure, synthétise et alerte.
 
 ## Mission
 

@@ -1,10 +1,10 @@
 ---
 type: index
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [integrations]
 ---
 
-# 🔌 Integrations — Acme Corp
+# 🔌 Integrations — Example Demo Company
 
 Les connecteurs entre l'AI OS et les outils du client. **Outils déclarés : Slack, HubSpot, Google Workspace, Notion.**
 

@@ -1,13 +1,13 @@
 ---
 type: agent
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [agent, support]
 role: Support
 ---
 
 # Agent Support
 
-> La voix attentive de Acme Corp. Il comprend, répond et capitalise.
+> La voix attentive de Example Demo Company. Il comprend, répond et capitalise.
 
 ## Mission
 

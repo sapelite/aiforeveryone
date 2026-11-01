@@ -1,6 +1,6 @@
 ---
 type: workflow
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [workflow, onboarding]
 trigger: Nouveau client signé / formulaire reçu
 agents: [strategist-agent, operations-agent]
@@ -12,7 +12,7 @@ Du formulaire signé au client opérationnel dans l'AI OS.
 
 ## Déclencheur
 
-Un nouveau client de Acme Corp a rempli le formulaire d'onboarding ou vient de signer.
+Un nouveau client de Example Demo Company a rempli le formulaire d'onboarding ou vient de signer.
 
 ## Étapes
 

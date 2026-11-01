@@ -1,6 +1,6 @@
 ---
 type: schema
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [knowledge-graph, schema, metadata]
 ---
 

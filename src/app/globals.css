@@ -69,6 +69,8 @@
   --radius-md: 0px;
   --radius-lg: 0px;
   --radius-xl: 0px;
+  --font-term: "Courier New";
+  --font-press: "Courier New";
   --font-sans: var(--font-term), ui-monospace, monospace;
   --font-mono: var(--font-term), ui-monospace, monospace;
   --font-display: var(--font-press), var(--font-term), monospace;

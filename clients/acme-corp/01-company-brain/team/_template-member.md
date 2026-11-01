@@ -1,6 +1,6 @@
 ---
 type: person
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [team]
 status: active
 entity-id: <kebab-case-id>
@@ -8,7 +8,7 @@ entity-id: <kebab-case-id>
 
 # <Prénom Nom>
 
-> Dupliquer pour chaque membre de l'équipe Acme Corp.
+> Dupliquer pour chaque membre de l'équipe Example Demo Company.
 
 ## Fiche
 | | |

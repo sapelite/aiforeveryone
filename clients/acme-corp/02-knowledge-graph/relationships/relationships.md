@@ -1,10 +1,10 @@
 ---
 type: relationships
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [knowledge-graph, relationships]
 ---
 
-# Relations — Acme Corp
+# Relations — Example Demo Company
 
 Le registre des liens entre entités. Format : `source --[relation]--> cible` (identifiants stables).
 
@@ -16,14 +16,14 @@ Le registre des liens entre entités. Format : `source --[relation]--> cible` (i
 
 ```
 # Organisation
-marie-dupont  --[member-of]-->   acme-corp
+alex-example  --[member-of]-->   example-demo-company
 # exemple : marie-dupont  --[manages]-->  equipe-ops
 
 # Outils
-# exemple : acme-corp  --[uses]-->  hubspot
+# exemple : example-demo-company  --[uses]-->  hubspot
 
 # Clients
-# exemple : acme-corp  --[serves]-->  acme-corp
+# exemple : example-demo-company  --[serves]-->  acme-corp
 ```
 
 > Ajouter une ligne à chaque nouvelle relation établie. Les agents lisent ce fichier pour « comprendre qui fait quoi ».

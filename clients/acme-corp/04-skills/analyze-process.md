@@ -1,13 +1,13 @@
 ---
 type: skill
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [skill, operations, process]
 used-by: [operations-agent, strategist-agent]
 ---
 
 # Skill — Analyser un processus
 
-Cartographier un processus métier de Acme Corp, repérer les frictions et proposer une version optimisée/automatisée.
+Cartographier un processus métier de Example Demo Company, repérer les frictions et proposer une version optimisée/automatisée.
 
 ## Quand l'utiliser
 

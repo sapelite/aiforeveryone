@@ -48,30 +48,30 @@ Ces variables proviennent directement du **formulaire d'onboarding**. Remplacer 
 
 | Variable | Champ du formulaire | Exemple |
 |---|---|---|
-| `Acme Corp` | Nom de l'entreprise | Acme Corp |
-| `https://acme.com` | Site web | https://acme.com |
+| `Example Demo Company` | Nom de l'entreprise | Example Demo Company |
+| `https://example.invalid` | Site web | https://example.invalid |
 | `SaaS / Tech` | Secteur d'activité | SaaS / Tech |
 | `51-200` | Nombre d'employés | 51-200 |
 | `16-50` | Utilisateurs du système | 16-50 |
-| `Marie Dupont` | Contact principal | Marie Dupont |
+| `Alex Example` | Contact principal | Alex Example |
 | `Head of Operations` | Rôle du contact | Head of Ops |
-| `marie@acme.com` | Email professionnel | marie@acme.com |
-| `+33 6 12 34 56 78` | Téléphone | +33 6 12 34 56 78 |
+| `alex@example.invalid` | Email professionnel | alex@example.invalid |
+| `000-000-0000` | Téléphone | 000-000-0000 |
 | `Les leads arrivent via le site et LinkedIn. Un SDR les qualifie manuellement, les saisit dans HubSpot, puis un AE prépare une proposition sur Google Docs. Le reporting hebdo est compilé à la main dans un Google Sheet.` | Processus métier décrits | (texte libre) |
 | `Trop de temps perdu en saisie manuelle, données éparpillées entre HubSpot, Slack et Drive, reporting lent et peu fiable, décisions ralenties par le manque de visibilité.` | Points de douleur | (texte libre) |
 | `Qualification de leads, Reporting / Analytics, Onboarding clients` | Domaines à automatiser | Qualification de leads, Reporting |
 | `Slack, HubSpot, Google Workspace, Notion` | Outils utilisés | Slack, HubSpot, Notion |
 | `Réduire de 50% le temps de qualification des leads, centraliser la connaissance de l'équipe, et accélérer le reporting hebdomadaire.` | Objectifs | (texte libre) |
 | `1-3 mois` | Délai souhaité | 1-3 mois |
-| `5-10 000 EUR` | Budget mensuel | 5-10 000 EUR |
+| `Example budget (not real data)` | Budget mensuel | Example budget (not real data) |
 
 ### Tokens dérivés (générés à l'instanciation, pas dans le formulaire)
 
 | Variable | Comment la calculer | Exemple |
 |---|---|---|
-| `2026-06-05` | Date du jour à la création | 2026-06-05 |
-| `acme-corp` | `kebab-case` de `Acme Corp` | acme-corp |
-| `marie-dupont` | `kebab-case` de `Marie Dupont` | marie-dupont |
+| `2026-11-01` | Date du jour à la création | 2026-06-05 |
+| `example-demo-company` | `kebab-case` de `Example Demo Company` | example-demo-company |
+| `alex-example` | `kebab-case` de `Alex Example` | alex-example |
 
 > Astuce : un script d'instanciation peut faire un simple *find & replace* de ces tokens à partir du JSON du formulaire, puis dériver les `*_ID` et la date.
 

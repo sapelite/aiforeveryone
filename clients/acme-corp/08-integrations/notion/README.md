@@ -1,13 +1,13 @@
 ---
 type: integration
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [integration, notion, knowledge]
 status: à configurer
 ---
 
 # Intégration — Notion
 
-> Pont entre la base Notion de Acme Corp et le company-brain.
+> Pont entre la base Notion de Example Demo Company et le company-brain.
 
 ## Objectif
 Importer la connaissance existante de Notion et y publier des synthèses.

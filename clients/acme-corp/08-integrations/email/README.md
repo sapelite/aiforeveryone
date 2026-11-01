@@ -1,13 +1,13 @@
 ---
 type: integration
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [integration, email]
 status: à configurer
 ---
 
 # Intégration — Email
 
-> Envoi et réception d'emails pour Acme Corp.
+> Envoi et réception d'emails pour Example Demo Company.
 
 ## Objectif
 Préparer et (après validation) envoyer relances, propositions et réponses ; trier l'entrant.

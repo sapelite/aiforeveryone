@@ -1,13 +1,13 @@
 ---
 type: integration
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [integration, sheets, data]
 status: à configurer
 ---
 
 # Intégration — Google Sheets
 
-> Source de données chiffrées pour les KPI de Acme Corp.
+> Source de données chiffrées pour les KPI de Example Demo Company.
 
 ## Objectif
 Lire des données structurées (ventes, finances, suivi) pour alimenter le reporting.

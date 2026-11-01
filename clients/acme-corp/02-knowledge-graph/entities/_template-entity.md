@@ -2,7 +2,7 @@
 type: entity
 entity-type: person | customer | partner | product | tool | project | team | concept
 entity-id: <kebab-case-id-stable>
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [entity]
 status: active
 ---

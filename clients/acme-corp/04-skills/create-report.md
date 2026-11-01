@@ -1,13 +1,13 @@
 ---
 type: skill
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [skill, reporting]
 used-by: [reporting-agent, support-agent]
 ---
 
 # Skill — Créer un rapport
 
-Produire un rapport clair, sourcé et orienté décision pour Acme Corp.
+Produire un rapport clair, sourcé et orienté décision pour Example Demo Company.
 
 ## Quand l'utiliser
 

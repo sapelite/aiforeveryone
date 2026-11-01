@@ -1,11 +1,11 @@
 ---
 type: dashboard
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [dashboard, workflows, automation]
 view: workflows
 ---
 
-# 🔄 Vue workflows — Acme Corp
+# 🔄 Vue workflows — Example Demo Company
 
 > État des automatisations et processus de l'AI OS. Définitions dans [`../05-workflows/`](../05-workflows/).
 

@@ -1,13 +1,13 @@
 ---
 type: skill
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [skill, sales]
 used-by: [sales-agent]
 ---
 
 # Skill — Générer une proposition commerciale
 
-Produire une proposition personnalisée, alignée sur l'offre et le positionnement de Acme Corp.
+Produire une proposition personnalisée, alignée sur l'offre et le positionnement de Example Demo Company.
 
 ## Quand l'utiliser
 
@@ -26,7 +26,7 @@ Produire une proposition personnalisée, alignée sur l'offre et le positionneme
 2. **Relier** le besoin à l'offre la plus pertinente.
 3. **Construire la solution** : périmètre, livrables, planning.
 4. **Chiffrer** : prix issu du catalogue d'offres, conditions claires.
-5. **Différencier** : pourquoi Acme Corp plutôt qu'un autre.
+5. **Différencier** : pourquoi Example Demo Company plutôt qu'un autre.
 6. **Appeler à l'action** : prochaine étape et validité de l'offre.
 
 ## Format de sortie
@@ -39,7 +39,7 @@ Produire une proposition personnalisée, alignée sur l'offre et le positionneme
 ## Solution proposée
 | Livrable | Détail | Délai |
 ## Investissement
-## Pourquoi Acme Corp
+## Pourquoi Example Demo Company
 ## Prochaine étape · Validité : <date>
 ```
 

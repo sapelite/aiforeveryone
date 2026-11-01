@@ -1,10 +1,10 @@
 ---
 type: index
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [knowledge-graph]
 ---
 
-# 🕸️ Knowledge Graph — Acme Corp
+# 🕸️ Knowledge Graph — Example Demo Company
 
 La mémoire **interrogeable** de l'AI OS : les entités, leurs relations, et les index pour les retrouver.
 

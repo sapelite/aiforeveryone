@@ -1,13 +1,13 @@
 ---
 type: integration
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [integration, crm]
 status: à configurer
 ---
 
 # Intégration — CRM
 
-> Connecteur vers le CRM de Acme Corp (ex. HubSpot, Salesforce, Pipedrive — selon Slack, HubSpot, Google Workspace, Notion).
+> Connecteur vers le CRM de Example Demo Company (ex. HubSpot, Salesforce, Pipedrive — selon Slack, HubSpot, Google Workspace, Notion).
 
 ## Objectif
 Synchroniser comptes, contacts et pipeline avec le knowledge-graph et la vue clients.

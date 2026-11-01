@@ -1,6 +1,6 @@
 ---
 type: skill
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [skill, strategy, operations]
 used-by: [strategist-agent, operations-agent]
 ---
@@ -12,7 +12,7 @@ Réaliser un état des lieux structuré : situation actuelle, écarts vs objecti
 ## Quand l'utiliser
 
 - Onboarding d'un nouveau client (audit initial).
-- Revue périodique de Acme Corp elle-même.
+- Revue périodique de Example Demo Company elle-même.
 - Avant un plan d'action ou une décision majeure.
 
 ## Entrées

@@ -1,6 +1,6 @@
 ---
 type: tool
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [tool, stack]
 status: active
 entity-id: <kebab-case-id>
@@ -8,7 +8,7 @@ entity-id: <kebab-case-id>
 
 # Outil — <Nom>
 
-> Une fiche par outil de la stack de Acme Corp. Outils déclarés : Slack, HubSpot, Google Workspace, Notion.
+> Une fiche par outil de la stack de Example Demo Company. Outils déclarés : Slack, HubSpot, Google Workspace, Notion.
 
 ## Fiche
 | | |

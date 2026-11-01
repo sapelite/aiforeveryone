@@ -1,37 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI For Everyone
 
-## Getting Started
+AI For Everyone is a Next.js application for exploring an AI operations workspace. It combines a French and English marketing site and onboarding form with a retro styled dashboard for tasks, agents, integrations, usage, and generated deliverables. The dashboard reads a local, file based company instance, and the server can call Anthropic's API for assistant responses.
 
-First, run the development server:
+This repository includes an example company instance (`clients/acme-corp`) and a reusable knowledge and workflow template (`client-ai-os-template`). The example company and contact details are fictional placeholders. Integration entries and business records in that instance are sample content; they do not indicate live connections or actual customer use.
+
+## Technology
+
+- Next.js App Router, React, and TypeScript
+- Tailwind CSS 4
+- Anthropic SDK and Claude Agent SDK for assistant responses
+- JSON and Markdown files for the example instance and template
+
+## Run locally
+
+Requirements: Node.js compatible with the versions used by the project and npm.
 
 ```bash
+npm install
+cp .env.example .env.local
+# Add an Anthropic API key to .env.local to enable API responses.
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+On PowerShell, use `Copy-Item .env.example .env.local` instead of `cp`. Open <http://localhost:3000> for the site and <http://localhost:3000/dashboard> for the example dashboard. Without an API key (or an available local Claude Code session), assistant responses may use the app's demo fallback.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Useful commands
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run dev          # Start the development server
+npm run build        # Build for production
+npm run start        # Serve a production build
+npm run lint         # Run ESLint
+npm run instantiate -- --input scripts/sample-acme.json
+```
 
-## Learn More
+The instantiation script copies `client-ai-os-template/` into a client output directory and fills template tokens from the supplied JSON. Review the input and generated files before using them; do not put real personal, customer, or confidential data in examples committed to a public repository.
 
-To learn more about Next.js, take a look at the following resources:
+## Repository layout
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `src/app/` — site pages, dashboard, and API routes
+- `src/components/` — shared interface components
+- `src/lib/` — application logic, data access, and assistant integration
+- `client-ai-os-template/` — reusable Markdown knowledge, agent, workflow, and integration templates
+- `clients/acme-corp/` — demonstration instance used by the dashboard
+- `scripts/` — instance generation and sample data utilities
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Configuration and security
 
-## Deploy on Vercel
+Copy `.env.example` to `.env.local` and set `ANTHROPIC_API_KEY` only in your local environment or deployment secret store. `.env*` files are ignored by Git except `.env.example`. Never commit credentials, production customer data, or private connection details. If a credential was committed in the past, revoke it and review the repository history before making the repository public.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-"# aiforeveryone" 
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.

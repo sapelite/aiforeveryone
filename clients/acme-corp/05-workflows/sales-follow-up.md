@@ -1,6 +1,6 @@
 ---
 type: workflow
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [workflow, sales]
 trigger: Lead entrant / relance planifiée
 agents: [sales-agent]
@@ -16,7 +16,7 @@ Nouveau lead entrant, ou échéance de relance atteinte sur un compte.
 
 ## Étapes
 
-1. **Qualification** *(Ventes)* — scorer le lead (taille, secteur, besoin, budget) selon les critères de Acme Corp.
+1. **Qualification** *(Ventes)* — scorer le lead (taille, secteur, besoin, budget) selon les critères de Example Demo Company.
 2. **Enrichissement** *(Ventes)* — créer/mettre à jour la fiche dans [`../01-company-brain/customers/`](../01-company-brain/customers/) et le CRM ([`../08-integrations/crm/`](../08-integrations/crm/)).
 3. **Proposition** *(Ventes)* — si qualifié : [`../04-skills/generate-proposal.md`](../04-skills/generate-proposal.md).
 4. **Séquence de relance** *(Ventes)* — définir 3 relances (J+2, J+7, J+14) avec angles différents.

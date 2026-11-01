@@ -1,6 +1,6 @@
 ---
 type: system
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [system, conventions, schema]
 ---
 
@@ -29,7 +29,7 @@ type: entity | concept | process | decision | offer | customer | source | system
 updated: AAAA-MM-JJ
 tags: [tag1, tag2]
 status: active | draft | archived   # optionnel
-owner: Marie Dupont          # optionnel
+owner: Alex Example          # optionnel
 ---
 ```
 

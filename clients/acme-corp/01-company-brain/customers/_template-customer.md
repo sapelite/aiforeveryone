@@ -1,6 +1,6 @@
 ---
 type: customer
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [customer]
 status: active   # prospect | active | churned
 entity-id: <kebab-case-id>

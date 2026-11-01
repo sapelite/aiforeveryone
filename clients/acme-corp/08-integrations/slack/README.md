@@ -1,13 +1,13 @@
 ---
 type: integration
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [integration, slack, comms]
 status: à configurer
 ---
 
 # Intégration — Slack
 
-> Canal de communication entre l'AI OS et l'équipe de Acme Corp.
+> Canal de communication entre l'AI OS et l'équipe de Example Demo Company.
 
 ## Objectif
 Diffuser briefs, rapports et alertes ; recevoir des demandes.

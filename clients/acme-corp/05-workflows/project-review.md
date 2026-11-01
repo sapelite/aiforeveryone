@@ -1,6 +1,6 @@
 ---
 type: workflow
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [workflow, project]
 trigger: Jalon atteint / revue planifiée
 agents: [operations-agent, reporting-agent, strategist-agent]

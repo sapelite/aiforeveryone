@@ -1,12 +1,12 @@
 ---
 type: index
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [sources]
 ---
 
 # Sources
 
-Documents **bruts et immuables** : la matière première de la connaissance de Acme Corp.
+Documents **bruts et immuables** : la matière première de la connaissance de Example Demo Company.
 
 > ⚠️ **Ne jamais modifier un fichier de ce dossier.** On l'ingère, on en extrait des fiches dans le company-brain, mais l'original reste intact (traçabilité).
 

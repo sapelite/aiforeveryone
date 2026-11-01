@@ -1,6 +1,6 @@
 ---
 type: skill
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [skill, operations, strategy]
 used-by: [strategist-agent, operations-agent]
 ---

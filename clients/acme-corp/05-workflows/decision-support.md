@@ -1,6 +1,6 @@
 ---
 type: workflow
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [workflow, strategy, decision]
 trigger: Décision à prendre
 agents: [strategist-agent]
@@ -8,7 +8,7 @@ agents: [strategist-agent]
 
 # Workflow — Aide à la décision
 
-Structurer une décision importante pour Acme Corp et la consigner.
+Structurer une décision importante pour Example Demo Company et la consigner.
 
 ## Déclencheur
 

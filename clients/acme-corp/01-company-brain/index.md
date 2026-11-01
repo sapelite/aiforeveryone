@@ -1,10 +1,10 @@
 ---
 type: index
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [company-brain, index]
 ---
 
-# 🧠 Company Brain — Acme Corp
+# 🧠 Company Brain — Example Demo Company
 
 La connaissance structurée de l'entreprise. **Source de vérité** de l'AI OS.
 
@@ -30,7 +30,7 @@ La connaissance structurée de l'entreprise. **Source de vérité** de l'AI OS.
 
 ## Profil rapide
 
-- **Entreprise** : Acme Corp · https://acme.com
+- **Entreprise** : Example Demo Company · https://example.invalid
 - **Secteur** : SaaS / Tech · **Taille** : 51-200
-- **Contact** : Marie Dupont (Head of Operations) · marie@acme.com
+- **Contact** : Alex Example (Head of Operations) · alex@example.invalid
 - **Objectifs** : Réduire de 50% le temps de qualification des leads, centraliser la connaissance de l'équipe, et accélérer le reporting hebdomadaire.

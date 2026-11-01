@@ -1,10 +1,10 @@
 ---
 type: index
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [outputs]
 ---
 
-# 📤 Outputs — Acme Corp
+# 📤 Outputs — Example Demo Company
 
 Les **livrables générés** par l'AI OS. Tout ce que produisent les skills et workflows atterrit ici.
 

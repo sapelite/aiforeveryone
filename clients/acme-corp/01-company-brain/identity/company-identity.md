@@ -1,24 +1,24 @@
 ---
 type: identity
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [identity]
 status: active
 ---
 
-# Identité — Acme Corp
+# Identité — Example Demo Company
 
 ## En une phrase
-> {{À RENSEIGNER : ce que fait Acme Corp, pour qui, pourquoi}}
+> {{À RENSEIGNER : ce que fait Example Demo Company, pour qui, pourquoi}}
 
 ## Fiche signalétique
 
 | | |
 |---|---|
-| Nom | Acme Corp |
-| Site | https://acme.com |
+| Nom | Example Demo Company |
+| Site | https://example.invalid |
 | Secteur | SaaS / Tech |
 | Effectif | 51-200 |
-| Contact principal | Marie Dupont — Head of Operations |
+| Contact principal | Alex Example — Head of Operations |
 
 ## Mission
 {{À RENSEIGNER}}

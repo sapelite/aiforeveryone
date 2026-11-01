@@ -1,6 +1,6 @@
 ---
 type: workflow
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [workflow, reporting]
 trigger: Chaque lundi 08:00 (ou à la demande)
 agents: [reporting-agent]

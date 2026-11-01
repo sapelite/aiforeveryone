@@ -1,13 +1,13 @@
 ---
 type: offer
-updated: 2026-06-05
+updated: 2026-11-01
 tags: [offer]
 status: active
 ---
 
 # Offre — <Nom de l'offre>
 
-> Dupliquer ce fichier pour chaque offre de Acme Corp. Renommer en `kebab-case.md`.
+> Dupliquer ce fichier pour chaque offre de Example Demo Company. Renommer en `kebab-case.md`.
 
 ## Résumé
 Pour qui · quel problème · quelle solution.
